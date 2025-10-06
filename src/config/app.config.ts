@@ -5,7 +5,7 @@ dotenv.config();
 export const appConfig = {
   port: process.env.PORT || 8000,
 
-  mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/servineo_db',
+  mongoUri: process.env.MONGO_URI || 'mongodb:',
 
   nodeEnv: process.env.NODE_ENV || 'development',
 

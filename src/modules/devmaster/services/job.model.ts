@@ -16,5 +16,4 @@ const jobSchema = new Schema(
   { timestamps: true },
 );
 
-// Le decimos que use la colección "jobs"
 export const Job = model('Job', jobSchema, 'jobs');

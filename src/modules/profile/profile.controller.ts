@@ -13,6 +13,7 @@ export function getProfileData(_req: Request, res: Response) {
         2: 2,
         3: 2,
       },
+      rating_count: 10,
     });
   }, 1500);
 }

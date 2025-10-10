@@ -13,7 +13,7 @@ function normalize(text: string): string {
 }
 
 export const getAllFixers = async (options?: { sortBy?: SortBy }) => {
-  const sortBy = options?.sortBy || 'name_asc';
+  const sortBy = options?.sortBy || 'recent'; // Por defecto 'recent'
   const fixers = await User.find({ role: 'fixer' }).select('name createdAt').lean();
 
   fixers.sort((a, b) => {

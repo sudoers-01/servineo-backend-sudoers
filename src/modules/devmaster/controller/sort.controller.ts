@@ -6,7 +6,7 @@ type SortBy = 'name_asc' | 'name_desc' | 'recent';
 
 export const getFixers = async (req: Request, res: Response) => {
   try {
-    const sortBy = req.query.sortBy as SortBy;
+    const sortBy = (req.query.sortBy as SortBy) || 'recent';
     const result = await getAllFixers({ sortBy });
     res.json(result);
   } catch {

@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import HealthRoutes from '../modules/health/health.routes';
+import LocationRoutes from '../modules/location/location.routes';
+// import HealthRoutes from '../modules/health/health.routes';
 
 const router = Router();
 
-router.use('/api', HealthRoutes);
+// router.use('/api', HealthRoutes);
+router.use('/api/location', LocationRoutes);
 
 router.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

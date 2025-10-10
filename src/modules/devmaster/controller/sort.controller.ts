@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import { getAllFixers } from '../services/sort.service';
 
-type SortBy = 'name_asc' | 'name_desc';
+type SortBy = 'name_asc' | 'name_desc' | 'recent';
 
 export const getFixers = async (req: Request, res: Response) => {
   try {

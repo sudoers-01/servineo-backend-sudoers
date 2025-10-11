@@ -1,15 +1,12 @@
-import { connectDB } from '../../config/db/mongoClient';
-
-export async function getCompletedJobs() {
-  const db = await connectDB();
+export async function getCompletedJobs(db: any) {
   const jobsCollection = db.collection('jobs');
-
   const jobs = await jobsCollection.find({ status: 'completed' }).toArray();
 
   return jobs.map((job) => ({
     id: job._id.toString(),
     name: job.title,
     date: new Date(job.createdAt).toLocaleDateString(),
-    status: job.status.charAt(0).toUpperCase() + job.status.slice(1),
+    status: job.status,
   }));
 }
+

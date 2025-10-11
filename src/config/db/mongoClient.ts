@@ -1,4 +1,4 @@
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, type Db } from 'mongodb';
 
 const uri = process.env.MONGO_URI;
 if (!uri) {
@@ -29,3 +29,8 @@ export async function closeDB(): Promise<void> {
     console.error('Error closing MongoDB connection:', error);
   }
 }
+
+export const getDB = () => {
+  if (!db) throw new Error('Database not connected');
+  return db;
+};

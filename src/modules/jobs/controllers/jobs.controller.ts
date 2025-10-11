@@ -6,7 +6,7 @@ export const changeStatusController = async (req: Request, res: Response) => {
     const { jobId } = req.params;
     await changeJobStatus(req.db, jobId);
 
-    res.status(200).json({ message: 'Job status updated to complete' });
+    res.status(200).json({ message: 'Job status updated to pending payment' });
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Job not found') {
       return res.status(404).json({ message: error.message });

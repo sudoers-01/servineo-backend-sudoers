@@ -1,15 +1,11 @@
-import Server from './config/server.config';
+import express from "express";
+import cors from "cors";
+import googleRouter from "./modules/controlC/google/routes";
 
-import { SERVER_PORT } from './config/env.config';
+const app = express();
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(express.json());
 
-async function startServer() {
-  try {
-    Server.listen(SERVER_PORT, () => {
-      console.info(`Server running on http://localhost:${SERVER_PORT}`);
-    });
-  } catch (error) {
-    console.error('Error starting server', error);
-  }
-}
+app.use("/api/controlC/google", googleRouter);
 
-startServer();
+app.listen(8000, () => console.log("Servidor corriendo en puerto 8000"));

@@ -1,9 +1,12 @@
 import Server from './config/server.config';
-
+import { connectDB } from './Innosys/config/database';
 import { SERVER_PORT } from './config/env.config';
+
+connectDB();
 
 async function startServer() {
   try {
+    
     Server.listen(SERVER_PORT, () => {
       console.info(`Server running on http://localhost:${SERVER_PORT}`);
     });

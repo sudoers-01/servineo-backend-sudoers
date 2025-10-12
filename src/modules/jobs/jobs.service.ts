@@ -1,4 +1,6 @@
-export async function getCompletedJobs(db: any) {
+import { Db } from 'mongodb';
+
+export async function getCompletedJobs(db: Db) {
   const jobsCollection = db.collection('jobs');
   const jobs = await jobsCollection.find({ status: 'completed' }).toArray();
 
@@ -9,4 +11,3 @@ export async function getCompletedJobs(db: any) {
     status: job.status,
   }));
 }
-

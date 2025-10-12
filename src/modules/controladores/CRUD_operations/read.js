@@ -77,11 +77,11 @@ async function get_all_appointments(){
 
 async function get_schedules_by_fixer_month(fixer_id, month){
     try{
-        current_date = new Date(Date.now());
-        current_year = current_date.getFullYear();
-        target_month = month - 1;
-        start_date = new Date(2024, target_month, 1);
-        finish_date = new Date(2024, month, 0, 23, 59, 59);
+        const current_date = new Date(Date.now());
+        const current_year = current_date.getFullYear();
+        const target_month = month - 1;
+        const start_date = new Date(2024, target_month, 1);
+        const finish_date = new Date(2024, month, 0, 23, 59, 59);
         await set_db_connection();
         const appointment = await Appointment.find({
             id_fixer: fixer_id, 
@@ -109,11 +109,22 @@ async function get_schedules_by_fixer_month(fixer_id, month){
     }
 }
 
+async function get_appointment_by_query_projection(query, projection){
+    try{
+        const appointments = await Appointment.find(query, projection);
+        console.log('Acceso correcto a las citas.');
+        return appointments;
+    }catch(err){
+        console.log('Error, no se pudo acceder a las citas.');
+    }
+} 
+
 module.exports = {
     get_all_locations,
     get_location_by_display_name,
     get_location_by_place_id,
     get_locations_by_query_projection,
     get_all_appointments,
-    get_schedules_by_fixer_month
+    get_schedules_by_fixer_month,
+    get_appointment_by_query_projection
 }

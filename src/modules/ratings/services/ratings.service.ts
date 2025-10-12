@@ -11,17 +11,28 @@ interface FixerRating {
   createdAt: string
 }
 
-export async function getFixerRatingsService(fixerId: ObjectId): Promise<any[]> {
+interface FixerRatingResponse {
+  id: string
+  fixerId: string
+  requester: string
+  avatarUrl?: string
+  score: 1 | 2 | 3 | 4 | 5
+  comment?: string
+  createdAt: string
+}
+
+export async function getFixerRatingsService(
+  fixerId: ObjectId
+): Promise<FixerRatingResponse[]> {
   const db: Db = await getDb()
   const ratingsCollection = db.collection<FixerRating>('ratings')
 
-  // Buscar ratings por ObjectId del fixer
   const ratings = await ratingsCollection
-    .aggregate([
+    .aggregate<FixerRatingResponse>([
       { $match: { fixerId } },
       {
         $lookup: {
-          from: 'users',           // suponiendo que los requesters están en la colección "users"
+          from: 'users',
           localField: 'requester',
           foreignField: '_id',
           as: 'requesterData'

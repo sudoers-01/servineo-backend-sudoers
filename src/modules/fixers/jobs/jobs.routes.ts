@@ -3,6 +3,6 @@ import * as JobsController from './jobs.controller';
 
 const router = Router();
 
-router.get('/jobs', JobsController.getJobs);
+router.get('/:fixerId/jobs', JobsController.getJobs);
 
 export default router;

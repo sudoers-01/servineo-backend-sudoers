@@ -75,7 +75,7 @@ async function get_all_appointments(){
     }
 }
 
-async function get_schedules_by_fixer_month(fixer_id, month){
+async function get_schedules_by_fixer_month(fixer_id, requester_id, month){
     try{
         const current_date = new Date(Date.now());
         const current_year = current_date.getFullYear();
@@ -85,6 +85,7 @@ async function get_schedules_by_fixer_month(fixer_id, month){
         await set_db_connection();
         const appointment = await Appointment.find({
             id_fixer: fixer_id, 
+            id_requester: {$ne: requester_id},
             selected_date: {
                 $gte: start_date, 
                 $lte: finish_date

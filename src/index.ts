@@ -1,4 +1,5 @@
 import Server from './config/server.config';
+import _connect from './database';
 
 import { SERVER_PORT } from './config/env.config';
 
@@ -12,4 +13,5 @@ async function startServer() {
   }
 }
 
+_connect();
 startServer();

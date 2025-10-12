@@ -31,7 +31,7 @@ const location_schema = new mongoose.Schema({
     },
     address: {
         type: address_schema,
-        required: true
+        required: false
     },
     boundingbox: [{type: String}]
 }, {timestamps: true});

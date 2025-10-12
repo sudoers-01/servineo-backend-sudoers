@@ -6,7 +6,7 @@ interface FixerRating {
   fixerId: ObjectId
   requester: ObjectId
   avatarUrl?: string
-  score: 1 | 2 | 3 | 4 | 5
+  score: 1 | 2 | 3 
   comment?: string
   createdAt: string
 }
@@ -16,7 +16,7 @@ interface FixerRatingResponse {
   fixerId: string
   requester: string
   avatarUrl?: string
-  score: 1 | 2 | 3 | 4 | 5
+  score: 1 | 2 | 3
   comment?: string
   createdAt: string
 }

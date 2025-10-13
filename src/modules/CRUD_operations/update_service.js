@@ -10,7 +10,7 @@ const Location = require('../../models/Location');
 async function update_location_fields_by_display_name(name, attributes){
     try{
         const location = await Location.findOneAndUpdate({display_name: name}, {$set: attributes}, {new: true});
-        console.log('Atributos de localizacion modificado.');
+        console.log('');
         return location;
     }catch(err){
         console.log('Error, no se pudo modificar la ubicacion: ', err);
@@ -74,9 +74,9 @@ async function update_all_locations_fields(attributes){
 }
 
 //Citas:
-async function update_appointment_fields_by_display_name(){
+//async function update_appointment_fields_by_display_name(){
     
-}
+//}
 
 module.exports = {
     update_location_fields_by_display_name,

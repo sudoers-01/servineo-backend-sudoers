@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+#env 
+.env
+
 #user y password mongoDB Atlas
 MONGODB_URI=mongosh "mongodb+srv://cluster0.eiphfrv.mongodb.net/" --apiVersion 1 --username innosys --password qtfvCt0cCg5arojg
 MONGODB_DB=INNOSYS

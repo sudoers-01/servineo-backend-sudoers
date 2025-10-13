@@ -7,7 +7,7 @@ export interface IProfile {
   location: {
     direction: string;
     coordinates: {
-      type: "Point";
+      type: 'Point';
       coordinates: [number, number];
     };
   };

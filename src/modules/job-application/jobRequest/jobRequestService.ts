@@ -6,7 +6,7 @@ interface CreateJobRequestParams {
   jobMotive: string;
   jobDescription: string;
   location: {
-    type: "Point";
+    type: 'Point';
     coordinates: [number, number];
   };
   startTime: string;
@@ -16,23 +16,23 @@ interface CreateJobRequestParams {
 
 export async function createJobRequest(db: Db, params: CreateJobRequestParams) {
   const { userId, jobMotive, jobDescription, location, startTime, endTime, suggestedRate } = params;
-  
+
   const collection = db.collection<IRequestForm>('requestforms');
-  
+
   const newRequest = {
     userId: new ObjectId(userId),
     jobMotive,
-    jobDescription, 
+    jobDescription,
     location,
     startTime,
     endTime,
     suggestedRate: suggestedRate || 0,
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
 
   const result = await collection.insertOne(newRequest as unknown as IRequestForm);
-  
+
   return {
     id: result.insertedId.toString(),
     userId: userId,
@@ -42,6 +42,6 @@ export async function createJobRequest(db: Db, params: CreateJobRequestParams) {
     startTime: newRequest.startTime,
     endTime: newRequest.endTime,
     suggestedRate: newRequest.suggestedRate,
-    createdAt: newRequest.createdAt
+    createdAt: newRequest.createdAt,
   };
 }

@@ -1,10 +1,10 @@
-import { ObjectId } from "mongodb";
+import { ObjectId } from 'mongodb';
 export interface IRequestForm {
   _id?: ObjectId;
   jobMotive: string;
   jobDescription: string;
   location: {
-    type: "Point";
+    type: 'Point';
     coordinates: [number, number];
   };
   startTime: string;

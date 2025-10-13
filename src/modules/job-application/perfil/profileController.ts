@@ -4,14 +4,14 @@ import { getUserLocation } from './profileService.js';
 export async function getLocationController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
-    
+
     if (!userId) {
       res.status(401).json({ message: 'Usuario no autenticado' });
       return;
     }
 
     const location = await getUserLocation(req.db, userId);
-    
+
     if (!location) {
       res.status(404).json({ message: 'Perfil no encontrado' });
       return;

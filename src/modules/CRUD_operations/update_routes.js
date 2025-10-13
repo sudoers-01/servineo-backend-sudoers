@@ -1,4 +1,4 @@
-const { Router } = required('express');
+const { Router } = require('express');
 const {
     updateLocationFieldsByDisplayName,
     updateManyLocationsFieldsByDisplayName,

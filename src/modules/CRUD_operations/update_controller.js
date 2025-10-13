@@ -7,7 +7,10 @@ const {
     update_all_locations_fields,
     update_many_locations_fields_by_query
 } = require('./update_service');
-const attributeValidation = require('./common_functions');
+const { 
+    attributeValidation,
+    dataExist
+} = require('./common_functions');
 
 export async function updateLocationFieldsByDisplayName(req, res){
     try{
@@ -17,8 +20,9 @@ export async function updateLocationFieldsByDisplayName(req, res){
         }
         attributeValidation(attributes);
         const data = await update_location_fields_by_display_name(name, attributes);
-        console.log('Location data modified.', data);
-        res.json(data);
+        const output_fail = 'Location data could not modified.';
+        const output_success = 'Location data modified. ';
+        dataExist(data, output_fail, output_success);
     }catch(err){
         console.log(err);
         res.status(500).json({ message: "Error updating location data." });
@@ -33,8 +37,9 @@ export async function updateLocationFieldsByDisplayName(req, res){
         }
         attributeValidation(attributes);
         const data = await update_many_locations_fields_by_display_name(name, attributes);
-        console.log('Locations data modified.', data);
-        res.json(data);
+        const output_fail = 'Locations data could not modified.';
+        const output_success = 'Locations data modified. ';
+        dataExist(data, output_fail, output_success);
     }catch(err){
         console.log(err);
         res.status(500).json({ message: "Error updating locations data." });
@@ -52,8 +57,9 @@ export async function updateLocationFieldsByPlaceId(){
         }
         attributeValidation(attributes);
         const data = await update_location_fields_by_place_id(id, attributes);
-        console.log('Location data modified.', data);
-        res.json(data);       
+        const output_fail = 'Location data could not modified.';
+        const output_success = 'Location data modified. ';
+        dataExist(data, output_fail, output_success);   
     }catch(err){
         console.log(err);
         res.status(500).json({ message: "Error updating location data." });       
@@ -71,8 +77,9 @@ export async function updateManyLocationsFieldsByPlaceId(){
         }
         attributeValidation(attributes);
         const data = await update_many_locations_fields_by_place_id(id, attributes);
-        console.log('Locations data modified.', data);
-        res.json(data);       
+        const output_fail = 'Locations data could not modified.';
+        const output_success = 'Locations data modified. ';
+        dataExist(data, output_fail, output_success);
     }catch(err){
         console.log(err);
         res.status(500).json({ message: "Error updating locations data." });       
@@ -84,8 +91,9 @@ export async function updateAllLocationsFields(){
         const { attributes } = req.query;
         attributeValidation(attributes);
         const data = await update_all_locations_fields(id, attributes);
-        console.log('Locations data modified.', data);
-        res.json(data);       
+        const output_fail = 'Locations data could not modified.';
+        const output_success = 'Locations data modified. ';
+        dataExist(data, output_fail, output_success);  
     }catch(err){
         console.log(err);
         res.status(500).json({ message: "Error updating locations data." });       
@@ -98,8 +106,9 @@ export async function updateManyLocationsFieldsByQuery(){
         attributeValidation(query);
         attributeValidation(attributes);
         const data = await update_many_locations_fields_by_query(query, attributes);
-        console.log('Locations data modified.', data);
-        res.json(data);
+        const output_fail = 'Locations data could not modified.';
+        const output_success = 'Locations data modified. ';
+        dataExist(data, output_fail, output_success); 
     }catch(err){
         console.log(err);
         res.status(500).json({ message: "Error updating locations data." });

@@ -1,5 +1,3 @@
-import { get_many_locations_by_place_id } from './read_service';
-
 require('express');
 const { delete_location_by_display_name,
         delete_many_locations_by_display_name,

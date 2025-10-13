@@ -25,7 +25,6 @@ export async function getProfileData(req: Request, res: Response) {
       name: user.name,
       photo_url: user.url_photo,
       role: user.role,
-      //TODO: Gianni - Replace with real ratings data when available
       average_rating: user.average_rating || 1.5,
       ratings: user.ratings || { 1: 14, 2: 4, 3: 1 },
       rating_count: user.rating_count || 19,

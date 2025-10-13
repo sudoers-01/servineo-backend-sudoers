@@ -4,6 +4,7 @@ dotenv.config();
 import Server from './config/server.config';
 
 import { SERVER_PORT } from './config/env.config';
+import Server from './config/server.config';
 
 import { connectDB } from './config/db/mongoClient';
 

@@ -6,60 +6,50 @@ dbConnection();
 
 const Location = require('../../models/Location');
 
-//Ubicaciones
-async function delete_location_by_display_name(name){
-    try{
-        const location = await Location.findOneAndDelete({display_name: name});
-        console.log('Ubicacion eliminada.');
-        return location;
-    }catch(err){
-        console.log('Error, no se pudo eliminar la ubicacion: ', err);
-        throw err;
+let connected = false;
+
+async function set_db_connection(){
+    if(!connected){
+        await db_connection();
+        connected = true;
     }
+}
+
+
+
+//Ubicaciones
+async function delete_location_by_display_name(name){ 
+    await set_db_connection();
+    const location = await Location.findOneAndDelete({display_name: name});
+    return location;    
 }
 
 async function delete_many_locations_by_display_name(names){
-    try{
-        const locations = await Location.deleteMany({display_name: names});
-        console.log('Ubicaciones eliminadas');
-        return locations;
-    }catch(err){
-        console.log('Error, no se pudieron eliminar las ubicaciones: ', err);
-        throw err;
-    }
+    await set_db_connection();
+    const locations = await Location.deleteMany({display_name: names});
+    return locations;
+
 }
 
 async function delete_location_by_place_id(id){
-    try{
-        const location = await Location.findOneAndDelete({place_id: id});
-        console.log('Ubicacion eliminada.');
-        return location;
-    }catch(err){
-        console.log('Error, no se pudo eliminar la ubicacion: ', err);
-        throw err;
-    }
+    await set_db_connection();
+    const location = await Location.findOneAndDelete({place_id: id});
+    return location;
+
 }
 
 async function delete_many_locations_by_place_id(ids){
-    try{
-        const locations = await Location.deleteMany({place_id: ids});
-        console.log('Ubicaciones eliminadas');
-        return locations;
-    }catch(err){
-        console.log('Error, no se pudieron eliminar las ubicaciones: ', err);
-        throw err;
-    }
+    await set_db_connection();
+    const locations = await Location.deleteMany({place_id: ids});
+    return locations;
+
 }
 
 async function delete_many_locations_by_query(query){
-    try{
-        const locations = await Location.deleteMany(query);
-        console.log('Ubicaciones eliminadas');
-        return locations;
-    }catch(err){
-        console.log('Error, no se pudieron eliminar las ubicaciones: ', err);
-        throw err;
-    }
+    await set_db_connection();
+    const locations = await Location.deleteMany(query);
+    return locations;
+    
 }
 
 module.exports = {

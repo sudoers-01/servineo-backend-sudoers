@@ -1,5 +1,6 @@
+import { ObjectId } from "mongodb";
 export interface IRequestForm {
-  _id?: any;
+  _id?: ObjectId;
   jobMotive: string;
   jobDescription: string;
   location: {
@@ -12,6 +13,3 @@ export interface IRequestForm {
   createdAt: Date;
   updatedAt: Date;
 }
-
-// Índice para geoqueries  
-// db.requestforms.createIndex({ location: "2dsphere" })

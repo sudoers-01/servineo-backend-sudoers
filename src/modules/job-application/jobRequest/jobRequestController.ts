@@ -4,7 +4,7 @@ import { createJobRequest } from './jobRequestService.js';
 export async function createJobRequestController(req: Request, res: Response) {
   try {
     const { jobMotive, jobDescription, location, startTime, endTime, suggestedRate } = req.body;
-    const userId = (req as any).user?.userId;
+    const userId = req.user?.userId;
     
     if (!userId) {
       res.status(401).json({ message: "Usuario no autenticado" });

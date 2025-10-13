@@ -1,26 +1,6 @@
-// src/modules/ratings/services/ratings.service.ts
-import { Db, ObjectId, type Document } from 'mongodb'; // 👈 añade Document
+import { Db, ObjectId, type Document } from 'mongodb';
 import { getDb } from '../../config/db';
-
-interface FixerRatingDoc {
-  _id: ObjectId;
-  fixerId: ObjectId;
-  requester: ObjectId;
-  avatarUrl?: string;
-  score: 1 | 2 | 3;
-  comment?: string;
-  createdAt: Date;
-}
-
-export interface FixerRatingResponse {
-  id: string;
-  fixerId: string;
-  requester: string;
-  avatarUrl?: string;
-  score: 1 | 2 | 3;
-  comment?: string;
-  createdAt: string; // ISO
-}
+import { FixerRatingDoc, FixerRatingResponse } from '../models'; // Importa los modelos
 
 export async function getFixerRatingsService(
   fixerId: ObjectId
@@ -28,7 +8,6 @@ export async function getFixerRatingsService(
   const db: Db = await getDb();
   const ratings = db.collection<FixerRatingDoc>('ratings');
 
-  // 👇 TIPAR como Document[] y NO usar "as const"
   const pipeline: Document[] = [
     { $match: { fixerId } },
     {

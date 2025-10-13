@@ -1,12 +1,12 @@
-const { Router } = require('express');
-const {
+import { Router } from 'express';
+import {
     updateLocationFieldsByDisplayName,
     updateManyLocationsFieldsByDisplayName,
     updateLocationFieldsByPlaceId,
     updateManyLocationsFieldsByPlaceId,
     updateAllLocationsFields,
     updateManyLocationsFieldsByQuery
-} = require('./update_controller');
+} from './update_controller';
 
 const router = Router();
 

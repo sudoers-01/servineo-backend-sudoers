@@ -1,16 +1,16 @@
-require('express');
-const {
+import 'express';
+import {
     update_location_fields_by_display_name,
     update_many_locations_fields_by_display_name,
     update_location_fields_by_place_id,
     update_many_locations_fields_by_place_id,
     update_all_locations_fields,
     update_many_locations_fields_by_query
-} = require('./update_service');
-const { 
+} from './update_service';
+import { 
     attributeValidation,
     dataExist
-} = require('./common_functions');
+} from './common_functions';
 
 export async function updateLocationFieldsByDisplayName(req, res){
     try{
@@ -46,7 +46,7 @@ export async function updateLocationFieldsByDisplayName(req, res){
     }
 }
 
-export async function updateLocationFieldsByPlaceId(){
+export async function updateLocationFieldsByPlaceId(res, req){
     try{
         const { id, attributes } = req.query;
         if(id !== ""){
@@ -66,7 +66,7 @@ export async function updateLocationFieldsByPlaceId(){
     }
 }
 
-export async function updateManyLocationsFieldsByPlaceId(){
+export async function updateManyLocationsFieldsByPlaceId(res, req){
     try{
         const { id, attributes } = req.query;
         if(id !== ""){
@@ -86,11 +86,11 @@ export async function updateManyLocationsFieldsByPlaceId(){
     }
 }
 
-export async function updateAllLocationsFields(){
+export async function updateAllLocationsFields(res, req){
     try{
         const { attributes } = req.query;
         attributeValidation(attributes);
-        const data = await update_all_locations_fields(id, attributes);
+        const data = await update_all_locations_fields(attributes);
         const output_fail = 'Locations data could not modified.';
         const output_success = 'Locations data modified. ';
         dataExist(data, output_fail, output_success);  
@@ -100,7 +100,7 @@ export async function updateAllLocationsFields(){
     }    
 }
 
-export async function updateManyLocationsFieldsByQuery(){
+export async function updateManyLocationsFieldsByQuery(res, req){
     try{
         const { query, attributes } = req.query;
         attributeValidation(query);

@@ -1,13 +1,6 @@
 import { Request, Response } from 'express';
 import { searchLocation, reverseLocation } from './location.service';
 
-const createModule = require('../controladores/CRUD_operations/create_service');
-const readModule = require('../controladores/CRUD_operations/read_service');
-const updateModule = require('../controladores/CRUD_operations/update_service');
-const deleteModule = require('../controladores/CRUD_operations/delete_service');
-
-const Location = require('../../models/Location');
-
 export async function getLocation(req: Request, res: Response) {
   try {
     const { q } = req.query;

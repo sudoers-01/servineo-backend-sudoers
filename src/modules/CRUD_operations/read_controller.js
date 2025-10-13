@@ -1,6 +1,6 @@
 // read_controller.js
-require('express');
-const {
+import 'express';
+import {
   get_all_locations,
   get_location_by_display_name,
   get_many_locations_by_display_name,
@@ -11,13 +11,13 @@ const {
   get_appointment_by_query_projection,
   get_requester_schedules_by_fixer_month,
   get_all_requester_schedules_by_fixer_month
-} = require('./read_service'); // llamamos al service
-const {
+} from './read_service'; // llamamos al service
+import {
   attributeValidation,
   dataExist 
-} = require('./common_functions');
+} from './common_functions';
 
-export async function getAllLocations(){
+export async function getAllLocations(req, res){
   try{
     const data = await get_all_locations();
     const output_fail = 'No locations data found.';

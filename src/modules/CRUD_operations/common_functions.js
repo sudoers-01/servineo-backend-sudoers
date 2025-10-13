@@ -1,4 +1,4 @@
-async function attributeValidation(attributes){
+async function attributeValidation(attributes, req, res){
     if(attributes == null){
             return res.status(400).json({ message: 'Missing parameter: list of attributes to change.'});
     }else{
@@ -61,7 +61,7 @@ async function attributeValidation(attributes){
     }
 }
 
-async function dataExist(data, output_fail, output_success){
+async function dataExist(data, output_fail, output_success, res){
     if(!data || data.length === 0){
       return res.status(404).json({ message: output_fail });
     }

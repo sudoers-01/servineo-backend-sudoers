@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const schedules_schema = new mongoose.Schema({
     starting_time: {

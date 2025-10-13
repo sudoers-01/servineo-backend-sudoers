@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const address_schema = new mongoose.Schema({
     neighbourhood: {type: String},

@@ -1,16 +1,16 @@
-require ("express");
-const {
+import 'express';
+/*import {
     create_location,
     insert_one_location,
     insert_many_locations,
     create_appointment,
     insert_one_appointment,
     insert_many_appointments
-} = require('./create_service');
-const {
+} from './create_service';
+import {
     attributeValidation,
     dataExist
-} = require('./common_functions');
+} from './common_functions';*/
 
 export async function createLocation(req, res){
     try{

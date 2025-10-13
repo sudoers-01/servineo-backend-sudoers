@@ -1,6 +1,6 @@
 // read_routes.js
-const { Router } = require('express');
-const {
+import { Router } from 'express';
+import {
   getAllLocations,
   getLocationByDisplayName,
   getManyLocationsByDisplayName,
@@ -11,7 +11,7 @@ const {
   getAppointmentByQueryProjection,
   getRequesterSchedulesByFixerMonth,
   getAllRequesterSchedulesByFixerMonth
-} = require('./read_controller');
+} from './read_controller';
 
 const router = Router();
 

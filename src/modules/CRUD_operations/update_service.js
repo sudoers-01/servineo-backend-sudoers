@@ -1,7 +1,9 @@
-require('dotenv').config();
+import * as dotenv from 'dotenv';
 
-const dbConnection = require('../../database');
-const Location = require('../../models/Location');
+import db_connection from '../../database';
+import Location from '../../models/Location';
+
+dotenv.config();
 
 let connected = false;
 

@@ -1,12 +1,12 @@
-const {Router} = require("express")
-const { 
+import {Router} from 'express'
+import { 
     createLocation,
     insertOneLocation,
     insertManyLocations,
     createAppointment,
     insertOneAppointment,
     insertManyAppointments
-} = require( "./create_controller");
+} from './create_controller'
 
 const router = Router();
 

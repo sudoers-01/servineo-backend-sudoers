@@ -1,14 +1,14 @@
-require('express');
-const { delete_location_by_display_name,
+import 'express';
+import { delete_location_by_display_name,
         delete_many_locations_by_display_name,
         delete_location_by_place_id,
         delete_many_locations_by_place_id,
         delete_many_locations_by_query 
-} = require('./delete_service');
-const {
+} from './delete_service';
+import {
     attributeValidation,
     dataExist
-} = require('./common_functions');
+} from './common_functions';
 
 export async function deleteLocationByDisplayName(req, res){
     try{
@@ -37,6 +37,7 @@ export async function deleteManyLocationsByDisplayName(req, res){
         const output_success = 'Locations data deleted. ';
         dataExist(data, output_fail, output_success);
     }catch(err){
+        console.log(err);
         res.status(500).json({error: 'Server error'});
     }
 }
@@ -55,6 +56,7 @@ export async function deleteLocationByPlaceId(req, res){
         const output_success = 'Location data deleted. ';
         dataExist(data, output_fail, output_success);
     }catch(err){
+        console.log(err);
         res.status(500).json({error: 'Server error'});
     }
 }
@@ -73,6 +75,7 @@ export async function deleteManyLocationsByPlaceId(req, res){
         const output_success = 'Locations data deleted. ';
         dataExist(data, output_fail, output_success);
     }catch(err){
+        console.log(err);
         res.status(500).json({error: 'Server error'});
     }    
 }
@@ -89,6 +92,7 @@ export async function deleteManyLocationsByQuery(req, res){
         const output_success = 'Locations data deleted. ';
         dataExist(data, output_fail, output_success);
     }catch(err){
+        console.log(err);
         res.status(500).json({error: 'Server error'});
     }
 }

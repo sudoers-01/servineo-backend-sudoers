@@ -1,10 +1,8 @@
-const createModule = require('./create_service');
-const readModule = require('./read_service');
-const updateModule = require('./update_service');
-const deleteModule = require('./delete_service');
-
-const Location = require('../../models/Location');
-const Appointment = require('../../models/Appointment');
+import createModule from './create_service';
+import readModule from './read_service';
+import updateModule from './update_service';
+import deleteModule from './delete_service';
+import Location from '../../models/Location';
 
 async function test1(){
     const current_location = new Location({
@@ -511,23 +509,23 @@ async function test20(){
     }
 }
 
-//test1();
-//test2();
-//test3();
-//test4();
-//test5();
-//test6();
-//test7();
-//test8();
-//test9();
-//test10();
-//test11();
-//test12();
-//test13();
-//test14();
-//test15();
-//test16();
-//test17();
-//test18();
-//test19();
-//test20();
+test1();
+test2();
+test3();
+test4();
+test5();
+test6();
+test7();
+test8();
+test9();
+test10();
+test11();
+test12();
+test13();
+test14();
+test15();
+test16();
+test17();
+test18();
+test19();
+test20();

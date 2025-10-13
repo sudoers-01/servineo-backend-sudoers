@@ -1,11 +1,11 @@
-const { Router } = require('express');
-const { 
+import { Router } from 'express';
+import { 
     deleteLocationByDisplayName,
     deleteManyLocationsByDisplayName,
     deleteLocationByPlaceId,
     deleteManyLocationsByPlaceId,
     deleteManyLocationsByQuery 
-} = require( "./delete_controller");
+} from './delete_controller';
 
 const router = Router();
 

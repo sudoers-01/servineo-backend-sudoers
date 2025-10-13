@@ -1,7 +1,9 @@
-require('dotenv').config();
+import * as dotenv from 'dotenv';
 
-const db_connection = require('../../database');
-const Location = require('../../models/Location');
+import db_connection from '../../database';
+import Location from '../../models/Location';
+
+dotenv.config();
 
 let connected = false;
 
@@ -32,7 +34,7 @@ async function delete_location_by_place_id(id){
 
 async function delete_many_locations_by_place_id(ids){
     await set_db_connection();
-    const locations = await Location.find({place_id: id});
+    const locations = await Location.find({place_id: ids});
     await Location.deleteMany({place_id: ids});
     return locations;
 }

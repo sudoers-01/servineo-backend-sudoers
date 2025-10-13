@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 
 export interface IProfile {
   _id?: ObjectId;
-  userId: ObjectId; // ✅ Cambiado a ObjectId (según el esquema)
+  userId: ObjectId;
   phone: string;
   location: {
     direction: string;

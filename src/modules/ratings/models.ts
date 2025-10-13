@@ -1,6 +1,5 @@
 import { ObjectId } from 'mongodb';
 
-// Modelo para la base de datos
 export interface FixerRatingDoc {
   _id: ObjectId;
   fixerId: ObjectId;
@@ -8,10 +7,9 @@ export interface FixerRatingDoc {
   avatarUrl?: string;
   score: 1 | 2 | 3;
   comment?: string;
-  createdAt: Date; // Tipo Date
+  createdAt: Date; 
 }
 
-// Modelo para la respuesta al frontend
 export interface FixerRatingResponse {
   id: string;
   fixerId: string;
@@ -19,5 +17,5 @@ export interface FixerRatingResponse {
   avatarUrl?: string;
   score: 1 | 2 | 3;
   comment?: string;
-  createdAt: string; // ISO string
+  createdAt: string; 
 }

@@ -1,6 +1,6 @@
 import { Db, ObjectId, type Document } from 'mongodb';
 import { getDb } from '../../config/db';
-import { FixerRatingDoc, FixerRatingResponse } from '../models'; // Importa los modelos
+import { FixerRatingDoc, FixerRatingResponse } from '../models';
 
 export async function getFixerRatingsService(
   fixerId: ObjectId

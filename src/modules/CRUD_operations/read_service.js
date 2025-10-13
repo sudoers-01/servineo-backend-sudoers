@@ -55,7 +55,7 @@ async function get_appointment_by_query_projection(query, projection) {
 }
 
 async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
-    await set_db_connection();
+    await set_db_connection();  
     const current_date = new Date();
     const current_year = current_date.getFullYear();
     const target_month = month - 1; // Mongoose usa 0-indexed months
@@ -88,23 +88,26 @@ async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, mo
     const start_date = new Date(current_year, target_month, 1);
     const finish_date = new Date(current_year, month, 0, 23, 59, 59);
 
-    return Appointment.find({
+    let appointment_schedules = await Appointment.find({
         id_fixer: fixer_id,
         id_requester: requester_id,
         selected_date: { $gte: start_date, $lte: finish_date }
-    }, {
-        id_fixer: false,
-        id_requester: false,
-        selected_date: false,
-        selected_date_state: false,
-        current_requester_name: false,
-        appointment_type: false,
-        appointment_description: false,
-        place_id: false,
-        link_id: false,
-        current_requester_phone: false
     });
+    let final_list = change_schedule_state_booked_to_occupied(appointment_schedules);
+
 }
+
+async function change_schedule_state_booked_to_occupied(appointment_schedules){
+    await set_db_connection();
+    for(const appointment of appointment_schedules){
+        for(const schedule of appointment.schedules){
+            if(schedule.schedule_state === 'booked'){ 
+                schedule.schedule_state = 'occupied';
+            }
+        }   
+    }
+    return appointment_schedules;
+} 
 
 module.exports = {
     get_all_locations,

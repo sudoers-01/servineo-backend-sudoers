@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { Db, ObjectId } from 'mongodb';
 
 export interface Job {
   client: string;
@@ -6,15 +6,15 @@ export interface Job {
   schedule: string;
 }
 
-export async function getAllJobs() {
+export async function getAllJobs(db: Db) {
   return db.collection<Job>('jobs').find().toArray();
 }
 
-export async function getJobById(id: string) {
+export async function getJobById(db : Db, id: string) {
   return db.collection<Job>('jobs').findOne({ _id: new ObjectId(id) });
 }
 
-export async function createJob(job: Job) {
+export async function createJob(db: Db, job: Job) {
   const result = await db.collection<Job>('jobs').insertOne(job);
   return { ...job, _id: result.insertedId };
 }

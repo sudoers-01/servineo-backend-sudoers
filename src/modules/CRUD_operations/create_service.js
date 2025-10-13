@@ -15,54 +15,37 @@ async function set_db_connection(){
 
 //Ubicaciones
 async function create_location(current_location){
-    try{
-        await set_db_connection();
-        const location = new Location(current_location);
-        const location_saved = await location.save();
-        console.log('Ubicacion registrada correctamente.');
-        return location_saved;
-    }catch(err){
-        console.log('Error, la ubicacion no se ha podido registrar: ', err);
-        throw err;
-    }
+    
+    await set_db_connection();
+    const location = new Location(current_location);
+    const location_saved = await location.save();
+    return location_saved;
+    
 }
-
 async function insert_one_location(current_location){
-    try{
-        await set_db_connection();
-        const location_saved = await Location.insertOne(current_location);
-        console.log('Ubicacion registrada correctamente.');
-        return location_saved;
-    }catch(err){
-        console.log('Error, la ubicacion no se ha podido registrar: ', err);
-        throw err;
-    }
+    
+    await set_db_connection();
+    const location_saved = await Location.insertOne(current_location);
+    return location_saved;
+    
 }
 
 async function insert_many_locations(locations){
-    try{
-        await set_db_connection();
-        const locations_saved = await Location.insertMany(locations);
-        console.log('Ubicaciones registradas correctamente.');
-        return locations_saved;
-    }catch(err){
-        console.log('Error, las ubicaciones no se han podido registrar: ', err);
-        throw err;
-    }
+
+    await set_db_connection();
+    const locations_saved = await Location.insertMany(locations);
+    return locations_saved;
+
 }
 
 //Citas
 async function create_appointment(current_appointment){
-    try{
-        await set_db_connection();
-        const appointment = new Appointment(current_appointment);
-        const appointment_saved = await appointment.save();
-        console.log('Cita registrada correctamente.');
-        return appointment_saved;
-    }catch(err){
-        console.log('Error, la cita no se ha podido registrar.');
-        throw err;
-    }
+    
+    await set_db_connection();
+    const appointment = new Appointment(current_appointment);
+    const appointment_saved = await appointment.save();
+    return appointment_saved;
+    
 }
 
 async function insert_one_appointment(current_appointment){
@@ -72,15 +55,12 @@ async function insert_one_appointment(current_appointment){
 }
 
 async function insert_many_appointments(appointments){
-    try{
-        await set_db_connection();
-        const appontments_saved = await Appointment.insertMany(appointments);
-        console.log('Citas registradas correctamente.');
-        return appontments_saved;
-    }catch(err){
-        console.log('Error, las citas no se han podido registrar.');
-        throw err;
-    }
+
+    await set_db_connection();
+    const appontments_saved = await Appointment.insertMany(appointments);
+    
+    return appontments_saved;
+
 }
 
 module.exports = {

@@ -20,4 +20,4 @@ function _connect(){
     )
 }
 
-module.exports = _connect;
+export default _connect;

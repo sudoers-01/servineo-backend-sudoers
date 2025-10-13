@@ -1,15 +1,16 @@
 const { Router } = required ('express');
-const { deleteLocationByDisplayName,
+const { 
+    deleteLocationByDisplayName,
     deleteManyLocationsByDisplayName,
     deleteLocationByPlaceId,
     deleteManyLocationsByPlaceId,
-    deleteManyLocationsByQuery } =required( "./delete_controller");
+    deleteManyLocationsByQuery 
+} = require( "./delete_controller");
 
 const router = Router();
 
-router.get('/delete_location_by_one_name', deleteLocationByDisplayName);
-router.get('/delete_locations_by_name', deleteManyLocationsByDisplayName);
-router.get('/delete_location_by_one_id', deleteLocationByPlaceId);
-router.get('/delete_locations_by_ids', deleteManyLocationsByPlaceId);
-router.get('/delete_locations_by_query', deleteManyLocationsByQuery);
-
+router.get('/locations/delete_by_display_name', deleteLocationByDisplayName);
+router.get('/locations/delete_many_by_display_name', deleteManyLocationsByDisplayName);
+router.get('/locations/delete_by_one_id', deleteLocationByPlaceId);
+router.get('/locations/delete_many_by_ids', deleteManyLocationsByPlaceId);
+router.get('/locations/delete_many_by_query', deleteManyLocationsByQuery);

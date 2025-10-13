@@ -1,14 +1,21 @@
 require('dotenv').config();
 
 const dbConnection = require('../../database');
-
-dbConnection();
-
 const Location = require('../../models/Location');
+
+let connected = false;
+
+async function set_db_connection() {
+    if (!connected) {
+        await db_connection();
+        connected = true;
+    }
+}
 
 //Ubicaciones
 async function update_location_fields_by_display_name(name, attributes){
     try{
+        await set_db_connection();
         const location = await Location.findOneAndUpdate({display_name: name}, {$set: attributes}, {new: true});
         console.log('');
         return location;
@@ -20,6 +27,7 @@ async function update_location_fields_by_display_name(name, attributes){
 
 async function update_many_locations_fields_by_display_name(names, attributes){
     try{
+        await set_db_connection();
         const locations = await Location.updateMany({display_name: names}, {$set: attributes});
         console.log('Atributos de las localizaciones modificados.');
         return locations;
@@ -31,6 +39,7 @@ async function update_many_locations_fields_by_display_name(names, attributes){
 
 async function update_location_fields_by_place_id(id, attributes){
     try{
+        await set_db_connection();
         const location = await Location.findOneAndUpdate({place_id: id}, {$set: attributes}, {new: true});
         console.log('Atributos de ubicacion modificados.');
         return location;
@@ -42,6 +51,7 @@ async function update_location_fields_by_place_id(id, attributes){
 
 async function update_many_locations_fields_by_place_id(ids, attributes){
     try{
+        await set_db_connection();
         const locations = await Location.updateMany({place_id: ids}, {$set: attributes});
         console.log('Atributos de las ubicaciones modificados.');
         return locations;
@@ -53,6 +63,7 @@ async function update_many_locations_fields_by_place_id(ids, attributes){
 
 async function update_many_locations_fields_by_query(query, attributes){
     try{
+        await set_db_connection();
         const locations = await Location.updateMany(query, {$set: attributes});
         console.log('Atributos de las ubicaciones modificados.');
         return locations;
@@ -64,6 +75,7 @@ async function update_many_locations_fields_by_query(query, attributes){
 
 async function update_all_locations_fields(attributes){
     try{
+        await set_db_connection();
         const locations = await Location.updateMany({}, {$set: attributes});
         console.log('Atributos de las localizaciones modificados.');
         return locations;

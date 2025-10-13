@@ -13,8 +13,6 @@ async function set_db_connection() {
     }
 }
 
-// -------------------- Locations --------------------
-
 async function get_all_locations() {
     await set_db_connection();
     return Location.find();
@@ -25,17 +23,25 @@ async function get_location_by_display_name(name) {
     return Location.findOne({ display_name: name });
 }
 
-async function get_location_by_place_id(place_id) {
+async function get_many_locations_by_display_name(name){
     await set_db_connection();
-    return Location.findOne({ place_id });
+    return Location.find({display_name: name});
+}
+
+async function get_location_by_place_id(id) {
+    await set_db_connection();
+    return Location.findOne({ place_id: id });
+}
+
+async function get_many_locations_by_place_id(id){
+    await set_db_connection();
+    return Location.find({ place_id: id });
 }
 
 async function get_locations_by_query_projection(query, projection) {
     await set_db_connection();
     return Location.find(query, projection);
 }
-
-// -------------------- Appointments --------------------
 
 async function get_all_appointments() {
     await set_db_connection();
@@ -102,7 +108,9 @@ async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, mo
 module.exports = {
     get_all_locations,
     get_location_by_display_name,
+    get_many_locations_by_display_name,
     get_location_by_place_id,
+    get_many_locations_by_place_id,
     get_locations_by_query_projection,
     get_all_appointments,
     get_appointment_by_query_projection,

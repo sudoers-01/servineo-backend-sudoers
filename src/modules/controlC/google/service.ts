@@ -1,30 +1,15 @@
 import { OAuth2Client } from "google-auth-library";
-import fs from "fs";
-import path from "path";
+import clientPromise from "../lib/mongodb";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const csvPath = path.join(__dirname, "users.csv");
-
-if (!fs.existsSync(csvPath)) {
-  fs.writeFileSync(csvPath, "email,name,picture\n");
+interface GoogleUser {
+  email: string;
+  name: string;
+  picture?: string;
 }
 
-async function readUsers(): Promise<{ email: string; name: string; picture: string }[]> {
-  const data = fs.readFileSync(csvPath, "utf8");
-  const lines = data.trim().split("\n").slice(1); 
-  return lines.map(line => {
-    const [email, name, picture] = line.split(",");
-    return { email, name, picture };
-  });
-}
-
-async function saveUser(user: { email: string; name: string; picture: string }) {
-  const line = `${user.email},${user.name},${user.picture}\n`;
-  fs.appendFileSync(csvPath, line, "utf8");
-}
-
-export async function verifyGoogleToken(token: string) {
+export async function verifyGoogleToken(token: string): Promise<GoogleUser | null> {
   const ticket = await client.verifyIdToken({
     idToken: token,
     audience: process.env.GOOGLE_CLIENT_ID,
@@ -40,12 +25,28 @@ export async function verifyGoogleToken(token: string) {
   };
 }
 
-export async function checkUserExists(email: string) {
-  const users = await readUsers();
-  return users.some(u => u.email === email);
+export async function checkUserExists(email: string): Promise<boolean> {
+  const mongoClient = await clientPromise;
+  const db = mongoClient.db("ServineoBD");
+  const user = await db.collection("usuarios").findOne({ email });
+  return !!user;
 }
 
-export async function createUser(user: { email: string; name: string; picture: string }) {
-  await saveUser(user);
+export async function createUser(user: GoogleUser) {
+  const mongoClient = await clientPromise;
+  const db = mongoClient.db("ServineoBD");
+
+  await db.collection("usuarios").insertOne({
+  name: user.name,
+  email: user.email,
+  url_photo: user.picture || "",
+  passwordHash: "",
+  role: "requester",
+  language: "es",
+  createdAt: new Date(),
+});
+console.log("Usuario insertado en MongoDB:", user.email);
+
+
   return user;
 }

@@ -5,7 +5,7 @@ declare global {
     interface Request {
       db: Db;
       user?: {
-        userId: string; //usado para autenticacion
+        userId: string;
       };
     }
   }

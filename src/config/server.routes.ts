@@ -5,7 +5,7 @@ import JobsRoutes from '../modules/jobs/jobs.routes';
 const router = Router();
 
 router.use('/api', HealthRoutes);
-router.use('/api', JobsRoutes);
+router.use('/api/jobs', JobsRoutes);
 
 router.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

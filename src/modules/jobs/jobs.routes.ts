@@ -1,12 +1,12 @@
 import express from 'express';
-import { changeStatusController } from './controllers/jobs.controller';
+import { changeToPendingPaymentController } from './controllers/jobs.controller';
 
 const router = express.Router();
 
-router.get('/jobs', (req, res) => {
-  res.send('Jobs endpoint is working');
+router.get('/', (req, res) => {
+  res.status(200).json({ message: 'Jobs endpoint is working' });
 });
 
-router.patch('/jobs/:jobId', changeStatusController);
+router.patch('/:jobId', changeToPendingPaymentController);
 
 export default router;

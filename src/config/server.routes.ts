@@ -4,7 +4,8 @@ import RequestedJobsRoutes from '../modules/requested-jobs/requested-jobs.routes
 
 const router = Router();
 
-router.use('/api', HealthRoutes);
+router.use('/api/health', HealthRoutes);
+router.use('/api/requested-jobs', RequestedJobsRoutes);
 
 router.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

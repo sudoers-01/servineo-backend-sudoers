@@ -50,9 +50,15 @@ async function create_appointment(current_appointment){
 }
 
 async function insert_one_appointment(current_appointment){
-    await set_db_connection();
-    const appointment_saved = await Appointment.insertOne(current_appointment);
-    return appointment_saved;
+    try{    
+        await set_db_connection();
+        const appointment_saved = await Appointment.insertOne(current_appointment);
+        console.log('Cita registrada correctamente.');
+        return appointment_saved;
+    }catch(err){
+        console.log('Error, la cita no se ha podido registrar.');
+        throw err;
+    }
 }
 
 async function insert_many_appointments(appointments){

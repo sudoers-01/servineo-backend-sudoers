@@ -86,7 +86,7 @@ export async function deleteManyLocationsByQuery(req, res){
         if(!query){
             return res.status(400).json({ message: 'Missing query in request body.' });
         }
-        attributeValidation(query);
+        locationAttributeValidation(query);
         const data = await delete_many_locations_by_query(query);
         const output_fail = 'No locations data found by query, cant delete locations.';
         const output_success = 'Locations data deleted. ';

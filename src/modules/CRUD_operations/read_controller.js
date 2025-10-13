@@ -105,8 +105,8 @@ export async function getLocationsByQueryProjection(req, res){
     if(!query){
       return res.status(400).json({ message: 'Missing query in request body.' });
     }
-    attributeValidation(query);
-    attributeValidation(projection);
+    locationAttributeValidation(query);
+    locationAttributeValidation(projection);
     const data = await get_locations_by_query_projection(query, projection);
     const output_fail = 'No locations data found.';
     const output_success = 'Locations data found. ';

@@ -76,7 +76,7 @@ const appointment_schema = new mongoose.Schema({
         unique: false
     }
     
-}, {timeStamps: true});
+}, {timestamps: true});
 
 const Appointment = mongoose.model('Appointment', appointment_schema);
 

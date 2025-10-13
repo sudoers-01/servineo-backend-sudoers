@@ -336,33 +336,25 @@ async function test16(){
 
 async function test17(){
     const current_appointment = {
-        "_id": "65a3c4d5e6f7f8001c4d5e6f",
-        "id_fixer": "fixer_55667",
-        "id_requester": "user_11111",
-        "selected_date": "2024-08-22T00:00:00.000Z",
-        "selected_date_state": "partially-occupied",
+        "_id": "65b7c8d9e0f1a2001b3c4d5e",
+        "id_fixer": "fixer_44567",
+        "id_requester": "user_89012",
+        "selected_date": "2024-11-25T00:00:00.000Z",
+        "selected_date_state": "available",
         "schedules": [
             {
-                "_id": "65a2b3c4d5e6f7001b3c4d5f",
-                "starting_time": "2024-08-22T11:00:00.000Z",
-                "finishing_time": "2024-08-22T12:30:00.000Z",
+                "_id": "65b7c8d9e0f1a2001b3c4d5f",
+                "starting_time": "2024-11-25T11:00:00.000Z",
+                "finishing_time": "2024-11-25T12:00:00.000Z",
                 "schedule_state": "booked"
-            },
-            {
-                "_id": "65a2b3c4d5e6f7001b3c4d60",
-                "starting_time": "2024-08-22T16:00:00.000Z",
-                "finishing_time": "2024-08-22T17:00:00.000Z",
-                "schedule_state": "occupied"
             }
         ],
-        "current_requester_name": "Roberto Silva",
-        "appointment_type": "virtual",
-        "appointment_description": "Asesoría financiera personalizada",
-        "place_id": "appointment_99999999",
-        "link_id": "meet_32222",
-        "current_requester_phone": "+56 9 8765 4321",
-        "createdAt": "2024-08-10T15:20:00.000Z",
-        "updatedAt": "2024-08-15T09:45:00.000Z"
+        "current_requester_name": "David Kim",
+        "appointment_type": "presential",
+        "appointment_description": "Revisión de proyecto arquitectónico",
+        "place_id": "appointment_44912345",
+        "link_id": "meet_87321",
+        "current_requester_phone": "+82 10 1234 5678"
     }
 
     try{
@@ -376,108 +368,52 @@ async function test17(){
 async function test18(){
     const current_appointments = [
         {
-            "_id": "659b2c4d8f12e3001c9d7a8b",
-            "id_fixer": "fixer_33445",
-            "id_requester": "user_11223",
-            "selected_date": "2024-03-10T00:00:00.000Z",
-            "selected_date_state": "available",
-            "schedules": [
-                {
-                    "_id": "659b2c4d8f12e3001c9d7a8c",
-                    "starting_time": "2024-03-10T09:00:00.000Z",
-                    "finishing_time": "2024-03-10T10:00:00.000Z",
-                    "schedule_state": "booked"
-                }
-            ],
-            "current_requester_name": "Ana Martínez",
-            "appointment_type": "presential",
-            "appointment_description": "Reunión inicial de consultoría empresarial",
-            "place_id": "appointment_55123789",
-            "link_id": "meet_88421",
-            "current_requester_phone": "+52 55 1234 5678",
-            "createdAt": "2024-03-01T11:00:00.000Z",
-            "updatedAt": "2024-03-05T08:30:00.000Z"
-        },
-        {
-            "_id": "659c3d5e9a23f4001dae8b9c",
-            "id_fixer": "fixer_66778",
-            "id_requester": "user_44556",
-            "selected_date": "2024-04-05T00:00:00.000Z",
-            "selected_date_state": "partially-occupied",
-            "schedules": [
-                {
-                    "_id": "659c3d5e9a23f4001dae8b9d",
-                    "starting_time": "2024-04-05T11:00:00.000Z",
-                    "finishing_time": "2024-04-05T12:30:00.000Z",
-                    "schedule_state": "occupied"
-                },
-                {
-                    "_id": "659c3d5e9a23f4001dae8b9e",
-                    "starting_time": "2024-04-05T14:00:00.000Z",
-                    "finishing_time": "2024-04-05T15:00:00.000Z",
-                    "schedule_state": "booked"
-                }
-            ],
-            "current_requester_name": "Luis Fernández",
-            "appointment_type": "virtual",
-            "appointment_description": "Sesión de coaching ejecutivo",
-            "place_id": "appointment_66234890",
-            "link_id": "meet_99532",
-            "current_requester_phone": "+34 91 876 5432",
-            "createdAt": "2024-03-25T16:45:00.000Z",
-            "updatedAt": "2024-04-01T10:15:00.000Z"
-        },
-        {
-            "_id": "659d4e6fab34c5001ebf9cad",
-            "id_fixer": "fixer_88990",
-            "id_requester": "user_77889",
-            "selected_date": "2024-05-15T00:00:00.000Z",
+            "_id": "65c8d9e0f1a2b3001c4d5e6f",
+            "id_fixer": "fixer_55678",
+            "id_requester": "user_90123",
+            "selected_date": "2024-12-03T00:00:00.000Z",
             "selected_date_state": "occupied",
             "schedules": [
                 {
-                    "_id": "659d4e6fab34c5001ebf9cae",
-                    "starting_time": "2024-05-15T13:00:00.000Z",
-                    "finishing_time": "2024-05-15T14:30:00.000Z",
-                    "schedule_state": "cancelled"
+                    "_id": "65c8d9e0f1a2b3001c4d5e70",
+                    "starting_time": "2024-12-03T08:30:00.000Z",
+                    "finishing_time": "2024-12-03T10:00:00.000Z",
+                    "schedule_state": "occupied"
                 },
                 {
-                    "_id": "659d4e6fab34c5001ebf9caf",
-                    "starting_time": "2024-05-15T16:00:00.000Z",
-                    "finishing_time": "2024-05-15T17:00:00.000Z",
-                    "schedule_state": "occupied"
+                    "_id": "65c8d9e0f1a2b3001c4d5e71",
+                    "starting_time": "2024-12-03T14:00:00.000Z",
+                    "finishing_time": "2024-12-03T15:30:00.000Z",
+                    "schedule_state": "cancelled"
                 }
             ],
-            "current_requester_name": "Sophie Dubois",
-            "appointment_type": "presential",
-            "appointment_description": "Presentación de proyecto de marketing",
-            "place_id": "appointment_77345901",
-            "link_id": "meet_10643",
-            "current_requester_phone": "+33 1 42 86 53 21",
-            "createdAt": "2024-05-01T09:20:00.000Z",
-            "updatedAt": "2024-05-10T14:50:00.000Z"
+            "current_requester_name": "Elena Rodriguez",
+            "appointment_type": "virtual",
+            "appointment_description": "Consulta médica de seguimiento",
+            "place_id": "appointment_55023456",
+            "link_id": "meet_98432",
+            "current_requester_phone": "+34 600 112 233"
         },
         {
-            "_id": "659e5f80bc45d6001fc0adbe",
-            "id_fixer": "fixer_00112",
-            "id_requester": "user_99001",
-            "selected_date": "2024-06-20T00:00:00.000Z",
-            "selected_date_state": "available",
+            "_id": "65d9e0f1a2b3c4001d5e6f7a",
+            "id_fixer": "fixer_66789",
+            "id_requester": "user_01234",
+            "selected_date": "2024-11-30T00:00:00.000Z",
+            "selected_date_state": "partially-occupied",
             "schedules": [
                 {
-                    "_id": "659e5f80bc45d6001fc0adbf",
-                    "starting_time": "2024-06-20T08:30:00.000Z",
-                    "finishing_time": "2024-06-20T10:00:00.000Z",
+                    "_id": "65d9e0f1a2b3c4001d5e6f7b",
+                    "starting_time": "2024-11-30T13:00:00.000Z",
+                    "finishing_time": "2024-11-30T14:15:00.000Z",
                     "schedule_state": "booked"
                 }
             ],
-            "current_requester_name": "John Smith",
-            "appointment_type": "virtual",
-            "appointment_description": "Training session on new software tools",
-            "place_id": "appointment_88456012",
-            "link_id": "meet_21754",
-            "current_requester_phone": "+44 20 7946 0958",
-            "createdAt": "2024-06-10T13:10:00.000Z",
-            "updatedAt": "2024-06-15T11:25:00.000Z"
+            "current_requester_name": "Takashi Yamamoto",
+            "appointment_type": "presential",
+            "appointment_description": "Presentación de resultados financieros",
+            "place_id": "appointment_66134567",
+            "link_id": "meet_09543",
+            "current_requester_phone": "+81 90 1234 5678"
         }
     ];
 

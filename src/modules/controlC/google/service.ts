@@ -40,7 +40,6 @@ export async function createUser(user: GoogleUser) {
   name: user.name,
   email: user.email,
   url_photo: user.picture || "",
-  passwordHash: "",
   role: "requester",
   language: "es",
   createdAt: new Date(),

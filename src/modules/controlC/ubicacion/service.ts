@@ -1,20 +1,13 @@
-import fs from "fs";
-import path from "path";
+import clientPromise from "../lib/mongodb";
 
-const csvPath = path.join(__dirname, "ubicaciones.csv");
+export const guardarUbicacionUsuario = async (email: string, lat: number, lng: number) => {
+  const mongoClient = await clientPromise;
+  const db = mongoClient.db("ServineoBD");
 
-export const guardarUbicacion = async (lat: number, lng: number) => {
-  const timestamp = new Date().toISOString();
-  const fila = `${timestamp},${lat},${lng}\n`;
+  await db.collection("usuarios").updateOne(
+    { email },
+    { $set: { ubicacion: { lat, lng }, updatedAt: new Date() } }
+  );
 
-  try {
-    if (!fs.existsSync(csvPath)) {
-      fs.writeFileSync(csvPath, "timestamp,lat,lng\n", "utf8");
-    }
-
-    fs.appendFileSync(csvPath, fila, "utf8");
-  } catch (error) {
-    console.error("Error guardando en CSV:", error);
-    throw error;
-  }
+  console.log(`Ubicación guardada para ${email}: [${lat}, ${lng}]`);
 };

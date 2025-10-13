@@ -1,7 +1,11 @@
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+
+dotenv.config({ path: ".env.local" });
+
 import googleRouter from "./modules/controlC/google/routes";
-import ubicacionRouter from "./modules/controlC/ubicacion/routes";
+import ubicacionRouter from "./modules/controlC/ubicacion/routes"; 
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));

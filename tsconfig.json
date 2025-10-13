@@ -9,6 +9,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/config/env.config.js", "src/config/server.config.js", "src/config/server.routes.js", "src/index.js", "src/modules/health/health.controller.js", "src/modules/health/health.routes.js"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

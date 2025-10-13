@@ -1,5 +1,5 @@
 import { Router } from 'express';
-<<<<<<< HEAD
+
 import HealthRoutes from '../modules/health/health.routes';
 import LabRoutes from '../Innosys/routes/lab/cashpay.routes';
 
@@ -11,20 +11,20 @@ router.get('/healthz', (_req, res) => res.json({ ok: true }));
 
 // /api/lab/*
 router.use('/lab', LabRoutes);
-=======
+
 import HealthRoutes from '../modules/health/health.routes.js';
 import CardsRoutes from "../Innosys/routes/card.routes.js";
 import UsersRoutes from "../Innosys/routes/user.routes.js";
 import PaymentRoutes from "../Innosys/routes/payment.routes.js";
 
-const router = Router();
+//const router = Router();
 
 // Debug: mostrar rutas registradas
 router.use((req, res, next) => {
   console.log('📝 Ruta solicitada:', req.method, req.originalUrl);
   next();
 });
->>>>>>> 3e6bba9 (add)
+
 
 //usamos las rutas
 router.use('/api', HealthRoutes);

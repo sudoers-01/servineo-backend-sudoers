@@ -1,7 +1,7 @@
-import createModule from './create_service.js';
-import readModule from './read_service.js';
-import updateModule from './update_service.js';
-import deleteModule from './delete_service.js';
+import * as createModule from './create_service.js';
+import * as readModule from './read_service.js';
+import * as updateModule from './update_service.js';
+import * as deleteModule from './delete_service.js';
 import Location from '../../models/Location.js';
 
 async function test1() {
@@ -460,25 +460,38 @@ async function test20() {
 async function test21() {
   try {
     const current_appointment = {
-      id_fixer: 'uuid-fixer-999888777',
-      id_requester: 'uuid-user-222333444',
-      selected_date: '2025-10-13',
-      starting_time: '2025-10-13T10:00:00.000Z',
-      appointment_type: 'virtual',
-      appointment_description: 'Consulta técnica',
-      current_requester_name: 'Alejandro',
-      current_requester_phone: '77777777',
-      link_id: 'https://meet.example.com/test123475',
-      display_name: '',
-      lat: null,
-      lon: null,
-    };
+    id_fixer: 'uuid-fixer-555666777',
+    id_requester: 'uuid-user-888999000',
+    selected_date: '2025-11-15',
+    starting_time: '2025-11-15T14:30:00.000Z',
+    appointment_type: 'virtual',
+    appointment_description: 'Asesoría de diseño web',
+    current_requester_name: 'María González',
+    current_requester_phone: '88888888',
+    link_id: 'https://meet.example.com/design-consult-xyz',
+    display_name: '',
+    lat: null,
+    lon: null,
+  };
 
     const final_schedules = await createModule.create_appointment(current_appointment);
     console.log('Acceso Correcto: ', final_schedules);
   } catch (err) {
     console.log('Error: ', err);
   }
+}
+
+async function test22(){
+    try {
+        const fixer_id = "uuid-fixer-1234";
+        const user_id = "uuid-user-4567";
+        const fecha = "2025-10-13";
+        const date = new Date(fecha);
+        const final_schedules = await readModule.get_all_requester_schedules_by_fixer_day(fixer_id, user_id, date);
+        console.log('Acceso Correcto: ', final_schedules);
+    } catch (err) {
+        console.log('Error: ', err);
+    }
 }
 
 test1();
@@ -502,3 +515,4 @@ test18();
 test19();
 test20();
 test21();
+test22();

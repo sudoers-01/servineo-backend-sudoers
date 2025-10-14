@@ -78,11 +78,18 @@ async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id
 
 async function get_all_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
   await set_db_connection();
-  const current_year = searched_date.getUTCFullYear();
-  const current_month = searched_date.getUTCMonth();
-  const current_day = searched_date.getUTCDate();
-  const start_date = new Date(current_year, current_month, current_day, 0, 0, 0);
-  const finish_date = new Date(current_year, current_month, current_day, 23, 59, 59);
+  const start_date = new Date(Date.UTC(
+    searched_date.getUTCFullYear(),
+    searched_date.getUTCMonth(),
+    searched_date.getUTCDate(),
+    0, 0, 0
+  ));
+  const finish_date = new Date(Date.UTC(
+    searched_date.getUTCFullYear(),
+    searched_date.getUTCMonth(),
+    searched_date.getUTCDate(),
+    23, 59, 59
+  ));
 
   let appointment_schedules = await Appointment.find({
     id_fixer: fixer_id,

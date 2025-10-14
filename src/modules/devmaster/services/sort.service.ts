@@ -1,4 +1,4 @@
-import { User } from './user.model';
+import { User } from '../modules/user.model';
 import { SortCriteria, DEFAULT_SORT_CONFIG } from '../utils/queryParams.types';
 
 function normalize(text: string): string {

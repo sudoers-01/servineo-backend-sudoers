@@ -1,16 +1,10 @@
 import { Router } from 'express';
 import HealthRoutes from '../modules/health/health.routes';
-<<<<<<< HEAD
-import ProfileRoutes from '../modules/profile/profile.routes';
-const router = Router();
-
-router.use('/api', HealthRoutes);
-router.use('/api', ProfileRoutes);
-=======
 import FixersRoutes from '../modules/fixers/fixers.routes';
 import RequestedJobsRoutes from '../modules/requested-jobs/requested-jobs.routes';
 import JobsRoutes from '../modules/jobs/jobs.routes';
 import CommentRoutes from '../modules/comments/comment.routes';
+import RatingsRoutes from '../modules/ratings/rating.routes';
 
 const router = Router();
 
@@ -19,7 +13,7 @@ router.use('/api/requested-jobs', RequestedJobsRoutes);
 router.use('/api/jobs', JobsRoutes);
 router.use('/api/comments', CommentRoutes);
 router.use('/api', FixersRoutes);
->>>>>>> origin/dev
+router.use('/api/ratings', RatingsRoutes);
 
 router.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

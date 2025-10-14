@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import LocationRoutes from '../modules/location/location.routes';
+import LocationRoutes from '../modules/location/location.routes.js';
 // import HealthRoutes from '../modules/health/health.routes';
 
 const router = Router();

@@ -1,7 +1,7 @@
-import Server from './config/server.config';
-import _connect from './database';
+import Server from './config/server.config.js';
+import _connect from './database.js';
 
-import { SERVER_PORT } from './config/env.config';
+import { SERVER_PORT } from './config/env.config.js';
 
 async function startServer() {
   try {

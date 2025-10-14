@@ -11,7 +11,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    res.send({message: "Connection Available."});
+  res.send({ message: 'Connection Available.' });
 });
 
 app.listen(process.env.PORT, () => console.log(`App listening on: ${process.env.PORT}`));

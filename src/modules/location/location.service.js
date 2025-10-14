@@ -1,13 +1,13 @@
 import axios from 'axios';
-import { LOCATIONIQ_TOKEN } from '../../config/env.config';
+import { LOCATIONIQ_TOKEN } from '../../config/env.config.js';
 
-export async function searchLocation(query: string) {
+export async function searchLocation(query) {
   const url = `https://us1.locationiq.com/v1/search?key=${LOCATIONIQ_TOKEN}&q=${encodeURIComponent(query)}&format=json`;
   const response = await axios.get(url);
   return response.data;
 }
 
-export async function reverseLocation(lat: string, lon: string) {
+export async function reverseLocation(lat, lon) {
   const url = `https://us1.locationiq.com/v1/reverse?key=${LOCATIONIQ_TOKEN}&lat=${lat}&lon=${lon}&format=json`;
   const response = await axios.get(url);
   return response.data;

@@ -147,12 +147,10 @@ async function appointmentQueryValidation(query, res) {
 
     if (key === 'appointment_description') {
       if (query[key].length <= 0 || query[key].length > 500) {
-        return res
-          .status(400)
-          .json({
-            message:
-              'Wrong parameter value: appointment_description must be between 5 and 500 characters.',
-          });
+        return res.status(400).json({
+          message:
+            'Wrong parameter value: appointment_description must be between 5 and 500 characters.',
+        });
       }
     }
 
@@ -197,19 +195,15 @@ async function appointmentQueryValidation(query, res) {
 
   // Validaciones adicionales después de recorrer todas las keys
   if (query['appointment_type'] === 'presencial' && query['link_id']) {
-    return res
-      .status(400)
-      .json({
-        message: 'Wrong parameter: link_id should not be provided for presencial appointments.',
-      });
+    return res.status(400).json({
+      message: 'Wrong parameter: link_id should not be provided for presencial appointments.',
+    });
   }
 
   if (query['appointment_type'] === 'virtual' && query['place_id']) {
-    return res
-      .status(400)
-      .json({
-        message: 'Wrong parameter: place_id should not be provided for virtual appointments.',
-      });
+    return res.status(400).json({
+      message: 'Wrong parameter: place_id should not be provided for virtual appointments.',
+    });
   }
 }
 
@@ -238,11 +232,9 @@ async function locationProjectionValidation(projection, res) {
       return res.status(400).json({ message: 'Wrong projection attribute introduced.' });
     }
     if (!projection[key] || typeof projection[key] !== 'boolean') {
-      return res
-        .status(400)
-        .json({
-          message: 'Missing projection attribute value or wrong projection attribute type value.',
-        });
+      return res.status(400).json({
+        message: 'Missing projection attribute value or wrong projection attribute type value.',
+      });
     }
   });
 }

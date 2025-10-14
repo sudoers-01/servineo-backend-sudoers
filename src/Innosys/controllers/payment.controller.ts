@@ -1,7 +1,7 @@
 import Stripe from "stripe";
-import Payment from "../models/payment.model.js";
-import Card from "../models/card.model.js";
-import User from "../models/user.model.js";
+import Payment from "../models/payment.model";
+import Card from "../models/card.model";
+import User from "../models/user.model";
 import 'dotenv/config';
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -99,11 +99,11 @@ export const createPayment = async (req, res) => {
       payment: paymentData,
     });
 
-  } catch (err) {
-    console.error(" Error inesperado en createPayment:", err);
+  } catch (error) {
+    console.error(" Error inesperado en createPayment:", error);
     res.status(500).json({
       error: "Error inesperado en el servidor",
-      details: err.message,
+      details: (error as Error).message,
     });
   }
 };

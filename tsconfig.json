@@ -10,6 +10,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "src/config/env.config.js", "src/config/server.config.js", "src/config/server.routes.js", "src/index.js", "src/modules/health/health.controller.js", "src/modules/health/health.routes.js"],
+  "include": ["src/**/*.ts", "src/config/env.config.ts", "src/config/server.config.ts", "src/config/server.routes.ts", "src/index.ts", "src/modules/health/health.controller.ts", "src/modules/health/health.routes.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

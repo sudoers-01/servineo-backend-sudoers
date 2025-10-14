@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import HealthRoutes from '../modules/health/health.routes.js';
-import CardsRoutes from "../Innosys/routes/card.routes.js";
-import UsersRoutes from "../Innosys/routes/user.routes.js";
-import PaymentRoutes from "../Innosys/routes/payment.routes.js";
+import HealthRoutes from '../modules/health/health.routes';
+import CardsRoutes from "../Innosys/routes/card.routes";
+import UsersRoutes from "../Innosys/routes/user.routes";
+import PaymentRoutes from "../Innosys/routes/payment.routes";
 
 const router = Router();
 

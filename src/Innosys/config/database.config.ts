@@ -14,15 +14,15 @@ export const connectDB = async () => {
       socketTimeoutMS: 45000, // Cerrar sockets después de 45s de inactividad
     };
 
-    const conn = await mongoose.connect(process.env.MONGODB_URI, options);
+    const conn = await mongoose.connect(process.env.MONGODB_URI!, options);
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📦 Database: ${conn.connection.name}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 
     // Event listeners para debugging
-    mongoose.connection.on('error', (err) => {
-      console.error('❌ MongoDB connection error:', err);
+    mongoose.connection.on('error', (error) => {
+      console.error('❌ MongoDB connection error:', error);
     });
 
     mongoose.connection.on('disconnected', () => {
@@ -35,7 +35,7 @@ export const connectDB = async () => {
 
     return conn;
   } catch (error) {
-    console.error('❌ Error connecting to MongoDB:', error.message);
+    console.error('❌ Error connecting to MongoDB:', (error as Error).message);
     process.exit(1); // Salir con error
   }
 };
@@ -47,7 +47,7 @@ const closeDB = async () => {
     await mongoose.connection.close();
     console.log('🔒 MongoDB connection closed');
   } catch (error) {
-    console.error('❌ Error closing MongoDB connection:', error.message);
+    console.error('❌ Error closing MongoDB connection:', (error as Error).message);
   }
 };
 

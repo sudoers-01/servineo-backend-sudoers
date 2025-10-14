@@ -1,7 +1,12 @@
 import Stripe from "stripe";
-import Card from "../models/card.model.js";
-import User from "../models/user.model.js";
+import Card from "../models/card.model";
+import User from "../models/user.model";
 import 'dotenv/config';
+
+// Validar que la clave de Stripe existe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('❌ STRIPE_SECRET_KEY no está definida en las variables de entorno');
+}
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -24,14 +29,16 @@ export const createCard = async (req, res) => {
         email: user.email,
         name: user.name,
       });
+
       customerId = customer.id;
       user.stripeCustomerId = customerId;
       await user.save();
     } else {
+
       // Validar que el Customer realmente exista en Stripe
       try {
         await stripe.customers.retrieve(customerId);
-      } catch (err) {
+      } catch (error) {
         // Si no existe, crear uno nuevo
         const customer = await stripe.customers.create({
           email: user.email,
@@ -70,9 +77,9 @@ export const createCard = async (req, res) => {
     // 5️⃣ Retornar mensaje si no se guardó
     res.json({ message: "Tarjeta agregada para pago, no guardada" });
 
-  } catch (err) {
-    console.error("Error createCard:", err);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Error createCard:", error);
+    res.status(500).json({ error: (error as Error).message });
   }
 };
 
@@ -84,8 +91,8 @@ export const listCards = async (req, res) => {
     const { userId } = req.query;
     const cards = await Card.find({ userId });
     res.json(cards);
-  } catch (err) {
-    console.error("Error listCards:", err);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Error listCards:", error);
+    res.status(500).json({ error: (error as Error).message });
   }
 };

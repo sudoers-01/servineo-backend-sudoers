@@ -1,5 +1,5 @@
 import { Db, ObjectId, type Document } from 'mongodb';
-import { FixerRatingDoc, FixerRatingResponse } from '../models';
+import { FixerRatingDoc, FixerRatingResponse } from '../ratings.details.models';
 
 export async function getFixerRatingsService(
   fixerId: ObjectId,

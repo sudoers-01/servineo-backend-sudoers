@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { getDb } from '../../config/db';
-import { getFixerRatingsService } from '../services/ratings.service';
+import { getFixerRatingsService } from '../services/ratings.details.service';
 
 export async function getFixerRatingsController(req: Request, res: Response) {
   try {

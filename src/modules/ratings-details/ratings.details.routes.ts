@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getFixerRatingsController } from './controllers/ratings.controller';
+import { getFixerRatingsController } from './controllers/ratings.details.controller';
 
 const router = Router();
 

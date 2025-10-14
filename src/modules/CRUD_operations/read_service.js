@@ -168,18 +168,34 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
   const current_year = appointment_date.getUTCFullYear();
   const current_month = appointment_date.getUTCMonth();
   const current_day = appointment_date.getUTCDate();
-  const final_date = new Date(current_year, current_month, current_day, start_hour, 0, 0);
+  const start_date = new Date(current_year, current_month, current_day, 0, 0, 0);
+  const finish_date = new Date(current_year, current_month, current_day, 23, 59, 59);
   const appointment = await Appointment.findOne({
     id_fixer: fixer_id,
     id_requester: requester_id,
-    selected_date: final_date,
+    selected_date: {
+      $gte: start_date,
+      $lte: finish_date
+    },
   });
   if (!appointment) return null;
-  return {
-    id_fixer: appointment.id_fixer,
-    place_id: appointment.place_id,
-    appointment_description: appointment.appointment_description,
-  };
+  const founded_schedule = appointment.schedules.find(sched => {
+    if(!sched.starting_time){
+      return false;
+    }
+    const hour = new Date(sched.starting_time).getUTCHours();
+    return (hour === start_hour);
+  });
+  if(founded_schedule){
+    return {
+      id_fixer: appointment.id_fixer,
+      place_id: appointment.place_id,
+      appointment_description: appointment.appointment_description,
+      schedules: [founded_schedule]
+    };
+  }else{
+    return null;
+  }
 }
 
 //-------------------------------------------------------------------------------------------

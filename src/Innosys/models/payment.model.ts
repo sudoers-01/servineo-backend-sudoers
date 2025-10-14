@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import mongoose, { Schema, Types } from "mongoose";
 import crypto from "crypto";
 
@@ -125,8 +125,8 @@ PaymentSchema.index({ jobId: 1, status: 1 });
 
 export const Payment =
   mongoose.models.Payment || mongoose.model<PaymentDoc>("Payment", PaymentSchema);
-=======
-import mongoose from 'mongoose';
+
+//import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema({
   requesterId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -140,4 +140,4 @@ const paymentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export default mongoose.model('payments', paymentSchema);
->>>>>>> e8bab96 (commit: backend usando typeScryt)
+

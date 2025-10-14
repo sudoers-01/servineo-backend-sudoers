@@ -19,13 +19,9 @@ export const getMultipleFixersRatings = async (
   try {
     const objectIds = fixerIds.map((id) => new Types.ObjectId(id));
 
-    // Usar agregación de MongoDB para calcular promedios de forma eficiente
+    // Agregación de MongoDB para promedios y conteo
     const ratingsAggregation = await Review.aggregate([
-      {
-        $match: {
-          reviewedId: { $in: objectIds },
-        },
-      },
+      { $match: { reviewedId: { $in: objectIds } } },
       {
         $group: {
           _id: '$reviewedId',
@@ -35,19 +31,18 @@ export const getMultipleFixersRatings = async (
       },
     ]);
 
-    // Crear un mapa para búsqueda rápida
     const ratingsMap = new Map<string, FixerRating>();
 
-    // Agregar los fixers con calificaciones
-    ratingsAggregation.forEach((rating) => {
-      ratingsMap.set(rating._id.toString(), {
-        fixerId: rating._id.toString(),
-        averageRating: Math.round(rating.averageRating * 100) / 100,
-        totalReviews: rating.totalReviews,
+    // Agregar fixers con calificación calculada
+    ratingsAggregation.forEach((r) => {
+      ratingsMap.set(r._id.toString(), {
+        fixerId: r._id.toString(),
+        averageRating: Math.round(r.averageRating * 100) / 100,
+        totalReviews: r.totalReviews,
       });
     });
 
-    // Agregar fixers sin calificaciones con rating 0
+    // Agregar fixers sin calificación
     fixerIds.forEach((fixerId) => {
       if (!ratingsMap.has(fixerId)) {
         ratingsMap.set(fixerId, {
@@ -61,6 +56,16 @@ export const getMultipleFixersRatings = async (
     return ratingsMap;
   } catch (error) {
     console.error('Error obteniendo ratings de múltiples fixers:', error);
-    return new Map();
+
+    // En caso de error, devolver todos con rating 0
+    const emptyMap = new Map<string, FixerRating>();
+    fixerIds.forEach((fixerId) => {
+      emptyMap.set(fixerId, {
+        fixerId,
+        averageRating: 0,
+        totalReviews: 0,
+      });
+    });
+    return emptyMap;
   }
 };

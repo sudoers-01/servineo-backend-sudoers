@@ -5,6 +5,7 @@ import RequestedJobsRoutes from '../modules/requested-jobs/requested-jobs.routes
 import JobsRoutes from '../modules/jobs/jobs.routes';
 import CommentRoutes from '../modules/comments/comment.routes';
 import ProfileRoutes from '../modules/profile/profile.routes';
+import RatingsRoutes from '../modules/ratings/rating.routes';
 
 const router = Router();
 
@@ -14,6 +15,7 @@ router.use('/api/jobs', JobsRoutes);
 router.use('/api/comments', CommentRoutes);
 router.use('/api', ProfileRoutes);
 router.use('/api', FixersRoutes);
+router.use('/api/ratings', RatingsRoutes);
 
 router.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

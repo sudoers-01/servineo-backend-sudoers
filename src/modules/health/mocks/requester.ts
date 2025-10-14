@@ -2,32 +2,46 @@
 
 export interface IRequesterMock {
   id: string
-  name: string
-  email: string
-  phone: string
-  location: string
+  nombre: string
+  correo: string
+  telefono: string
+  ubicacion: string
 }
 
 export const requesterMock: IRequesterMock[] = [
   {
     id: 'r1',
-    name: 'Luis Gustavo',
-    email: 'luis@example.com',
-    phone: '+591 71234567',
-    location: 'La Paz, Bolivia',
+    nombre: 'Luis Gustavo García',
+    correo: 'luis.garcia@example.com',
+    telefono: '+591 71234567',
+    ubicacion: 'La Paz, Bolivia',
   },
   {
     id: 'r2',
-    name: 'María López',
-    email: 'maria@example.com',
-    phone: '+591 71234568',
-    location: 'Santa Cruz, Bolivia',
+    nombre: 'María Fernanda López',
+    correo: 'maria.fernanda@example.com',
+    telefono: '+591 71239876',
+    ubicacion: 'Santa Cruz de la Sierra, Bolivia',
   },
   {
     id: 'r3',
-    name: 'Carlos Gómez',
-    email: 'carlos@example.com',
-    phone: '+591 71234569',
-    location: 'Cochabamba, Bolivia',
+    nombre: 'Carlos Gómez Rojas',
+    correo: 'carlos.gomez@example.com',
+    telefono: '+591 71325489',
+    ubicacion: 'Cochabamba, Bolivia',
+  },
+  {
+    id: 'r4',
+    nombre: 'Andrea Vargas',
+    correo: 'andrea.vargas@example.com',
+    telefono: '+591 71547896',
+    ubicacion: 'Sucre, Bolivia',
+  },
+  {
+    id: 'r5',
+    nombre: 'Jorge Ramírez',
+    correo: 'jorge.ramirez@example.com',
+    telefono: '+591 71658974',
+    ubicacion: 'Tarija, Bolivia',
   },
 ]

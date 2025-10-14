@@ -1,7 +1,5 @@
-// src/modules/devmaster/services/sort.service.ts
 import { User } from './user.model';
-
-type SortBy = 'name_asc' | 'name_desc' | 'recent';
+import { SortCriteria, DEFAULT_SORT_CONFIG } from '../utils/queryParams.types';
 
 function normalize(text: string): string {
   return text
@@ -12,20 +10,21 @@ function normalize(text: string): string {
     : '';
 }
 
-export const getAllFixers = async (options?: { sortBy?: SortBy }) => {
-  const sortBy = options?.sortBy || 'recent'; // Por defecto 'recent'
+export const getAllFixers = async (options?: { sortBy?: SortCriteria }) => {
+  const sortBy = options?.sortBy || DEFAULT_SORT_CONFIG.sortBy;
   const fixers = await User.find({ role: 'fixer' }).select('name createdAt').lean();
 
   fixers.sort((a, b) => {
-    if (sortBy === 'recent') {
-      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return timeB - timeA;
+    switch (sortBy) {
+      case SortCriteria.DATE_RECENT:
+        return (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0);
+      case SortCriteria.NAME_ASC:
+        return normalize(a.name).localeCompare(normalize(b.name));
+      case SortCriteria.NAME_DESC:
+        return normalize(b.name).localeCompare(normalize(a.name));
+      default:
+        return 0;
     }
-
-    const nameA = normalize(a.name);
-    const nameB = normalize(b.name);
-    return sortBy === 'name_asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
   });
 
   return { data: fixers };

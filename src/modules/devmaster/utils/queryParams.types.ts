@@ -7,3 +7,7 @@ export enum SortCriteria {
 export interface SortQueryParams {
   sortBy?: string;
 }
+
+export const DEFAULT_SORT_CONFIG = {
+  sortBy: SortCriteria.DATE_RECENT,
+} as const;

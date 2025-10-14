@@ -3,7 +3,7 @@ import { FixerRatingDoc, FixerRatingResponse } from '../models';
 
 export async function getFixerRatingsService(
   fixerId: ObjectId,
-  db: Db 
+  db: Db,
 ): Promise<FixerRatingResponse[]> {
   const ratings = db.collection<FixerRatingDoc>('ratings');
 

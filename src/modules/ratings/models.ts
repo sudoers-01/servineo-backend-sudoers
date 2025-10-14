@@ -7,7 +7,7 @@ export interface FixerRatingDoc {
   avatarUrl?: string;
   score: 1 | 2 | 3;
   comment?: string;
-  createdAt: Date; 
+  createdAt: Date;
 }
 
 export interface FixerRatingResponse {
@@ -17,5 +17,5 @@ export interface FixerRatingResponse {
   avatarUrl?: string;
   score: 1 | 2 | 3;
   comment?: string;
-  createdAt: string; 
+  createdAt: string;
 }

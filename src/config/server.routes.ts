@@ -13,7 +13,6 @@ router.use('/api/jobs', JobsRoutes);
 router.use('/api/comments', CommentRoutes);
 router.use('/api', FixersRoutes);
 
-
 router.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);
   res.status(404).send({ message: 'Route not found' });

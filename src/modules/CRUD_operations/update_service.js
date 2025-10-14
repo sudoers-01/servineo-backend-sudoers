@@ -64,12 +64,11 @@ async function update_all_locations_fields(attributes) {
 //}
 
 //Appointments
-
-//! pendiente de arreglo del id
 async function update_appointment_by_id(id, attributes) {
   try {
     await set_db_connection();
-    console.log(id);
+    // !atributos hay que tener cuidado con schedule
+    // TODO: desestructurar schedule
     const docUpdate = await Appointment.findByIdAndUpdate(
       id,
       { $set: attributes },

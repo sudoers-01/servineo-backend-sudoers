@@ -133,19 +133,17 @@ export async function updateManyLocationsFieldsByQuery(res, req) {
 }
 
 // Appointments - Controladores faltantes
-// TODO: fix
+
 export async function updateAppointmentById(req, res) {
   try {
-    const id = req.params;
+    const id = req.query.id;
     const attributes = req.body;
-    console.log(id);
-    console.log(attributes);
+
     if (!id || !attributes) {
       return res.status(400).json({ message: 'Missing parameters: required id and attributes.' });
     }
 
     const updateData = Object.fromEntries(
-      //ojo
       Object.entries(attributes).filter((v) => v !== undefined && v !== null),
     );
 

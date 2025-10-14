@@ -66,18 +66,26 @@ export async function insertManyLocations(req, res) {
 
 export async function createAppointment(req, res) {
   try {
-    const { current_appointment } = req.body;
-    if (!current_appointment) {
-      return res.status(400).json({ message: 'Missing parameter: current_appointment.' });
+    const appointmentData = req.body;
+
+    if (!appointmentData || Object.keys(appointmentData).length === 0) {
+      return res.status(400).json({ success: false, message: 'Missing appointment data in body.' });
     }
-    const data = await create_appointment(current_appointment);
-    const output_fail = 'Could not create appointment data.';
-    const output_success = 'Appointment data created correctly. ';
-    await dataExist(data, output_fail, output_success, res);
-    // {message: 'Appointment data created correctly.', created: true}
+
+    const result = await create_appointment(appointmentData);
+
+    return res.status(200).json({
+      success: true,
+      message: result.created
+        ? 'Appointment created successfully.'
+        : 'Schedule added to existing appointment.',
+      created: result,
+    });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Error creating appointment data.' });
+    console.error('Error in controller:', err);
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error.', error: err.message });
   }
 }
 

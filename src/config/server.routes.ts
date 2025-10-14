@@ -8,7 +8,7 @@ const router = Router();
 
 // Todas las rutas de health bajo /api
 router.use('/api', HealthRoutes);
-router.use('/api', AuthRoutes);
+router.use('/api/auth', AuthRoutes);
 
 
 // Manejo de rutas no encontradas

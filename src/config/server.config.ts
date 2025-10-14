@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 
-import AppRoutes from '../config/server.routes'; // importa tus rutas globales
+
+//import AppRoutes from '../config/server.routes'; // importa tus rutas globales
+
+//import AppRoutes from './server.routes';
 
 const app = express();
 

@@ -6,9 +6,9 @@ import { SERVER_PORT } from './config/env.config';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import Server from './config/server.config.js';
-import { connectDB } from './Innosys/config/database.config.js'
-import { SERVER_PORT } from './config/env.config.js';
+import Server from './config/server.config';
+import { connectDB } from './Innosys/config/database.config'
+import { SERVER_PORT } from './config/env.config';
 
 
 connectDB();

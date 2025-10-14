@@ -9,8 +9,8 @@ export const SERVER_PORT = process.env.SERVER_PORT || 3001;
 
 export const MONGODB_URI = process.env.MONGODB_URI;
 export const NODE_ENV = process.env.NODE_ENV || 'development';
-
-
+export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 
 console.log('🔍 Environment variables loaded:');

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createCard, listCards } from "../controllers/card.controller.js";
+import { createCard, listCards } from "../controllers/card.controller";
 
 const router = Router();
 

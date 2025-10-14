@@ -10,7 +10,7 @@ export async function getAllJobs(db: Db) {
   return db.collection<Job>('jobs').find().toArray();
 }
 
-export async function getJobById(db : Db, id: string) {
+export async function getJobById(db: Db, id: string) {
   return db.collection<Job>('jobs').findOne({ _id: new ObjectId(id) });
 }
 

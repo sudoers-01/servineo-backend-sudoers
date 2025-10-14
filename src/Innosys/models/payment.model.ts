@@ -1,4 +1,4 @@
-
+/*
 import mongoose, { Schema, Types } from "mongoose";
 import crypto from "crypto";
 
@@ -141,3 +141,5 @@ const paymentSchema = new mongoose.Schema({
 
 export default mongoose.model('payments', paymentSchema);
 
+
+*/

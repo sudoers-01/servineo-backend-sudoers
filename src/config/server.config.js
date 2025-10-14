@@ -1,4 +1,4 @@
-import express from 'express';
+/*import express from 'express';
 import cors from 'cors';
 
 //import AppRoutes from '../config/server.routes'; // importa tus rutas globales
@@ -29,3 +29,4 @@ app.use(AppRoutes);
 
 
 export default app;
+*/

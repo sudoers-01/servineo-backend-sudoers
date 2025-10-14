@@ -1,4 +1,4 @@
-import { Router } from 'express';
+/*import { Router } from 'express';
 
 import HealthRoutes from '../modules/health/health.routes';
 import LabRoutes from '../Innosys/routes/lab/cashpay.routes';
@@ -48,3 +48,4 @@ router.use((req, res) => {
 
 
 export default router;
+*/

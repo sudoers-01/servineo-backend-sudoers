@@ -34,6 +34,7 @@ async function insert_many_locations(locations) {
 }
 
 //Citas
+// TODO: revisar que devuelve este metodo
 async function create_appointment(current_appointment) {
   await set_db_connection();
   const fixer_id = current_appointment.id_fixer;

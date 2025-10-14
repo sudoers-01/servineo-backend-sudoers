@@ -133,20 +133,30 @@ export async function updateManyLocationsFieldsByQuery(res, req) {
 }
 
 // Appointments - Controladores faltantes
+// TODO: fix
 export async function updateAppointmentById(req, res) {
   try {
-    const { id, attributes } = req.query;
-    if (id === '') {
-      return res.status(400).json({ message: 'Missing parameter: id.' });
+    const id = req.params;
+    const attributes = req.body;
+    console.log(id);
+    console.log(attributes);
+    if (!id || !attributes) {
+      return res.status(400).json({ message: 'Missing parameters: required id and attributes.' });
     }
-    await appointmentAttributeValidation(attributes, res);
-    const data = await update_appointment_by_id(id, attributes);
-    const output_fail = 'Appointment data could not modified.';
-    const output_success = 'Appointment data modified. ';
-    await dataExist(data, output_fail, output_success, res);
+
+    const updateData = Object.fromEntries(
+      //ojo
+      Object.entries(attributes).filter((v) => v !== undefined && v !== null),
+    );
+
+    const modified = await update_appointment_by_id(id, updateData);
+
+    res.status(200).json({ message: 'Updated succesfully', modified });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: 'Error updating appointment data.' });
+    res
+      .status(500)
+      .json({ message: 'Error updating appointment data.', modified: false, error: err.message });
   }
 }
 

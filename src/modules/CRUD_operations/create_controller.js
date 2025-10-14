@@ -59,6 +59,10 @@ export async function insertManyLocations(req, res) {
     res.status(500).json({ message: 'Error creating location data' });
   }
 }
+// TODO: fix, controladores deben devolver siempre status codes, dataExists no debe existir
+// ! no esta devolviendo status code con json de respuesta, revisar dataExists
+// ? preguntar a vale que necesita de devolucion
+// ? boolean si se pudo o no
 
 export async function createAppointment(req, res) {
   try {
@@ -70,6 +74,7 @@ export async function createAppointment(req, res) {
     const output_fail = 'Could not create appointment data.';
     const output_success = 'Appointment data created correctly. ';
     await dataExist(data, output_fail, output_success, res);
+    // {message: 'Appointment data created correctly.', created: true}
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Error creating appointment data.' });

@@ -11,13 +11,9 @@ function normalize(text: string): string {
     : '';
 }
 
-function normalizeNumber(num?: string | number): number {
-  return num ? Number(num) : 0;
-}
-
 export const getAllFixers = async (options?: { sortBy?: SortCriteria }) => {
   const sortBy = options?.sortBy || DEFAULT_SORT_CONFIG.sortBy;
-  const fixers = await User.find({ role: 'fixer' }).select('name createdAt updatedAt contactNumber').lean();
+  const fixers = await User.find({ role: 'fixer' }).select('name createdAt').lean();
 
   // Obtener perfiles
   const userIds = fixers.map((f) => f._id);
@@ -32,7 +28,6 @@ export const getAllFixers = async (options?: { sortBy?: SortCriteria }) => {
       _id: fixer._id,
       name: fixer.name,
       createdAt: fixer.createdAt,
-      contactNumber: (fixer as any).contactNumber,
       rating: rating?.averageRating || 0,
       totalReviews: rating?.totalReviews || 0,
     };
@@ -48,10 +43,6 @@ export const getAllFixers = async (options?: { sortBy?: SortCriteria }) => {
         return normalize(b.name).localeCompare(normalize(a.name));
       case SortCriteria.RATING:
         return b.rating - a.rating;
-        case SortCriteria.CONTACT_ASC:
-        return normalizeNumber(a.contactNumber) - normalizeNumber(b.contactNumber);
-      case SortCriteria.CONTACT_DESC:
-        return normalizeNumber(b.contactNumber) - normalizeNumber(a.contactNumber);
       default:
         return 0;
     }

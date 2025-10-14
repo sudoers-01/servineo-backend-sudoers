@@ -9,11 +9,11 @@ import { createErrorResponse, logError } from '../utils/errorHandler';
  */
 export const getFixers = async (req: Request, res: Response) => {
   try {
-    const sortByQuery = (req.query.sortBy as string)?.toLowerCase() || DEFAULT_SORT_CONFIG.sortBy;
+    const sortByQuery = ((req.query.sortBy as string) || String(DEFAULT_SORT_CONFIG.sortBy)).toLowerCase();
 
-    // Validar que sortBy sea un valor permitido
-    const validSortValues = Object.values(SortCriteria);
-    const sortBy = validSortValues.includes(sortByQuery as SortCriteria)
+    // Validar que sortBy sea un valor permitido (enum values son strings)
+    const validSortValues = Object.values(SortCriteria) as string[];
+    const sortBy = validSortValues.includes(sortByQuery)
       ? (sortByQuery as SortCriteria)
       : DEFAULT_SORT_CONFIG.sortBy;
 

@@ -23,12 +23,12 @@ import {
   get_requester_schedules_by_fixer_day,
   get_all_requester_schedules_by_fixer_day,
   get_modal_form_appointment,
-} from './read_service'; // llamamos al service
+} from './read_service.js'; // llamamos al service
 import {
   locationQueryValidation,
   dataExist,
   locationProjectionValidation,
-} from './common_functions';
+} from './common_functions.js';
 
 export async function getAllLocations(req, res) {
   try {

@@ -24,6 +24,14 @@ const appointment_keys = [
   'link_id',
 ];
 
+async function appointmentAttributeValidation(attributes, res){
+  if (attributes == null) {
+    return res.status(400).json({ message: 'Missing parameter: list of attributes to change.' });
+  } else {
+    appointmentQueryValidation(attributes, res);
+  }
+}
+
 async function locationAttributeValidation(attributes, res) {
   if (attributes == null) {
     return res.status(400).json({ message: 'Missing parameter: list of attributes to change.' });
@@ -239,10 +247,11 @@ async function locationProjectionValidation(projection, res) {
   });
 }
 
-export default {
+export {
   locationAttributeValidation,
   locationQueryValidation,
   dataExist,
   locationProjectionValidation,
   appointmentQueryValidation,
+  appointmentAttributeValidation
 };

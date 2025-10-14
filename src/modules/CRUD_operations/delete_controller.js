@@ -13,8 +13,8 @@ import {
   delete_many_appointments_by_requester_id,
   delete_appointments_by_query,
   delete_all_appointments,
-} from './delete_service';
-import { locationAttributeValidation, dataExist } from './common_functions';
+} from './delete_service.js';
+import { locationAttributeValidation, dataExist } from './common_functions.js';
 
 export async function deleteLocationByDisplayName(req, res) {
   try {

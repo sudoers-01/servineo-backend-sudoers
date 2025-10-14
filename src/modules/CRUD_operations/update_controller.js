@@ -17,13 +17,13 @@ import {
   update_appointments_by_date_range,
   update_appointments_by_status,
   update_appointments_by_type,
-} from './update_service';
+} from './update_service.js';
 import {
   locationAttributeValidation,
   locationQueryValidation,
   dataExist,
   appointmentAttributeValidation,
-} from './common_functions';
+} from './common_functions.js';
 
 export async function updateLocationFieldsByDisplayName(req, res) {
   try {

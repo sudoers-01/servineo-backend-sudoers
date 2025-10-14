@@ -98,7 +98,7 @@ async function delete_all_appointments() {
   return appointments;
 }
 
-export default {
+export {
   delete_location_by_display_name,
   delete_many_locations_by_display_name,
   delete_location_by_place_id,

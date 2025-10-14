@@ -130,7 +130,7 @@ async function insert_many_appointments_with_fixers_requesters(appointments_data
   return appointments_saved;
 }
 
-export default {
+export {
   create_location,
   insert_one_location,
   insert_many_locations,

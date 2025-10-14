@@ -9,8 +9,8 @@ import {
   create_appointment_with_fixer_requester,
   insert_one_appointment_with_fixer_requester,
   insert_many_appointments_with_fixers_requesters,
-} from './create_service';
-import { dataExist } from './common_functions';
+} from './create_service.js';
+import { dataExist } from './common_functions.js';
 
 export async function createLocation(req, res) {
   try {

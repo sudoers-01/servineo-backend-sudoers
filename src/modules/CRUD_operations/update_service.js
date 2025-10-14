@@ -147,7 +147,7 @@ async function update_appointments_by_type(appointment_type, attributes) {
   return appointments;
 }
 
-export default {
+export {
   update_location_fields_by_display_name,
   update_many_locations_fields_by_display_name,
   update_location_fields_by_place_id,

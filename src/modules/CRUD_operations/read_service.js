@@ -240,7 +240,7 @@ async function get_appointments_by_type(appointment_type) {
   return Appointment.find({ appointment_type: appointment_type });
 }
 
-export default {
+export {
   get_all_locations,
   get_location_by_display_name,
   get_many_locations_by_display_name,

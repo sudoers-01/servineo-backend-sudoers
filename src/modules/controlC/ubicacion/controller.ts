@@ -5,8 +5,11 @@ export const registrarUbicacion = async (req: Request, res: Response) => {
   const { lat, lng } = req.body;
   const user = (req as any).user;
 
-  if (!lat || !lng) return res.status(400).json({ error: "Faltan coordenadas" });
-  if (!user || !user.email) return res.status(401).json({ error: "Usuario no autorizado" });
+  if (lat === undefined || lng === undefined)
+    return res.status(400).json({ error: "Faltan coordenadas" });
+
+  if (!user || !user.email)
+    return res.status(401).json({ error: "Usuario no autorizado" });
 
   try {
     await guardarUbicacionUsuario(user.email, lat, lng);
@@ -16,3 +19,4 @@ export const registrarUbicacion = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };
+

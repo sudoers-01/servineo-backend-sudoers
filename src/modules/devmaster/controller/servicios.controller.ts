@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Job } from '../services/job.model';
+import { Job } from '../models/job.model';
 
 export async function getServiciosByName(req: Request, res: Response) {
   const name = typeof req.query.name === 'string' ? req.query.name : '';

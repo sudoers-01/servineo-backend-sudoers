@@ -57,7 +57,7 @@ async function get_appointment_by_query_projection(query, projection) {
 async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();
   const current_date = new Date();
-  const current_year = current_date.getFullUTCYear();
+  const current_year = current_date.getUTCFullYear();
   const target_month = month - 1;
   const start_date = new Date(current_year, target_month, 1);
   const finish_date = new Date(current_year, month, 0, 23, 59, 59);
@@ -124,7 +124,7 @@ function change_schedule_state_booked_to_occupied(appointment_schedules) {
 async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();
   const current_date = new Date();
-  const current_year = current_date.getFullYear();
+  const current_year = current_date.getUTCFullYear();
   const target_month = month - 1; // Mongoose usa 0-indexed months
   const start_date = new Date(current_year, target_month, 1);
   const finish_date = new Date(current_year, month, 0, 23, 59, 59);

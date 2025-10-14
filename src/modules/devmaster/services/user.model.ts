@@ -1,10 +1,9 @@
-// src/modules/devmaster/services/user.model.ts
 import { Schema, model } from 'mongoose';
 
 const userSchema = new Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
     role: {
       type: String,
@@ -16,8 +15,9 @@ const userSchema = new Schema(
       enum: ['es', 'en'],
       default: 'es',
     },
-    createdAt: { type: Date, require: true },
+    createdAt: { type: Date, default: Date.now },
   },
+  { timestamps: true },
 );
 
 export const User = model('User', userSchema, 'users');

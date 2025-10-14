@@ -3,11 +3,7 @@ import { getPaymentSummaryByIdLab } from "../../controllers/lab/get-by-id-summar
 import { connectDB } from "../../config/db.config"; // ⬅️ IMPORTA TU CONNECTOR
 import { getPaymentSummaryByJobIdLab } from "../../controllers/lab/get-by-job-summary.controller";
 import { confirmPaymentLab } from "../../controllers/lab/confirm-payment.controller";
-import {
-  createPaymentLab,
-  getPaymentByIdLab,
-  getPaymentByCodeLab,
-} from "../../controllers/lab/cashpay.controller";
+import {createPaymentLab} from "../../controllers/lab/cashpay.controller";
 
 
 const labRouter = Router();
@@ -33,8 +29,6 @@ labRouter.get("/health", (_req, res) => res.json({ ok: true, where: "lab" }));
 // Tus endpoints:
 labRouter.get("/payments/:id/summary", getPaymentSummaryByIdLab);
 labRouter.post("/payments", createPaymentLab);
-labRouter.get("/payments/:id", getPaymentByIdLab);
-labRouter.get("/payments/by-code/:code", getPaymentByCodeLab);
 labRouter.get("/payments/by-job/:jobId/summary", getPaymentSummaryByJobIdLab);
 labRouter.patch("/payments/:id/confirm", confirmPaymentLab);
 export default labRouter;

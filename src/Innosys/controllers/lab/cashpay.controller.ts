@@ -35,26 +35,3 @@ export async function createPaymentLab(req: Request, res: Response) {
   }
 }
 
-// GET /lab/payments/:id
-export async function getPaymentByIdLab(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-    const doc = await Payment.findById(id);
-    if (!doc) return res.status(404).json({ error: "no encontrado" });
-    return res.json({ data: doc });
-  } catch (e: any) {
-    return res.status(400).json({ error: e.message || "Error buscando pago (lab)" });
-  }
-}
-
-// GET /lab/payments/by-code/:code
-export async function getPaymentByCodeLab(req: Request, res: Response) {
-  try {
-    const code = String(req.params.code).toUpperCase();
-    const doc = await Payment.findOne({ code });
-    if (!doc) return res.status(404).json({ error: "no encontrado" });
-    return res.json({ data: doc });
-  } catch (e: any) {
-    return res.status(400).json({ error: e.message || "Error buscando por code (lab)" });
-  }
-}

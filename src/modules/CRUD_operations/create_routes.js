@@ -19,7 +19,7 @@ router.get('/locations/insert_one', insertOneLocation);
 router.get('/locations/insert_many', insertManyLocations);
 
 // Rutas para Appointments (básicas)
-router.get('/appointments/create', createAppointment);
+router.post('/appointments/create', createAppointment);
 router.get('/appointments/insert_one', insertOneAppointment);
 router.get('/appointments/insert_many', insertManyAppointments);
 

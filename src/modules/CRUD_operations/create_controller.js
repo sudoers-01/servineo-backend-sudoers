@@ -62,7 +62,7 @@ export async function insertManyLocations(req, res) {
 
 export async function createAppointment(req, res) {
   try {
-    const { current_appointment } = req.query;
+    const { current_appointment } = req.body;
     if (!current_appointment) {
       return res.status(400).json({ message: 'Missing parameter: current_appointment.' });
     }

@@ -1,11 +1,10 @@
 import { Db, ObjectId, type Document } from 'mongodb';
-import { getDb } from '../../config/db';
 import { FixerRatingDoc, FixerRatingResponse } from '../models';
 
 export async function getFixerRatingsService(
-  fixerId: ObjectId
+  fixerId: ObjectId,
+  db: Db 
 ): Promise<FixerRatingResponse[]> {
-  const db: Db = await getDb();
   const ratings = db.collection<FixerRatingDoc>('ratings');
 
   const pipeline: Document[] = [

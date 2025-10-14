@@ -67,8 +67,10 @@ async function update_all_locations_fields(attributes) {
 async function update_appointment_by_id(id, attributes) {
   try {
     await set_db_connection();
+
     // !atributos hay que tener cuidado con schedule
     // TODO: desestructurar schedule
+
     const docUpdate = await Appointment.findByIdAndUpdate(
       id,
       { $set: attributes },
@@ -84,6 +86,8 @@ async function update_appointment_by_id(id, attributes) {
     throw new Error(err.message);
   }
 }
+
+//
 
 async function update_many_appointments_by_ids(ids, attributes) {
   await set_db_connection();

@@ -7,7 +7,7 @@ export async function getServiciosByName(req: Request, res: Response) {
   let name = typeof req.query.name === 'string' ? req.query.name : '';
   const context = typeof req.query.context === 'string' ? req.query.context : '';
 
-  if (name.length > 50) {
+  if (name.length > 100) {
     return res.json({ total: 0, data: [] });
   }
 

@@ -14,7 +14,7 @@ import { dataExist } from './common_functions.js';
 
 export async function createLocation(req, res) {
   try {
-    const { current_location } = req.query;
+    const current_location = req.query;
     if (!current_location) {
       return res.status(400).json({ message: 'Missing parameter: current_location.' });
     }
@@ -59,20 +59,34 @@ export async function insertManyLocations(req, res) {
     res.status(500).json({ message: 'Error creating location data' });
   }
 }
+// TODO: fix, controladores deben devolver siempre status codes, dataExists no debe existir
+// ! no esta devolviendo status code con json de respuesta, revisar dataExists
+// ? preguntar a vale que necesita de devolucion
+// ? boolean si se pudo o no
 
 export async function createAppointment(req, res) {
   try {
-    const current_appointment = req.body;
-    console.log(current_appointment);
+    const appointmentData = req.body;
 
-    if (!current_appointment) {
-      return res.status(400).json({ message: 'Missing parameter: current_appointment.' });
+    if (!appointmentData || Object.keys(appointmentData).length === 0) {
+      return res.status(400).json({ success: false, message: 'Missing appointment data in body.' });
     }
-    const data = await create_appointment(current_appointment);
-    res.status(200).json({ created: true, data: data });
+
+    const result = await create_appointment(appointmentData);
+
+    return res.status(200).json({
+      success: true,
+      message: result.created
+        ? 'Appointment created successfully.'
+        : 'Schedule added to existing appointment.',
+      created: result,
+    });
+
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Error creating appointment data.' });
+    console.error('Error in controller:', err);
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error.', error: err.message });
   }
 }
 

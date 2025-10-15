@@ -23,7 +23,7 @@ import {
   get_requester_schedules_by_fixer_day,
   get_all_requester_schedules_by_fixer_day,
   get_modal_form_appointment,
-  get_meeting_status
+  get_meeting_status,
 } from './read_service.js'; // llamamos al service
 import {
   locationQueryValidation,
@@ -167,6 +167,7 @@ export async function getAppointmentByQueryProjection(req, res) {
 }
 
 // Obtener horarios de un requester en un mes específico
+// TODO: fix, controladores deben devolver siempre status codes, dataExists no debe existir
 export async function getRequesterSchedulesByFixerMonth(req, res) {
   try {
     const { fixer_id, requester_id, month } = req.query;
@@ -187,7 +188,7 @@ export async function getRequesterSchedulesByFixerMonth(req, res) {
   }
 }
 
-// Obtener todos los horarios de otros requesters de un fixer en un mes específico
+// TODO: fix, controladores deben devolver siempre status codes, dataExists no debe existir
 export async function getAllRequesterSchedulesByFixerMonth(req, res) {
   try {
     const { fixer_id, requester_id, month } = req.query;

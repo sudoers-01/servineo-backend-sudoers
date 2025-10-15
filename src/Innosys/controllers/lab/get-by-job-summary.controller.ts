@@ -6,8 +6,8 @@ type JobSummary = {
   _id: mongoose.Types.ObjectId;
   jobId: mongoose.Types.ObjectId;
   status: "paid" | "pending" | "failed";
-  codeExpiresAt?: Date;
-  amount: { total: number };
+  codeExpiresAt?: Date | null;
+  amount: { total: number; currency: string };
 };
 
 export async function getPaymentSummaryByJobIdLab(req: Request, res: Response) {
@@ -19,10 +19,14 @@ export async function getPaymentSummaryByJobIdLab(req: Request, res: Response) {
 
     const doc = await Payment.findOne({ jobId: new mongoose.Types.ObjectId(jobId) })
       .sort({ createdAt: -1 })
-      .select({ "amount.total": 1, status: 1, codeExpiresAt: 1, _id: 1, jobId: 1 })
+      .select({ "amount.total": 1, "amount.currency": 1, status: 1, codeExpiresAt: 1, _id: 1, jobId: 1 })
       .lean<JobSummary>();
 
     if (!doc) return res.status(404).json({ error: "no encontrado" });
+
+    if (typeof doc?.amount?.total !== "number") {
+      return res.status(422).json({ error: "documento sin 'amount.total' válido" });
+    }
 
     return res.json({
       data: {
@@ -30,7 +34,8 @@ export async function getPaymentSummaryByJobIdLab(req: Request, res: Response) {
         jobId: String(doc.jobId),
         total: doc.amount.total,
         status: doc.status,
-        expiresAt: doc.codeExpiresAt ?? null
+        expiresAt: doc.codeExpiresAt ?? null,
+        currency: doc.amount.currency ?? "BOB",
       },
     });
   } catch (e: any) {

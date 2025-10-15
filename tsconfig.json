@@ -1,3 +1,4 @@
+
 {
   "compilerOptions": {
     "target": "ES6",
@@ -9,6 +10,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/config/env.config.ts", "src/config/server.config.ts", "src/config/server.routes.ts", "src/index.ts", "src/modules/health/health.controller.ts", "src/modules/health/health.routes.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

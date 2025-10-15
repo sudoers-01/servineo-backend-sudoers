@@ -1,6 +1,19 @@
 import mongoose, { Schema, Types } from "mongoose";
 import crypto from "crypto";
 
+const paymentSchema = new mongoose.Schema({
+  requesterId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  fixerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
+  cardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' },
+  amount: { type: Number, required: true }, // en centavos
+  currency: { type: String, default: 'BOB' },
+  status: { type: String, default: 'pending' },
+  paymentIntentId: { type: String },
+}, { timestamps: true });
+
+
+
 export type PaymentMethod = "QR" | "card" | "cash";
 export type PaymentStatus  = "paid" | "pending" | "failed";
 
@@ -124,3 +137,5 @@ PaymentSchema.index({ jobId: 1, status: 1 });
 
 export const Payment =
   mongoose.models.Payment || mongoose.model<PaymentDoc>("Payment", PaymentSchema);
+
+export default mongoose.model('payments', paymentSchema);

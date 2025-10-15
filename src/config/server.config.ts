@@ -13,6 +13,9 @@ app.use(
 );
 
 app.use(express.json());
+
+//AppRoutes ya incluye todas las rutas
+app.use(AppRoutes);
 app.use('/api', AppRoutes); // prefijo global: todas las rutas empiezan con /api
 
 export default app;

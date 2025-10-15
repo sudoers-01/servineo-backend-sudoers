@@ -23,7 +23,7 @@ import {
   get_requester_schedules_by_fixer_day,
   get_all_requester_schedules_by_fixer_day,
   get_modal_form_appointment,
-  get_meeting_status
+  get_meeting_status,
 } from './read_service.js'; // llamamos al service
 import {
   locationQueryValidation,
@@ -181,9 +181,7 @@ export async function getRequesterSchedulesByFixerMonth(req, res) {
       return res.status(400).json({ message: 'Missing required query parameters: month.' });
     }
     const data = await get_requester_schedules_by_fixer_month(fixer_id, requester_id, month);
-    const output_fail = 'No schedules found for this requester in the specified month.';
-    const output_success = 'Schedules found for this requester. ';
-    await dataExist(data, output_fail, output_success, res);
+    res.status(200).json(data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching requester schedules by fixer and month.' });
@@ -205,9 +203,7 @@ export async function getAllRequesterSchedulesByFixerMonth(req, res) {
       return res.status(400).json({ message: 'Missing required query parameters: month.' });
     }
     const data = await get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month);
-    const output_fail = 'No schedules found for other requesters in this month.';
-    const output_success = 'Schedules found for all requesters except this. ';
-    await dataExist(data, output_fail, output_success, res);
+    res.status(200).json(data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching all requester schedules by fixer and month.' });
@@ -459,16 +455,28 @@ export async function getModalFormAppointment(req, res) {
   }
 }
 
-export async function getMeetingStatus(req, res){
-  try{
+export async function getMeetingStatus(req, res) {
+  try {
     const { id_requester, id_fixer, selected_date, starting_time } = req.body;
-    if(!id_requester || !id_fixer || !selected_date || !starting_time){
+    if (!id_requester || !id_fixer || !selected_date || !starting_time) {
       res.status(400).json({ message: 'Missing parameter function' });
     }
-    const { name, status } = await get_meeting_status(id_requester, id_fixer, selected_date, starting_time);
+    const { name, status } = await get_meeting_status(
+      id_requester,
+      id_fixer,
+      selected_date,
+      starting_time,
+    );
     console.log(name, status);
-    res.status(200).json({ message: 'Meeting status successfully accessed', name,  status});
-  }catch(err){
-    res.status(500).json({ message: 'Error updating appointment data', name: "", status: "", error: err.message });
+    res.status(200).json({ message: 'Meeting status successfully accessed', name, status });
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        message: 'Error updating appointment data',
+        name: '',
+        status: '',
+        error: err.message,
+      });
   }
 }

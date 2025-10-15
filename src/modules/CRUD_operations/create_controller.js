@@ -14,7 +14,7 @@ import { dataExist } from './common_functions.js';
 
 export async function createLocation(req, res) {
   try {
-    const { current_location } = req.query;
+    const current_location = req.query;
     if (!current_location) {
       return res.status(400).json({ message: 'Missing parameter: current_location.' });
     }

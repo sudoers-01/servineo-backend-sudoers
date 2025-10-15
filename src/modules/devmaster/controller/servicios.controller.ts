@@ -1,5 +1,6 @@
+// src/controller/servicios.controller.ts
 import { Request, Response } from 'express';
-import { Job } from '../services/job.model';
+import { Offer } from '../models/offer.model';
 import { normalizeSearchText } from '../utils/search.normalizer';
 
 export async function getServiciosByName(req: Request, res: Response) {
@@ -10,58 +11,38 @@ export async function getServiciosByName(req: Request, res: Response) {
     return res.json({ total: 0, data: [] });
   }
 
-  const allowedCharsRegex = /^[A-Za-z0-9_.\- ]*$/;
+  const allowedCharsRegex = /^[A-Za-z0-9_.\- áéíóúÁÉÍÓÚñÑ]*$/;
   if (!allowedCharsRegex.test(name)) {
     return res.json({ total: 0, data: [] });
   }
 
   name = normalizeSearchText(name);
-
   if (!name) {
     return res.json({ total: 0, data: [] });
   }
 
   console.log('Context:', context);
 
-  let filter;
-  if (context === 'home') {
-    filter = {
-      $or: [
-        { title: { $regex: name, $options: 'i' } },
-        { description: { $regex: name, $options: 'i' } },
-        { jobWords: { $regex: name, $options: 'i' } },
-        { category: { $regex: name, $options: 'i' } },
-        { location: { $regex: name, $options: 'i' } },
-      ],
-    };
-  } else if (context === 'map') {
-    filter = {
-      $or: [
-        { title: { $regex: name, $options: 'i' } },
-        { description: { $regex: name, $options: 'i' } },
-        { jobWords: { $regex: name, $options: 'i' } },
-      ],
-    };
-  } else if (context === 'job_offer') {
-    filter = {
-      $or: [
-        { title: { $regex: name, $options: 'i' } },
-        { description: { $regex: name, $options: 'i' } },
-      ],
-    };
-  } else {
-    filter = {
-      $or: [
-        { title: { $regex: name, $options: 'i' } },
-        { description: { $regex: name, $options: 'i' } },
-      ],
-    };
+  // Filtro general
+  const filter = {
+    $or: [
+      { fixerName: { $regex: name, $options: 'i' } },
+      { title: { $regex: name, $options: 'i' } },
+      { description: { $regex: name, $options: 'i' } },
+      { category: { $regex: name, $options: 'i' } },
+      { city: { $regex: name, $options: 'i' } },
+      { tags: { $regex: name, $options: 'i' } },
+    ],
+  };
+
+  try {
+    const [data, total] = await Promise.all([
+      Offer.find(filter).limit(50).lean(),
+      Offer.countDocuments(filter),
+    ]);
+    return res.json({ total, data });
+  } catch (error) {
+    console.error('Error fetching offers:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
   }
-
-  const [data, total] = await Promise.all([
-    Job.find(filter).limit(50).lean(),
-    Job.countDocuments(filter),
-  ]);
-
-  return res.json({ total, data });
 }

@@ -1,4 +1,4 @@
-import { Job } from '../modules/job.model';
+import { Job } from '../models/job.model';
 
 // Obtener todos los trabajos
 export const getAllJobs = async () => {

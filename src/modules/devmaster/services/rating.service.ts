@@ -1,4 +1,4 @@
-import { Review } from '../modules/review.model';
+import { Review } from '../models/review.model';
 import { Types } from 'mongoose';
 
 /**

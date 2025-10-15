@@ -1,6 +1,6 @@
 // src/modules/devmaster/controller/sort.controller.ts
 import { Request, Response } from 'express';
-import { getAllFixers } from '../services/sort.service';
+import { getAllOffers } from '../services/sort.service';
 import { SortCriteria, DEFAULT_SORT_CONFIG } from '../utils/queryParams.types';
 import { createErrorResponse, logError } from '../utils/errorHandler';
 
@@ -17,7 +17,7 @@ export const getFixers = async (req: Request, res: Response) => {
       ? (sortByQuery as SortCriteria)
       : DEFAULT_SORT_CONFIG.sortBy;
 
-    const result = await getAllFixers({ sortBy });
+    const result = await getAllOffers({ sortBy });
 
     return res.status(200).json({
       success: true,

@@ -455,7 +455,7 @@ export async function getModalFormAppointment(req, res) {
 
 export async function getMeetingStatus(req, res){
   try{
-    const { id_requester, id_fixer, selected_date, starting_time } = req.body;
+    const { id_requester, id_fixer, selected_date, starting_time } = req.query;
     if(!id_requester || !id_fixer || !selected_date || !starting_time){
       res.status(400).json({ message: 'Missing parameter function' });
     }

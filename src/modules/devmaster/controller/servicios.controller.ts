@@ -11,7 +11,7 @@ export async function getServiciosByName(req: Request, res: Response) {
     return res.json({ total: 0, data: [] });
   }
 
-  const allowedCharsRegex = /^[A-Za-z0-9_.\-, áéíóúÁÉÍÓÚñÑ]*$/;
+  const allowedCharsRegex = /^[A-Za-z0-9_.\-, ÅåÜüáéíóúÁÉÍÓÚñÑ]*$/;
   if (!allowedCharsRegex.test(name)) {
     return res.json({ total: 0, data: [] });
   }

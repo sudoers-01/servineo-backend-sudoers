@@ -188,7 +188,6 @@ export async function getRequesterSchedulesByFixerMonth(req, res) {
   }
 }
 
-// Obtener todos los horarios de otros requesters de un fixer en un mes específico
 // TODO: fix, controladores deben devolver siempre status codes, dataExists no debe existir
 export async function getAllRequesterSchedulesByFixerMonth(req, res) {
   try {
@@ -470,13 +469,11 @@ export async function getMeetingStatus(req, res) {
     console.log(name, status);
     res.status(200).json({ message: 'Meeting status successfully accessed', name, status });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        message: 'Error updating appointment data',
-        name: '',
-        status: '',
-        error: err.message,
-      });
+    res.status(500).json({
+      message: 'Error updating appointment data',
+      name: '',
+      status: '',
+      error: err.message,
+    });
   }
 }

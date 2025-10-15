@@ -152,6 +152,7 @@ async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, mo
 }
 */ 
 
+// ❌ PROBLEMA: Falta una llave de cierre } antes del catch
 async function get_meeting_status(requester_id, fixer_id, current_date, start_hour){
   try{
     await set_db_connection();
@@ -161,6 +162,7 @@ async function get_meeting_status(requester_id, fixer_id, current_date, start_ho
     const current_day = adjusted_date.getUTCDate();
     const starting_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
     const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59));
+    
     const appointment = await Appointment.findOne({
       id_requester: requester_id,
       id_fixer: fixer_id,
@@ -169,14 +171,17 @@ async function get_meeting_status(requester_id, fixer_id, current_date, start_ho
         $lte: finish_date
       }
     });
+    
     if(!appointment) throw new Error("Could not find a schedule.");
+    
     const founded_schedule = appointment.schedules.find(sched => {
-    if(!sched.starting_time){
-      throw new Error("Could not find a schedule.");
-    }
-    const hour = new Date(sched.starting_time).getUTCHours();
-    return (hour === start_hour);
-    });
+      if(!sched.starting_time){
+        throw new Error("Could not find a schedule.");
+      }
+      const hour = new Date(sched.starting_time).getUTCHours();
+      return (hour === start_hour);
+    }); // ← Aquí estaba el problema
+    
     if(founded_schedule){
       return {
         name: appointment.current_requester_name,
@@ -254,57 +259,6 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
     return null;
   }
 }
-
-// TODO:endpoint mateo
-/*
-  Este endpoint recibe un id requester, id fixer, una fecha y un horario
-{
-  success: true ? false,
-  message: "asdfasdf",
-  status: "occuped" || "available" || "partial"
-  name: "nombre del fixer",
-}
-  
-*/
-
-async function get_meeting_status(requester_id, fixer_id, current_date, start_hour){
-  try{
-    await set_db_connection();
-    const adjusted_date = new Date(current_date);
-    const current_year = adjusted_date.getUTCFullYear();
-    const current_month = adjusted_date.getUTCMonth();
-    const current_day = adjusted_date.getUTCDate();
-    const starting_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
-    const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59));
-    const appointment = await Appointment.findOne({
-      id_requester: requester_id,
-      id_fixer: fixer_id,
-      selected_date: {
-        $gte: starting_date,
-        $lte: finish_date
-      }
-    });
-    if(!appointment) throw new Error("Could not find a schedule.");
-    const founded_schedule = appointment.schedules.find(sched => {
-    if(!sched.starting_time){
-      throw new Error("Could not find a schedule.");
-    }
-    const hour = new Date(sched.starting_time).getUTCHours();
-    return (hour === start_hour);
-    });
-    if(founded_schedule){
-      return {
-        name: appointment.current_requester_name,
-        status: appointment.selected_date_state
-      }
-    }else{
-      throw new Error("Could not find a schedule.");
-    }
-  }catch(err){
-    throw new Error(err.message);
-  }
-}
-
 
 //-------------------------------------------------------------------------------------------
 

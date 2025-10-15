@@ -1,6 +1,7 @@
 import { Job } from '../models/job.model';
 import { getRangeRegex } from '../utils/nameRangeHelper';
 import { validateAndNormalizeDepartment } from '../utils/departmentHelper';
+import { validateAndNormalizeJobType } from '../utils/jobTypeHelper';
 
 export const getAllJobs = async () => {
   return await Job.find().sort({ createdAt: -1 });
@@ -37,6 +38,19 @@ export const getJobsByDepartment = async (department: string) => {
   }).sort({ createdAt: -1 });
 };
 
+/**
+ * Filtrar trabajos por tipo de trabajo
+ */
+export const getJobsByJobType = async (jobType: string) => {
+  console.log('Buscando tipo de trabajo:', jobType);
+  
+  const normalizedJobType = validateAndNormalizeJobType(jobType);
+  
+  return await Job.find({
+    jobType: normalizedJobType
+  }).sort({ createdAt: -1 });
+};
+
 export const getJobsFiltered = async (filters: {
   nameRange?: string;
   department?: string;
@@ -61,7 +75,12 @@ export const getJobsFiltered = async (filters: {
   }
   
   if (filters.jobType) {
-    query.jobType = filters.jobType;
+    try {
+      const normalizedJobType = validateAndNormalizeJobType(filters.jobType);
+      query.jobType = normalizedJobType;
+    } catch (error) {
+      throw error;
+    }
   }
   
   return await Job.find(query).sort({ fixerName: 1, createdAt: -1 });

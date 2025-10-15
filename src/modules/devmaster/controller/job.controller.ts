@@ -4,10 +4,12 @@ import {
   getJobById, 
   getJobsByFixerNameRange,
   getJobsByDepartment,
+  getJobsByJobType,
   getJobsFiltered 
 } from '../services/job.service';
 import { isValidRange } from '../utils/nameRangeHelper';
 import { isValidDepartment, getAllDepartments } from '../utils/departmentHelper';
+import { isValidJobType, getAllJobTypes } from '../utils/jobTypeHelper';
 
 /**
  * GET /api/devmaster/jobs
@@ -132,6 +134,46 @@ export const filterJobsByDepartment = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: "Error al filtrar trabajos por departamento",
+      details: error,
+    });
+  }
+};
+
+/**
+ * GET /api/devmaster/jobs/filterByJobType?jobType=Fontanero
+ */
+export const filterJobsByJobType = async (req: Request, res: Response) => {
+  try {
+    const { jobType } = req.query;
+
+    if (!jobType) {
+      return res.status(400).json({
+        success: false,
+        error: "Debes especificar un tipo de trabajo",
+        validJobTypes: getAllJobTypes()
+      });
+    }
+
+    if (!isValidJobType(jobType as string)) {
+      return res.status(400).json({
+        success: false,
+        error: `Tipo de trabajo inválido: ${jobType}`,
+        validJobTypes: getAllJobTypes()
+      });
+    }
+
+    const jobs = await getJobsByJobType(jobType as string);
+    
+    res.json({
+      success: true,
+      jobType,
+      count: jobs.length,
+      data: jobs
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Error al filtrar trabajos por tipo de trabajo",
       details: error,
     });
   }

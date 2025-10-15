@@ -1,8 +1,6 @@
-import { Request, Response } from 'express';
-
-export function getHealthStatusController(_req: Request, res: Response) {
+export function getHealthStatusController(_req, res) {
   return res.status(200).json({
-    healt: "i'm alive",
+    health: "I'm alive",
     status: 200,
     message: 'ok',
   });

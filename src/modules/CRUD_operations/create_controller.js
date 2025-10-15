@@ -81,6 +81,7 @@ export async function createAppointment(req, res) {
         : 'Schedule added to existing appointment.',
       created: result,
     });
+
   } catch (err) {
     console.error('Error in controller:', err);
     return res

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Types } from "mongoose";
 import crypto from "crypto";
 
-export type PaymentMethod = "QR" | "Tarjeta de Crédito" | "Efectivo";
+export type PaymentMethod = "QR" | "card" | "cash";
 export type PaymentStatus  = "paid" | "pending" | "failed";
 
 interface Amount {
@@ -56,7 +56,7 @@ const PaymentSchema = new Schema<PaymentDoc>(
   {
     jobId:            { type: Schema.Types.ObjectId, ref: "Job", required: true, index: true },
     payerId:          { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    paymentMethods:   { type: String, enum: ["QR", "Tarjeta de Crédito", "Efectivo"], required: true },
+    paymentMethods:   { type: String, enum: ["QR", "card", "cash"], required: true },
     status:           { type: String, enum: ["paid", "pending", "failed"], required: true, index: true },
     paymentDate:      { type: Date, required: true, default: () => new Date(), index: true },
     commissionRate:   { type: Number, required: true, min: 0, max: 1 },
@@ -107,7 +107,7 @@ PaymentSchema.pre("validate", async function (next) {
     doc.codeExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // +48h
   }
 
-  if (doc.paymentMethods === "Efectivo") {
+  if (doc.paymentMethods === "cash") {
     const total = doc.amount?.total ?? 0;
     if (total < 10 || total >= 5000) {
       return next(new Error("Pago en efectivo sólo entre 10 y 5000 Bs."));

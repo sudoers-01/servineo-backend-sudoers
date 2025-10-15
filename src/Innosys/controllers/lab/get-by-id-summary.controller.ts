@@ -7,10 +7,9 @@ type PaymentSummary = {
   code: string;
   status: "paid" | "pending" | "failed";
   codeExpiresAt?: Date;
-  amount: { total: number };
+  amount: { total: number; currency: string };
 };
 
-// GET /lab/payments/:id/summary  -> code, total, status, expiresAt
 export async function getPaymentSummaryByIdLab(req: Request, res: Response) {
   try {
     const { id } = req.params;
@@ -20,10 +19,14 @@ export async function getPaymentSummaryByIdLab(req: Request, res: Response) {
     }
 
     const doc = await Payment.findById(id)
-      .select({ "amount.total": 1, code: 1, status: 1, codeExpiresAt: 1 })
+      .select({ "amount.total": 1, "amount.currency": 1, code: 1, status: 1, codeExpiresAt: 1 })
       .lean<PaymentSummary>();
 
     if (!doc) return res.status(404).json({ error: "no encontrado" });
+
+    if (typeof doc?.amount?.total !== "number") {
+      return res.status(422).json({ error: "documento sin 'amount.total' válido" });
+    }
 
     return res.json({
       data: {
@@ -32,6 +35,7 @@ export async function getPaymentSummaryByIdLab(req: Request, res: Response) {
         total: doc.amount.total,
         status: doc.status,
         expiresAt: doc.codeExpiresAt ?? null,
+        currency: doc.amount.currency ?? "BOB",
       },
     });
   } catch (e: any) {

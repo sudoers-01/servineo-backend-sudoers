@@ -3,9 +3,11 @@ import {
   getAllJobs, 
   getJobById, 
   getJobsByFixerNameRange,
+  getJobsByDepartment,
   getJobsFiltered 
 } from '../services/job.service';
 import { isValidRange } from '../utils/nameRangeHelper';
+import { isValidDepartment, getAllDepartments } from '../utils/departmentHelper';
 
 /**
  * GET /api/devmaster/jobs
@@ -90,6 +92,46 @@ export const filterJobsByFixerNameRange = async (req: Request, res: Response) =>
     res.status(500).json({
       success: false,
       error: "Error al filtrar trabajos por rango",
+      details: error,
+    });
+  }
+};
+
+/**
+ * GET /api/devmaster/jobs/filterByDepartment?department=La Paz
+ */
+export const filterJobsByDepartment = async (req: Request, res: Response) => {
+  try {
+    const { department } = req.query;
+
+    if (!department) {
+      return res.status(400).json({
+        success: false,
+        error: "Debes especificar un departamento",
+        validDepartments: getAllDepartments()
+      });
+    }
+
+    if (!isValidDepartment(department as string)) {
+      return res.status(400).json({
+        success: false,
+        error: `Departamento inválido: ${department}`,
+        validDepartments: getAllDepartments()
+      });
+    }
+
+    const jobs = await getJobsByDepartment(department as string);
+    
+    res.json({
+      success: true,
+      department,
+      count: jobs.length,
+      data: jobs
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Error al filtrar trabajos por departamento",
       details: error,
     });
   }

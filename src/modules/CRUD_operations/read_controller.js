@@ -179,9 +179,7 @@ export async function getRequesterSchedulesByFixerMonth(req, res) {
       return res.status(400).json({ message: 'Missing required query parameters: month.' });
     }
     const data = await get_requester_schedules_by_fixer_month(fixer_id, requester_id, month);
-    const output_fail = 'No schedules found for this requester in the specified month.';
-    const output_success = 'Schedules found for this requester. ';
-    await dataExist(data, output_fail, output_success, res);
+    res.status(200).json(data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching requester schedules by fixer and month.' });
@@ -202,9 +200,7 @@ export async function getAllRequesterSchedulesByFixerMonth(req, res) {
       return res.status(400).json({ message: 'Missing required query parameters: month.' });
     }
     const data = await get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month);
-    const output_fail = 'No schedules found for other requesters in this month.';
-    const output_success = 'Schedules found for all requesters except this. ';
-    await dataExist(data, output_fail, output_success, res);
+    res.status(200).json(data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching all requester schedules by fixer and month.' });

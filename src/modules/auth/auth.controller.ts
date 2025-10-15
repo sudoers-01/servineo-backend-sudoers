@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { connectDB } from '../../config/db/mongoClient';
 import bcrypt from 'bcryptjs';
 import { OAuth2Client } from "google-auth-library";
-// ✅ Login con base de datos real
+// Login con base de datos real
 export const loginUsuario = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 

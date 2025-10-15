@@ -69,9 +69,7 @@ export async function createAppointment(req, res) {
       return res.status(400).json({ message: 'Missing parameter: current_appointment.' });
     }
     const data = await create_appointment(current_appointment);
-    const output_fail = 'Could not create appointment data.';
-    const output_success = 'Appointment data created correctly. ';
-    await dataExist(data, output_fail, output_success, res);
+    res.status(200).json({ created: true, data: data });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Error creating appointment data.' });

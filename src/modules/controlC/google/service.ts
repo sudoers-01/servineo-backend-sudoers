@@ -28,7 +28,7 @@ export async function verifyGoogleToken(token: string): Promise<GoogleUser | nul
 export async function checkUserExists(email: string): Promise<boolean> {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
-  const user = await db.collection("usuarios").findOne({ email });
+  const user = await db.collection("users").findOne({ email });
   return !!user;
 }
 
@@ -36,7 +36,7 @@ export async function createUser(user: GoogleUser) {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
 
-  await db.collection("usuarios").insertOne({
+  await db.collection("users").insertOne({
   name: user.name,
   email: user.email,
   url_photo: user.picture || "",

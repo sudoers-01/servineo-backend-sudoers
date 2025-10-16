@@ -4,7 +4,7 @@ export const guardarUbicacionUsuario = async (email: string, lat: number, lng: n
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
 
-  await db.collection("usuarios").updateOne(
+  await db.collection("users").updateOne(
     { email },
     { $set: { ubicacion: { lat, lng }, updatedAt: new Date() } }
   );

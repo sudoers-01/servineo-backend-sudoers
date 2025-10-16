@@ -41,6 +41,9 @@ export async function createUser(user: GoogleUser) {
   email: user.email,
   url_photo: user.picture || "",
   role: "requester",
+  especialidad: "",
+  telefono: "",
+  certificacion: "",
   language: "es",
   createdAt: new Date(),
 });

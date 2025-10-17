@@ -1,17 +1,9 @@
 import { Request, Response } from 'express';
-import {
-  getAllOffers,
-  getOfferById,
-  getOffersByFixerNameRange,
-  getOffersByCity,
-  getOffersByCategory,
-  getOffersFiltered,
-  getOffersWithSearch,
-} from '../services/jobOfert.service';
+import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { isValidRange } from '../utils/nameRangeHelper';
 import { isValidCity, getAllCities } from '../utils/cityHelper';
 import { isValidCategory, getAllCategories } from '../utils/categoryHelper';
-import { SortCriteria, DEFAULT_SORT_CONFIG } from '../utils/queryParams.types';
+import { SortCriteria } from '../utils/queryParams.types';
 
 /**
  * GET /api/devmaster/offers
@@ -19,9 +11,7 @@ import { SortCriteria, DEFAULT_SORT_CONFIG } from '../utils/queryParams.types';
  */
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy } = req.query;
-
-    console.log('📥 Query params recibidos:', { range, city, category, search, sortBy });
+    const { range, city, category, search, sortBy, limit, skip } = req.query;
 
     // Si no hay parámetros, retorna todos
     if (!range && !city && !category && !search && !sortBy) {
@@ -39,26 +29,22 @@ export const getOffers = async (req: Request, res: Response) => {
     // Manejar ranges (puede ser string o array)
     if (range) {
       const ranges = Array.isArray(range) ? range : [range as string];
-      console.log('Range a procesar:', ranges);
       options.ranges = ranges;
     }
 
     // Manejar city (single)
     if (city) {
-      console.log('City a procesar:', city);
       options.city = city as string;
     }
 
     // Manejar categories (puede ser string o array)
     if (category) {
       const categories = Array.isArray(category) ? category : [category as string];
-      console.log('Categories a procesar:', categories);
       options.categories = categories;
     }
 
     // Manejar search
     if (search && typeof search === 'string' && search.trim()) {
-      console.log('🔎 Search a procesar:', search);
       options.search = search.trim();
     }
 
@@ -66,15 +52,12 @@ export const getOffers = async (req: Request, res: Response) => {
     if (sortBy && typeof sortBy === 'string') {
       const validSortValues = Object.values(SortCriteria) as string[];
       if (validSortValues.includes(sortBy.toLowerCase())) {
-        console.log('Sort a procesar:', sortBy);
         options.sortBy = sortBy.toLowerCase() as SortCriteria;
       }
     }
 
     // Llamar al servicio unificado
     const result = await getOffersFiltered(options);
-
-    console.log(`✅ Ofertas retornadas: ${result.count}`);
 
     res.status(200).json({
       success: true,
@@ -83,7 +66,6 @@ export const getOffers = async (req: Request, res: Response) => {
       data: result.data,
     });
   } catch (error) {
-    console.error('❌ Error en getOffers:', error);
     res.status(500).json({
       success: false,
       message: 'Error al obtener las ofertas',
@@ -93,35 +75,6 @@ export const getOffers = async (req: Request, res: Response) => {
 };
 
 /**
- * GET /api/devmaster/offers/:id
- */
-export const getOffer = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const offer = await getOfferById(id);
-
-    if (!offer) {
-      return res.status(404).json({
-        success: false,
-        message: 'Oferta no encontrada',
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: offer,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error al obtener la oferta',
-      error,
-    });
-  }
-};
-
-/**
- * GET /api/devmaster/offers/filterByFixerNameRange?range=A-C
  * DEPRECATED: Usar /api/devmaster/offers?range=A-C en su lugar
  */
 export const filterOffersByFixerNameRange = async (req: Request, res: Response) => {
@@ -143,15 +96,6 @@ export const filterOffersByFixerNameRange = async (req: Request, res: Response) 
         validRanges: ['A-C', 'D-F', 'G-I', 'J-L', 'M-Ñ', 'O-Q', 'R-T', 'U-W', 'X-Z'],
       });
     }
-
-    const offers = await getOffersByFixerNameRange(range as string);
-
-    res.json({
-      success: true,
-      range,
-      count: offers.length,
-      data: offers,
-    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -162,7 +106,6 @@ export const filterOffersByFixerNameRange = async (req: Request, res: Response) 
 };
 
 /**
- * GET /api/devmaster/offers/filterByCity?city=La Paz
  * DEPRECATED: Usar /api/devmaster/offers?city=La%20Paz en su lugar
  */
 export const filterOffersByCity = async (req: Request, res: Response) => {
@@ -184,15 +127,6 @@ export const filterOffersByCity = async (req: Request, res: Response) => {
         validCities: getAllCities(),
       });
     }
-
-    const offers = await getOffersByCity(city as string);
-
-    res.json({
-      success: true,
-      city,
-      count: offers.length,
-      data: offers,
-    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -203,7 +137,6 @@ export const filterOffersByCity = async (req: Request, res: Response) => {
 };
 
 /**
- * GET /api/devmaster/offers/filterByCategory?category=Fontanero
  * DEPRECATED: Usar /api/devmaster/offers?category=Fontanero en su lugar
  */
 export const filterOffersByCategory = async (req: Request, res: Response) => {
@@ -225,15 +158,6 @@ export const filterOffersByCategory = async (req: Request, res: Response) => {
         validCategories: getAllCategories(),
       });
     }
-
-    const offers = await getOffersByCategory(category as string);
-
-    res.json({
-      success: true,
-      category,
-      count: offers.length,
-      data: offers,
-    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -244,7 +168,6 @@ export const filterOffersByCategory = async (req: Request, res: Response) => {
 };
 
 /**
- * GET /api/devmaster/offers/filter?range=A-C&city=La Paz&category=Fontanero
  * DEPRECATED: Usar /api/devmaster/offers?range=A-C&city=La%20Paz&category=Fontanero
  */
 export const filterOffers = async (req: Request, res: Response) => {

@@ -1,15 +1,17 @@
-import Server from './config/server.config';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
 
-import { SERVER_PORT } from './config/env.config';
+dotenv.config({ path: ".env.local" });
 
-async function startServer() {
-  try {
-    Server.listen(SERVER_PORT, () => {
-      console.info(`Server running on http://localhost:${SERVER_PORT}`);
-    });
-  } catch (error) {
-    console.error('Error starting server', error);
-  }
-}
+import googleRouter from "./modules/controlC/google/routes";
+import ubicacionRouter from "./modules/controlC/ubicacion/routes"; 
 
-startServer();
+const app = express();
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(express.json());
+
+app.use("/api/controlC/google", googleRouter);
+app.use("/api/controlC/ubicacion", ubicacionRouter);
+
+app.listen(8000, () => console.log("Servidor corriendo en puerto 8000"));

@@ -56,6 +56,7 @@ const appointment_schema = new mongoose.Schema(
       enum: ['occupied', 'cancelled', 'booked'],
       required: true,
       unique: false,
+      default: 'occupied'
     },
     display_name_location: {
       type: String,

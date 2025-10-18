@@ -30,3 +30,7 @@ export async function updateAppointmentById(req, res) {
       .json({ message: 'Error updating appointment data.', modified: false, error: err.message });
   }
 }
+
+export default {
+  updateAppointmentById,
+};

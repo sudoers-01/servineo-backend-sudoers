@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import {
-  updateAppointmentById
-} from './update_controller.js';
+
+import { updateAppointmentById } from './update_controller.js';
 
 const router = Router();
 

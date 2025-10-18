@@ -158,13 +158,14 @@ export async function getModalFormAppointment(req, res) {
 export async function getMeetingStatus(req, res) {
   try {
     const { id_requester, id_fixer, selected_date, starting_time } = req.query;
+    console.log(req.query);
     if (!id_requester || !id_fixer || !selected_date || !starting_time) {
-      res.status(400).json({ message: 'Missing parameter function' });
+      return res.status(400).json({ message: 'Missing parameter function' });
     }
     const { name, status } = await get_meeting_status(id_requester, id_fixer, selected_date, starting_time);
     console.log(name, status);
-    res.status(200).json({ message: 'Meeting status successfully accessed', name, status });
+    return res.status(200).json({ message: 'Meeting status successfully accessed', name, status });
   } catch (err) {
-    res.status(500).json({ message: 'Error updating appointment data', name: "", status: "", error: err.message });
+    return res.status(500).json({ message: 'Error updating appointment data', name: "", status: "", error: err.message });
   }
 }

@@ -154,7 +154,7 @@ export async function getModalFormAppointment(req, res) {
   }
 }
 
-// TODO: Fixear Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
+// * Fixed Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
 export async function getMeetingStatus(req, res) {
   try {
     const { id_requester, id_fixer, selected_date, starting_time } = req.query;

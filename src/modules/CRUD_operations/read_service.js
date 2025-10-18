@@ -99,7 +99,7 @@ async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, mo
   );
 }
 
-// TODO: Fixear Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
+// *: Fixed Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
 async function get_meeting_status(requester_id, fixer_id, current_date, start_hour) {
   try {
     await set_db_connection();

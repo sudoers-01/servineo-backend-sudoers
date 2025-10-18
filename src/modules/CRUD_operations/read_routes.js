@@ -26,7 +26,7 @@ router.get('/schedules/get_by_fixer_other_requesters_day', getAllRequesterSchedu
 // TODO: Fixear Endpoint Pichon: -
 router.get('/appointments/get_modal_form', getModalFormAppointment);
 
-// TODO: Fixear Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
+// * Fixed Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
 router.get('/appointments/get_meeting_status', getMeetingStatus);
 
 export default router;

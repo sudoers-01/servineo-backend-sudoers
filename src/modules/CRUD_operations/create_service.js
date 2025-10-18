@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import db_connection from '../../database.js';
-import Location from '../../models/Location.js';
 import Appointment from '../../models/Appointment.js';
 
 dotenv.config();
@@ -14,27 +13,9 @@ async function set_db_connection() {
   }
 }
 
-//Ubicaciones
-async function create_location(current_location) {
-  await set_db_connection();
-  const location = new Location(current_location);
-  const location_saved = await location.save();
-  return location_saved;
-}
-async function insert_one_location(current_location) {
-  await set_db_connection();
-  const location_saved = await Location.insertOne(current_location);
-  return location_saved;
-}
-
-async function insert_many_locations(locations) {
-  await set_db_connection();
-  const locations_saved = await Location.insertMany(locations);
-  return locations_saved;
-}
-
 //Citas
 // TODO: revisar que devuelve este metodo
+// TODO: Mantener endpoint Vale (revisar si existen fallas con el nuevo esquema de la db).
 async function create_appointment(current_appointment) {
   try {
     await set_db_connection();
@@ -93,70 +74,6 @@ async function create_appointment(current_appointment) {
   }
 }
 
-async function insert_one_appointment(current_appointment) {
-  await set_db_connection();
-  const appointment_saved = await Appointment.insertOne(current_appointment);
-  return appointment_saved;
-}
-
-async function insert_many_appointments(appointments) {
-  await set_db_connection();
-  const appontments_saved = await Appointment.insertMany(appointments);
-  return appontments_saved;
-}
-
-async function create_appointment_with_fixer_requester(fixer_id, requester_id, appointment_data) {
-  await set_db_connection();
-  const appointment = new Appointment({
-    ...appointment_data,
-    id_fixer: fixer_id,
-    id_requester: requester_id,
-  });
-  const appointment_saved = await appointment.save();
-  return appointment_saved;
-}
-
-async function insert_one_appointment_with_fixer_requester(
-  fixer_id,
-  requester_id,
-  appointment_data,
-) {
-  try {
-    await set_db_connection();
-    const appointment_saved = await Appointment.insertOne({
-      ...appointment_data,
-      id_fixer: fixer_id,
-      id_requester: requester_id,
-    });
-    console.log('Cita registrada correctamente.');
-    return appointment_saved;
-  } catch (err) {
-    console.log('Error, la cita no se ha podido registrar.');
-    throw err;
-  }
-}
-
-async function insert_many_appointments_with_fixers_requesters(appointments_data) {
-  await set_db_connection();
-  const appointments_saved = await Appointment.insertMany(appointments_data);
-
-  return appointments_saved;
-}
-
 export {
-  create_location,
-  insert_one_location,
-  insert_many_locations,
   create_appointment,
-  insert_one_appointment,
-  insert_many_appointments,
-  create_appointment_with_fixer_requester,
-  insert_one_appointment_with_fixer_requester,
-  insert_many_appointments_with_fixers_requesters,
 };
-
-//console.log(location);
-
-//create_location()
-//    .then(location_saved => console.log(location_saved))
-//    .catch(err => console.log(err))

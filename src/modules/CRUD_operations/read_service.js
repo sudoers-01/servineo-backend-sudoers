@@ -150,11 +150,10 @@ async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, mo
   status: "occuped" || "available" || "partial"
   name: "nombre del fixer",
 }
-*/ 
+*/
 
-// ❌ PROBLEMA: Falta una llave de cierre } antes del catch
-async function get_meeting_status(requester_id, fixer_id, current_date, start_hour){
-  try{
+async function get_meeting_status(requester_id, fixer_id, current_date, start_hour) {
+  try {
     await set_db_connection();
     const adjusted_date = new Date(current_date);
     const current_year = adjusted_date.getUTCFullYear();
@@ -162,7 +161,6 @@ async function get_meeting_status(requester_id, fixer_id, current_date, start_ho
     const current_day = adjusted_date.getUTCDate();
     const starting_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
     const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59));
-    
     const appointment = await Appointment.findOne({
       id_requester: requester_id,
       id_fixer: fixer_id,
@@ -171,26 +169,23 @@ async function get_meeting_status(requester_id, fixer_id, current_date, start_ho
         $lte: finish_date
       }
     });
-    
-    if(!appointment) throw new Error("Could not find a schedule.");
-    
+    if (!appointment) throw new Error("Could not find a schedule.");
     const founded_schedule = appointment.schedules.find(sched => {
-      if(!sched.starting_time){
+      if (!sched.starting_time) {
         throw new Error("Could not find a schedule.");
       }
       const hour = new Date(sched.starting_time).getUTCHours();
       return (hour === start_hour);
-    }); // ← Aquí estaba el problema
-    
-    if(founded_schedule){
+    });
+    if (founded_schedule) {
       return {
         name: appointment.current_requester_name,
         status: appointment.selected_date_state
       }
-    }else{
+    } else {
       throw new Error("Could not find a schedule.");
     }
-  }catch(err){
+  } catch (err) {
     throw new Error(err.message);
   }
 }
@@ -222,9 +217,8 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
   const current_year = appointment_date.getUTCFullYear();
   const current_month = appointment_date.getUTCMonth();
   const current_day = appointment_date.getUTCDate();
-  const start_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
-  const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59));
-
+  const start_date = new Date(current_year, current_month, current_day, 0, 0, 0);
+  const finish_date = new Date(current_year, current_month, current_day, 23, 59, 59);
   const appointment = await Appointment.findOne({
     id_fixer: fixer_id,
     id_requester: requester_id,
@@ -235,27 +229,22 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
   });
   if (!appointment) return null;
   const founded_schedule = appointment.schedules.find(sched => {
-    if(!sched.starting_time){
+    if (!sched.starting_time) {
       return false;
     }
     const hour = new Date(sched.starting_time).getUTCHours();
     return (hour === start_hour);
   });
-  if(founded_schedule){
+  if (founded_schedule) {
     return {
       _id: appointment._id,
       id_fixer: appointment.id_fixer,
       current_requester_name: appointment.current_requester_name,
       appointment_type: appointment.appointment_type,
       appointment_description: appointment.appointment_description,
-      link_id: appointment.link_id,
-      current_requester_phone: appointment.current_requester_phone,
-      display_name: founded_schedule.display_name,
-      lat: founded_schedule.lat,
-      lon: founded_schedule.lon
-      //schedules: [founded_schedule]
+      schedules: [founded_schedule]
     };
-  }else{
+  } else {
     return null;
   }
 }

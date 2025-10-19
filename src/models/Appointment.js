@@ -1,32 +1,5 @@
 import mongoose from 'mongoose';
 
-const schedules_schema = new mongoose.Schema({
-  starting_time: {
-    type: Date,
-    required: true,
-    unique: false,
-  },
-  finishing_time: { type: Date },
-  schedule_state: {
-    type: String,
-    enum: ['occupied', 'cancelled', 'booked'],
-    required: true,
-    unique: false,
-  },
-  display_name: {
-    type: String,
-    required: false,
-  },
-  lat: {
-    type: String,
-    required: false,
-  },
-  lon: {
-    type: String,
-    required: false,
-  },
-});
-
 const appointment_schema = new mongoose.Schema(
   {
     id_fixer: {
@@ -45,20 +18,6 @@ const appointment_schema = new mongoose.Schema(
       unique: false,
       default: Date.now,
     },
-    selected_date_state: {
-      type: String,
-      enum: ['available', 'occupied', 'partially-occupied'],
-      required: true,
-      unique: false,
-      default: 'available',
-    },
-    schedules: [
-      {
-        type: schedules_schema,
-        required: true,
-        unique: true,
-      },
-    ],
     current_requester_name: {
       type: String,
       required: true,
@@ -85,6 +44,31 @@ const appointment_schema = new mongoose.Schema(
       type: String,
       required: true,
       unique: false,
+    },
+    starting_time: {
+      type: Date,
+      required: true,
+      unique: false,
+    },
+    finishing_time: { type: Date },
+    schedule_state: {
+      type: String,
+      enum: ['occupied', 'cancelled', 'booked'],
+      required: true,
+      unique: false,
+      default: 'occupied'
+    },
+    display_name_location: {
+      type: String,
+      required: false,
+    },
+    lat: {
+      type: String,
+      required: false,
+    },
+    lon: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true },

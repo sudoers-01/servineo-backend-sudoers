@@ -4,6 +4,7 @@ import {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,
   get_meeting_status,
+  get_modal_form_appointment,
 } from './read_service.js'; // llamamos al service
 
 // Obtener horarios de un requester en un mes específico
@@ -116,40 +117,39 @@ export async function getAllRequesterSchedulesByFixerDay(req, res) {
 export async function getModalFormAppointment(req, res) {
   try {
     const { fixer_id, requester_id, appointment_date, start_hour } = req.query;
-
-    if (!fixer_id) {
-      return res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
-    }
-    if (!requester_id) {
-      return res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
-    }
-    if (!appointment_date) {
-      return res
-        .status(400)
-        .json({ message: 'Missing required query parameters: appointment_date.' });
-    }
-    if (!start_hour && start_hour !== 0) {
-      return res.status(400).json({ message: 'Missing required query parameters: start_hour.' });
+    console.log(req.query);
+    if (!fixer_id || !requester_id || !appointment_date || !start_hour) {
+      return res.status(400).json({ message: 'Missing parameter: required fixer_id, requester_id, appointment_date and start_hour' })
     }
 
-    // Convertir appointment_date a objeto Date
     const date = new Date(appointment_date);
     if (isNaN(date.getTime())) {
       return res.status(400).json({ message: 'Invalid date format for appointment_date.' });
     }
 
-    // Validar que start_hour sea un número
     const hour = parseInt(start_hour);
     if (isNaN(hour) || hour < 0 || hour > 23) {
       return res.status(400).json({ message: 'Invalid start_hour. Must be between 0 and 23.' });
     }
 
-    //const data = await get_modal_form_appointment(fixer_id, requester_id, date, hour);
-    //const output_fail = 'No appointment found for the specified parameters.';
-    //const output_success = 'Appointment modal data found. ';
-    //await dataExist(data, output_fail, output_success, res);
+    const data = await get_modal_form_appointment(fixer_id, requester_id, date, hour);
+
+    if (!data) {
+      return res.status(404).json({ message: 'No appointment found for the specified parameters.' });
+    }
+
+    return res.status(200).json({
+      message: 'Appointment modal data found.',
+      data: data
+    });
+
   } catch (error) {
     console.error(error);
+
+    if (error.message === "Appointment does not exist.") {
+      return res.status(404).json({ message: error.message });
+    }
+
     res.status(500).json({ message: 'Error fetching modal form appointment data.' });
   }
 }

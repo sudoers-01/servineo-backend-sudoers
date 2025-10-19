@@ -25,7 +25,15 @@ export const loginUsuario = async (req: Request, res: Response) => {
         .json({ success: false, message: 'Usuario no encontrado' });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+    const storedHash = user.passwordHash || user.password;
+
+    if (!storedHash) {
+      return res
+        .status(500)
+        .json({ success: false, message: 'Error interno: Hash de contraseña no encontrado.' });
+    }
+    
+    const passwordMatch = await bcrypt.compare(password, storedHash);
 
     if (!passwordMatch) {
       return res

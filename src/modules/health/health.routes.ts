@@ -1,8 +1,10 @@
+// src/modules/health/health.routes.ts
 import { Router } from 'express';
-import * as HealthController from './health.controller';
+import { getHealth } from './health.controller';
 
 const router = Router();
 
-router.get('/healthy', HealthController.getHealthStatusController);
+// Ruta GET /api/health
+router.get('/health', getHealth);
 
-export default router;
+export default router; 

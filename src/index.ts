@@ -1,9 +1,9 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
 dotenv.config({ path: ".env" });
 
+import registrarDatosRouter from './modules/controlC/HU1/registrarDatos/routes';
 import googleRouter from "./modules/controlC/HU3/google/routes";
 import ubicacionRouter from "./modules/controlC/HU3/ubicacion/routes"; 
 import authRouter from "./modules/controlC/HU4/auth/auth.routes"; 
@@ -17,5 +17,6 @@ app.use(express.json());
 app.use("/api/controlC/google", googleRouter);
 app.use("/api/controlC/ubicacion", ubicacionRouter);
 app.use("/api/controlC/auth", authRouter); 
+app.use('/api/controlC/registro', registrarDatosRouter);
 
-app.listen(8000, () => console.log("Servidor corriendo en puerto 8000"));
+app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));

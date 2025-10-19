@@ -1,3 +1,13 @@
+// Tipo robusto para los filtros de búsqueda
+type OfferFilterOptions = {
+  ranges?: string[];
+  city?: string;
+  categories?: string[];
+  search?: string;
+  sortBy?: string;
+  limit?: number;
+  skip?: number;
+};
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { isValidRange } from '../utils/nameRangeHelper';
@@ -24,23 +34,29 @@ export const getOffers = async (req: Request, res: Response) => {
     }
 
     // Preparar opciones para el servicio
-    const options: any = {};
+    const options: OfferFilterOptions = {};
 
     // Manejar ranges (puede ser string o array)
     if (range) {
-      const ranges = Array.isArray(range) ? range : [range as string];
-      options.ranges = ranges;
+      if (Array.isArray(range)) {
+        options.ranges = range.map(String);
+      } else if (typeof range === 'string') {
+        options.ranges = [range];
+      }
     }
 
     // Manejar city (single)
-    if (city) {
-      options.city = city as string;
+    if (city && typeof city === 'string') {
+      options.city = city;
     }
 
     // Manejar categories (puede ser string o array)
     if (category) {
-      const categories = Array.isArray(category) ? category : [category as string];
-      options.categories = categories;
+      if (Array.isArray(category)) {
+        options.categories = category.map(String);
+      } else if (typeof category === 'string') {
+        options.categories = [category];
+      }
     }
 
     // Manejar search
@@ -52,8 +68,16 @@ export const getOffers = async (req: Request, res: Response) => {
     if (sortBy && typeof sortBy === 'string') {
       const validSortValues = Object.values(SortCriteria) as string[];
       if (validSortValues.includes(sortBy.toLowerCase())) {
-        options.sortBy = sortBy.toLowerCase() as SortCriteria;
+        options.sortBy = sortBy.toLowerCase();
       }
+    }
+
+    // Manejar paginación
+    if (limit && !isNaN(Number(limit))) {
+      options.limit = Number(limit);
+    }
+    if (skip && !isNaN(Number(skip))) {
+      options.skip = Number(skip);
     }
 
     // Llamar al servicio unificado
@@ -174,10 +198,24 @@ export const filterOffers = async (req: Request, res: Response) => {
   try {
     const { range, city, category } = req.query;
 
-    const filters: any = {};
-    if (range) filters.ranges = Array.isArray(range) ? range : [range];
-    if (city) filters.city = city as string;
-    if (category) filters.categories = Array.isArray(category) ? category : [category];
+    const filters: OfferFilterOptions = {};
+    if (range) {
+      if (Array.isArray(range)) {
+        filters.ranges = range.map(String);
+      } else if (typeof range === 'string') {
+        filters.ranges = [range];
+      }
+    }
+    if (city && typeof city === 'string') {
+      filters.city = city;
+    }
+    if (category) {
+      if (Array.isArray(category)) {
+        filters.categories = category.map(String);
+      } else if (typeof category === 'string') {
+        filters.categories = [category];
+      }
+    }
 
     const result = await getOffersFiltered(filters);
 

@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import serviciosRoutes from './routes/servicios.routes';
-import jobRoutes from './routes/offer.routes'
-import sortRoutes from './routes/sort.routes'
+//import serviciosRoutes from './routes/servicios.routes';
+//import jobRoutes from './routes/offer.routes'
+//import sortRoutes from './routes/sort.routes'
 import jobOfertRoutes from './routes/jobOfert.routes';
 
 const devmasterRoutes = Router();

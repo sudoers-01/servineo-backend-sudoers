@@ -3,6 +3,7 @@ import { getRangeRegex } from '../utils/nameRangeHelper';
 import { validateAndNormalizeCity } from '../utils/cityHelper';
 import { validateAndNormalizeCategory } from '../utils/categoryHelper';
 import { SortCriteria, DEFAULT_SORT_CONFIG } from '../utils/queryParams.types';
+import { normalizeSearchText } from '../utils/search.normalizer';
 
 function normalizeNumber(num?: string | number | null): number {
   if (!num) return 0;
@@ -18,16 +19,17 @@ export const getOfferById = async (id: string) => {
   return await Offer.findById(id).lean().exec();
 };
 
-export const getOffersFiltered = async (options?: {
+export type OfferFilterOptions = {
   ranges?: string[];
   city?: string;
   categories?: string[];
   search?: string;
-  sortBy?: SortCriteria;
+  sortBy?: string | SortCriteria;
   limit?: number;
   skip?: number;
-}) => {
+};
 
+export const getOffersFiltered = async (options?: OfferFilterOptions) => {
   const allOffers = await Offer.find().lean().exec();
 
   if (allOffers.length === 0) {
@@ -61,21 +63,17 @@ export const getOffersFiltered = async (options?: {
     filteredOffers = filteredOffers.filter((o) => normalizedCategories.includes(o.category));
   }
 
-  // Filtro de búsqueda
+  // Filtro de búsqueda insensible a tildes
   if (options?.search && options.search.trim()) {
-    const searchText = options.search.trim().toLowerCase();
+    const searchPattern = normalizeSearchText(options.search.trim());
+    const regex = new RegExp(searchPattern, 'i');
     filteredOffers = filteredOffers.filter((o) => {
-      const fixer = (o.fixerName || '').toLowerCase();
-      const title = (o.title || '').toLowerCase();
-      const desc = (o.description || '').toLowerCase();
-      const cat = (o.category || '').toLowerCase();
-      const city = (o.city || '').toLowerCase();
       return (
-        fixer.includes(searchText) ||
-        title.includes(searchText) ||
-        desc.includes(searchText) ||
-        cat.includes(searchText) ||
-        city.includes(searchText)
+        regex.test(o.fixerName || '') ||
+        regex.test(o.title || '') ||
+        regex.test(o.description || '') ||
+        regex.test(o.category || '') ||
+        regex.test(o.city || '')
       );
     });
   }

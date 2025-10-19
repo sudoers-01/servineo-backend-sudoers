@@ -1,5 +1,5 @@
 import { OAuth2Client } from "google-auth-library";
-import clientPromise from "../lib/mongodb";
+import clientPromise from "../../config/mongodb";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 

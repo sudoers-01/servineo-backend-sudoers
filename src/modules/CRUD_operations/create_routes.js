@@ -6,7 +6,10 @@ import {
 const router = Router();
 
 // Rutas para Appointments (básicas)
-// TODO: Mantener endpoint Vale (revisar si existen fallas con el nuevo esquema de la db).
+// * Mantener endpoint Vale (revisar si existen fallas con el nuevo esquema de la db).
+// * Existian incompatibilidades con el esquema modificado
+// ? Asuntos modificados: Ya no se actualizan appointments existentes.
+// ? Si ya existe un appointment con el mismo fixer, fecha y hora, se rechaza la creacion.
 router.post('/appointments/create', createAppointment);
 
 export default router;

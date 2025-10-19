@@ -3,6 +3,7 @@ import 'express';
 import {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,
+  get_appointments_by_fixer_day,
   get_meeting_status,
   get_modal_form_appointment,
 } from './read_service.js'; // llamamos al service
@@ -57,34 +58,30 @@ export async function getAllRequesterSchedulesByFixerMonth(req, res) {
   }
 }
 
-// TODO: Fixear Endpoint Arrick: Devuelve mucho 404.
-export async function getRequesterSchedulesByFixerDay(req, res) {
+// * Fixed Endpoint Arrick: Devolvia mucho 404.
+// * Anteriores 2 endpoints unificados: se obtienen todas las citas de un dia 
+// ? Inclue a todas las citas de todos los requesters en el dia
+export async function getAppointmentsByDate(req, res) {
   try {
-    const { fixer_id, requester_id, searched_date } = req.query;
-
-    if (!fixer_id) {
-      return res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
+    const { id_fixer, selected_date } = req.query;
+    if (!id_fixer || !selected_date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing parameter: required fixer id or selected date'
+      });
     }
-    if (!requester_id) {
-      return res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
-    }
-    if (!searched_date) {
-      return res.status(400).json({ message: 'Missing required query parameters: searched_date.' });
-    }
-
-    // Convertir searched_date a objeto Date
-    const date = new Date(searched_date);
-    if (isNaN(date.getTime())) {
-      return res.status(400).json({ message: 'Invalid date format for searched_date.' });
-    }
-
-    //const data = await get_requester_schedules_by_fixer_day(fixer_id, requester_id, date);
-    //const output_fail = 'No schedules found for this requester on the specified date.';
-    //const output_success = 'Schedules found for this requester. ';
-    //await dataExist(data, output_fail, output_success, res);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error fetching requester schedules by fixer and day.' });
+    const { appointments } = await get_appointments_by_fixer_day(id_fixer, selected_date);
+    return res.status(200).json({
+      success: true,
+      message: 'Appointments for the selected date successfully accessed',
+      accessed_appointments: appointments
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: 'Error accessing appointments for the selected date.',
+      error: err.message
+    });
   }
 }
 
@@ -166,7 +163,7 @@ export async function getMeetingStatus(req, res) {
     const { id_requester, id_fixer, selected_date, starting_time } = req.query;
     console.log(req.query);
     if (!id_requester || !id_fixer || !selected_date || !starting_time) {
-      return res.status(400).json({ message: 'Missing parameter function' });
+      return res.status(400).json({ message: 'Missing parameters: required requester id, fixer id, date or starting hour' });
     }
     const { name, status } = await get_meeting_status(id_requester, id_fixer, selected_date, starting_time);
     console.log(name, status);

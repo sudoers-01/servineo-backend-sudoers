@@ -2,8 +2,7 @@ import { Router } from 'express';
 import {
   getRequesterSchedulesByFixerMonth,
   getAllRequesterSchedulesByFixerMonth,
-  getRequesterSchedulesByFixerDay,
-  getAllRequesterSchedulesByFixerDay,
+  getAppointmentsByDate,
   getModalFormAppointment,
   getMeetingStatus
 } from './read_controller.js';
@@ -16,11 +15,10 @@ router.get('/schedules/get_by_fixer_current_requester_month', getRequesterSchedu
 // * Fixed ndpoint Chamo (consultar)
 router.get('/schedules/get_by_fixer_other_requesters_month', getAllRequesterSchedulesByFixerMonth);
 
-// Rutas para Schedules - Por día
-// TODO: Fixear Endpoint Arrick: Devuelve mucho 404.
-router.get('/schedules/get_by_fixer_current_requester_day', getRequesterSchedulesByFixerDay);
-//TODO: Fixear Endpoint Arrick: Unificar con el endpoint de arriba.
-router.get('/schedules/get_by_fixer_other_requesters_day', getAllRequesterSchedulesByFixerDay);
+// * Fixed Endpoint Arrick: Devolvia mucho 404.
+// * Anteriores 2 endpoints unificados: se obtienen todas las citas de un dia 
+// ? Inclue a todas las citas de todos los requesters en el dia
+router.get('/appointments/get_appointments_date', getAppointmentsByDate);
 
 // Ruta para Modal Form
 // * Fixed Endpoint Pichon

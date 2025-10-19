@@ -150,39 +150,37 @@ async function get_requester_schedules_by_fixer_day(fixer_id, requester_id, sear
 
 // TODO: Fixear Endpoint Pichon: -
 async function get_modal_form_appointment(fixer_id, requester_id, appointment_date, start_hour) {
-  await set_db_connection();
-  const current_year = appointment_date.getUTCFullYear();
-  const current_month = appointment_date.getUTCMonth();
-  const current_day = appointment_date.getUTCDate();
-  const start_date = new Date(current_year, current_month, current_day, 0, 0, 0);
-  const finish_date = new Date(current_year, current_month, current_day, 23, 59, 59);
-  const appointment = await Appointment.findOne({
-    id_fixer: fixer_id,
-    id_requester: requester_id,
-    selected_date: {
-      $gte: start_date,
-      $lte: finish_date
-    },
-  });
-  if (!appointment) return null;
-  const founded_schedule = appointment.schedules.find(sched => {
-    if (!sched.starting_time) {
-      return false;
-    }
-    const hour = new Date(sched.starting_time).getUTCHours();
-    return (hour === start_hour);
-  });
-  if (founded_schedule) {
+  try {
+    await set_db_connection();
+
+    const current_year = appointment_date.getUTCFullYear();
+    const current_month = appointment_date.getUTCMonth();
+    const current_day = appointment_date.getUTCDate();
+
+    const exact_start_date = new Date(Date.UTC(current_year, current_month, current_day, start_hour, 0, 0));
+    const appointment = await Appointment.findOne({
+      id_fixer: fixer_id,
+      id_requester: requester_id,
+      starting_time: exact_start_date
+    });
+
+    if (!appointment) {
+      throw new Error("Appointment does not exist.");
+    };
+
     return {
       _id: appointment._id,
       id_fixer: appointment.id_fixer,
       current_requester_name: appointment.current_requester_name,
       appointment_type: appointment.appointment_type,
       appointment_description: appointment.appointment_description,
-      schedules: [founded_schedule]
+      link_id: appointment.link_id,
+      current_requester_phone: appointment.current_requester_phone,
+      latitude: appointment.lat,
+      longitude: appointment.lon,
     };
-  } else {
-    return null;
+  } catch (err) {
+    throw new Error(err.message);
   }
 }
 

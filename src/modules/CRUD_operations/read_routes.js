@@ -23,7 +23,7 @@ router.get('/schedules/get_by_fixer_current_requester_day', getRequesterSchedule
 router.get('/schedules/get_by_fixer_other_requesters_day', getAllRequesterSchedulesByFixerDay);
 
 // Ruta para Modal Form
-// TODO: Fixear Endpoint Pichon: -
+// * Fixed Endpoint Pichon
 router.get('/appointments/get_modal_form', getModalFormAppointment);
 
 // * Fixed Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.

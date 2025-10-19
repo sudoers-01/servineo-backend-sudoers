@@ -116,7 +116,7 @@ export async function getAllRequesterSchedulesByFixerDay(req, res) {
   }
 }
 
-// TODO: Fixear Endpoint Pichon: -
+// * Fixed Endpoint Pichon: -
 export async function getModalFormAppointment(req, res) {
   try {
     const { fixer_id, requester_id, appointment_date, start_hour } = req.query;

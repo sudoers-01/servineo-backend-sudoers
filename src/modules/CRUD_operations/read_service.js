@@ -137,7 +137,7 @@ async function get_appointments_by_fixer_day(fixer_id, requested_date) {
   }
 }
 
-// TODO: Fixear Endpoint Pichon: -
+// * Fixear Endpoint Pichon: -
 async function get_modal_form_appointment(fixer_id, requester_id, appointment_date, start_hour) {
   try {
     await set_db_connection();

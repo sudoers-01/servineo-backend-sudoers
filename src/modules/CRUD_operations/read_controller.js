@@ -9,18 +9,21 @@ import {
 
 // Obtener horarios de un requester en un mes específico
 // TODO: fix, controladores deben devolver siempre status codes, dataExists no debe existir
-// TODO: Fixear Endpoint Chamo: -
+// * FIXED Endpoint Chamo: -
 export async function getRequesterSchedulesByFixerMonth(req, res) {
   try {
     const { fixer_id, requester_id, month } = req.query;
     if (!fixer_id) {
-      return res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
+      res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
+      return;
     }
     if (!requester_id) {
-      return res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
+      res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
+      return;
     }
     if (!month) {
-      return res.status(400).json({ message: 'Missing required query parameters: month.' });
+      res.status(400).json({ message: 'Missing required query parameters: month.' });
+      return;
     }
     const data = await get_requester_schedules_by_fixer_month(fixer_id, requester_id, month);
     res.status(200).json(data);
@@ -35,13 +38,16 @@ export async function getAllRequesterSchedulesByFixerMonth(req, res) {
   try {
     const { fixer_id, requester_id, month } = req.query;
     if (!fixer_id) {
-      return res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
+      res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
+      return;
     }
     if (!requester_id) {
-      return res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
+      res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
+      return;
     }
     if (!month) {
-      return res.status(400).json({ message: 'Missing required query parameters: month.' });
+      res.status(400).json({ message: 'Missing required query parameters: month.' });
+      return;
     }
     const data = await get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month);
     res.status(200).json(data);

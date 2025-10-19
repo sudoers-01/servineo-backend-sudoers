@@ -11,9 +11,9 @@ import {
 const router = Router();
 
 // Rutas para Schedules - Por mes
-// TODO: fixear Endpoint Chamo: -
+// * Fixed endpoint Chamo
 router.get('/schedules/get_by_fixer_current_requester_month', getRequesterSchedulesByFixerMonth);
-//? Endpoint Chamo (consultar)
+// * Fixed ndpoint Chamo (consultar)
 router.get('/schedules/get_by_fixer_other_requesters_month', getAllRequesterSchedulesByFixerMonth);
 
 // Rutas para Schedules - Por día

@@ -20,12 +20,10 @@ export async function updateAppointmentById(req, res) {
 
     const modified = await update_appointment_by_id(id, updateAttributes);
 
-    res.status(200).json({ message: 'Updated succesfully', modified });
+    return res.status(200).json({ message: 'Updated succesfully', modified });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .json({ message: 'Error updating appointment data.', modified: false, error: err.message });
+    return res.status(500).json({ message: 'Error updating appointment data.', modified: false, error: err.message });
   }
 }
 

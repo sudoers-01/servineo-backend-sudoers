@@ -20,8 +20,8 @@ async function update_appointment_by_id(id, attributes) {
   try {
     await set_db_connection();
 
-    // !atributos hay que tener cuidado con schedule
-    // TODO: desestructurar schedule
+    // * atributos hay que tener cuidado con schedule (ya no es necesario con el nuevo esquema).
+    // * desestructurar schedule (ya no es necesario con el nuevo esquema).
 
     const updated_appointment = await Appointment.findByIdAndUpdate(
       id,

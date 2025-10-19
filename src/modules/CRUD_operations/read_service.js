@@ -34,34 +34,6 @@ async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id
   return projected_list;
 }
 
-//TODO: Fixear Endpoint Arrick: Unificar con el endpoint de arriba.
-async function get_all_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
-  await set_db_connection();
-  const start_date = new Date(Date.UTC(
-    searched_date.getUTCFullYear(),
-    searched_date.getUTCMonth(),
-    searched_date.getUTCDate(),
-    0, 0, 0
-  ));
-  const finish_date = new Date(Date.UTC(
-    searched_date.getUTCFullYear(),
-    searched_date.getUTCMonth(),
-    searched_date.getUTCDate(),
-    23, 59, 59
-  ));
-
-  let appointment_schedules = await Appointment.find({
-    id_fixer: fixer_id,
-    id_requester: { $ne: requester_id },
-    selected_date: { $gte: start_date, $lte: finish_date },
-  });
-  let final_list = change_schedule_state_booked_to_occupied(appointment_schedules);
-  const projected_list = final_list.map((appointment) => ({
-    schedules: appointment.schedules,
-  }));
-  return projected_list;
-}
-
 function change_schedule_state_booked_to_occupied(appointment_schedules) {
   if (!appointment_schedules || !Array.isArray(appointment_schedules)) {
     return appointment_schedules || [];
@@ -127,25 +99,20 @@ async function get_meeting_status(requester_id, fixer_id, current_date, start_ho
   }
 }
 
-// TODO: Fixear Endpoint Arrick: Devuelve mucho 404.
-async function get_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
-  await set_db_connection();
-  const current_year = searched_date.getUTCFullYear();
-  const current_month = searched_date.getUTCMonth();
-  const current_day = searched_date.getUTCDate();
-  const start_date = new Date(current_year, current_month, current_day, 0, 0, 0);
-  const finish_date = new Date(current_year, current_month, current_day, 23, 59, 59);
-  return Appointment.find(
-    {
+// * Fixed Endpoint Arrick: Devolvia mucho 404.
+// * Anteriores 2 endpoints unificados: se obtienen todas las citas de un dia 
+// ? Inclue a todas las citas de todos los requesters en el dia
+async function get_appointments_by_fixer_day(fixer_id, requested_date) {
+  try {
+    await set_db_connection();
+    const founded_appointments = await Appointment.find({
       id_fixer: fixer_id,
-      id_requester: requester_id,
-      selected_date: { $gte: start_date, $lte: finish_date },
-    },
-    {
-      schedules: 1,
-      _id: 0,
-    },
-  );
+      selected_date: requested_date
+    });
+    return { appointments: founded_appointments };
+  } catch (err) {
+    throw new Error(err.message);
+  }
 }
 
 // TODO: Fixear Endpoint Pichon: -
@@ -189,8 +156,7 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
 export {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,
-  get_requester_schedules_by_fixer_day,
-  get_all_requester_schedules_by_fixer_day,
+  get_appointments_by_fixer_day,
   get_modal_form_appointment,
   get_meeting_status
 };

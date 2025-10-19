@@ -3,10 +3,8 @@ import {
   update_appointment_by_id,
 } from './update_service.js';
 
-// Appointments - Controladores faltantes
-
-// TODO: Fixear Endpoint Pichon: Refactorizar y probar en Postman.
-//? El endpoint esta actualizando mas slots de los que deberia.
+// * Fixed Endpoint Pichon: Refactorizar y probar en Postman.
+// * El endpoint estaba actualizando mas slots de los que deberia, ahora con el nuevo esquema actualiza lo solicitado.
 export async function updateAppointmentById(req, res) {
   try {
     const id = req.query.id;
@@ -16,18 +14,16 @@ export async function updateAppointmentById(req, res) {
       return res.status(400).json({ message: 'Missing parameters: required id and attributes.' });
     }
 
-    const updateData = Object.fromEntries(
-      Object.entries(attributes).filter((v) => v !== undefined && v !== null),
+    const updateAttributes = Object.fromEntries(
+      Object.entries(attributes).filter((v) => v !== undefined && v !== null)
     );
 
-    const modified = await update_appointment_by_id(id, updateData);
+    const modified = await update_appointment_by_id(id, updateAttributes);
 
-    res.status(200).json({ message: 'Updated succesfully', modified });
+    return res.status(200).json({ message: 'Updated succesfully', modified });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .json({ message: 'Error updating appointment data.', modified: false, error: err.message });
+    return res.status(500).json({ message: 'Error updating appointment data.', modified: false, error: err.message });
   }
 }
 

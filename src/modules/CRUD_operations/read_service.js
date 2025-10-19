@@ -13,25 +13,36 @@ async function set_db_connection() {
   }
 }
 
-// TODO: CHAMO LOCURAS
+// TODO: CHAMO LOCURAS (Todos los occupied de un fixer_id, que NO vayan con el requester_id)
 async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();
+  const required_state = "occupied";
   const current_date = new Date();
   const current_year = current_date.getUTCFullYear();
-  const target_month = month - 1;
-  const start_date = new Date(current_year, target_month, 1);
-  const finish_date = new Date(current_year, month, 0, 23, 59, 59);
-
-  let appointment_schedules = await Appointment.find({
-    id_fixer: fixer_id,
-    id_requester: { $ne: requester_id },
-    selected_date: { $gte: start_date, $lte: finish_date },
-  });
-  let final_list = change_schedule_state_booked_to_occupied(appointment_schedules);
-  const projected_list = final_list.map((appointment) => ({
-    schedules: appointment.schedules,
-  }));
-  return projected_list;
+  const target_month = parseInt(month) - 1; // Mongoose usa 0-indexed months
+  const start_date = new Date(Date.UTC(current_year, target_month, 1, 0, 0, 0));
+  const finish_date = new Date(Date.UTC(current_year, target_month + 1, 0, 23, 59, 59, 999));
+  return Appointment.find(
+    {
+      id_fixer: fixer_id,
+      id_requester: { $ne: requester_id },
+      schedule_state: required_state,
+      selected_date: {
+        $gte: start_date,
+        $lte: finish_date
+      },
+    },
+    {
+      starting_time: 1,
+      finishing_time: 1,
+      schedule_state: 1,
+      appointment_description: 1,
+      display_name_location: 1,
+      lat: 1,
+      lon: 1,
+      _id: 1
+    },
+  );
 }
 
 //TODO: Fixear Endpoint Arrick: Unificar con el endpoint de arriba.

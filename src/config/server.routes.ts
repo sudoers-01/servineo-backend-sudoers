@@ -1,13 +1,11 @@
 import { Router } from 'express';
 
-
 import HealthRoutes from '../modules/health/health.routes';
 import CardsRoutes from "../Innosys/routes/card.routes";
 import UsersRoutes from "../Innosys/routes/user.routes";
 import PaymentRoutes from "../Innosys/routes/payment.routes";
 import CashPayRoutes from '../Innosys/routes/lab/cashpay.routes';
-
-import LabRoutes from '../Innosys/routes/lab/cashpay.routes';
+import BankAccountRoutes from '../Innosys/routes/BankAccount.routes'; // ← AGREGAR
 
 const router = Router();
 
@@ -30,7 +28,8 @@ router.use('/api', HealthRoutes);
 router.use('/api', CardsRoutes);
 router.use('/api', UsersRoutes);
 router.use('/api', PaymentRoutes);
-router.use('/api/lab', CashPayRoutes); // ← AGREGADO: Ruta del laboratorio
+router.use('/api', BankAccountRoutes); 
+router.use('/api/lab', CashPayRoutes);
 
 // Manejo de rutas no encontradas (404)
 router.use((req, res) => {

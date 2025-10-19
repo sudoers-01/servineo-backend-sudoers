@@ -14,57 +14,27 @@ async function set_db_connection() {
 }
 
 //Citas
-// TODO: revisar que devuelve este metodo
-// TODO: Mantener endpoint Vale (revisar si existen fallas con el nuevo esquema de la db).
+// * Mantener endpoint Vale (revisar si existen fallas con el nuevo esquema de la db).
+// * Existian incompatibilidades con el esquema modificado
+// ? Asuntos modificados: Ya no se actualizan appointments existentes.
+// ? Si ya existe un appointment con el mismo fixer, fecha y hora, se rechaza la creacion.
 async function create_appointment(current_appointment) {
   try {
     await set_db_connection();
     const fixer_id = current_appointment.id_fixer;
-    const requester_id = current_appointment.id_requester;
     const date_selected = current_appointment.selected_date;
-    const time_starting = new Date(current_appointment.starting_time);
-    const time_finishing = new Date(time_starting.getTime() + 60 * 60 * 1000);
-    const current_diplay_name = current_appointment.display_name;
-    const current_lat = current_appointment.lat;
-    const current_lon = current_appointment.lon;
-    const new_schedule = {
-      starting_time: time_starting,
-      finishing_time: time_finishing,
-      schedule_state: 'booked',
-      display_name: current_diplay_name,
-      lat: current_lat,
-      lon: current_lon,
-    };
+    const time_starting = current_appointment.starting_time;
 
     const exists = await Appointment.findOne({
       id_fixer: fixer_id,
-      id_requester: requester_id,
       selected_date: date_selected,
+      starting_time: time_starting
     });
-    let apointment_updated;
+    console.log(exists);
+    let appointment = null;
     if (!exists) {
-      current_appointment.schedules = [new_schedule];
-      const appointment = new Appointment(current_appointment);
-      // ? revisar que devuelve
-      apointment_updated = await appointment.save();
-    } else {
-      await Appointment.updateOne(
-        {
-          id_fixer: fixer_id,
-          id_requester: requester_id,
-          selected_date: date_selected,
-        },
-        {
-          $push: { schedules: new_schedule },
-        },
-      );
-      apointment_updated = await Appointment.findOne({
-        id_fixer: fixer_id,
-        id_requester: requester_id,
-        selected_date: date_selected,
-      });
-    }
-    if (apointment_updated) {
+      appointment = new Appointment(current_appointment);
+      await appointment.save();
       return true;
     } else {
       return false;

@@ -14,8 +14,8 @@ async function set_db_connection() {
   }
 }
 
-// TODO: Fixear Endpoint Pichon: Refactorizar y probar en Postman.
-//? El endpoint esta actualizando mas slots de los que deberia.
+// * Fixed Endpoint Pichon: Refactorizar y probar en Postman.
+// * El endpoint estaba actualizando mas slots de los que deberia, ahora con el nuevo esquema actualiza lo solicitado.
 async function update_appointment_by_id(id, attributes) {
   try {
     await set_db_connection();
@@ -23,13 +23,13 @@ async function update_appointment_by_id(id, attributes) {
     // !atributos hay que tener cuidado con schedule
     // TODO: desestructurar schedule
 
-    const docUpdate = await Appointment.findByIdAndUpdate(
+    const updated_appointment = await Appointment.findByIdAndUpdate(
       id,
       { $set: attributes },
-      { new: true, runValidators: true },
+      { new: true },
     );
 
-    if (docUpdate) {
+    if (updated_appointment) {
       return true;
     } else {
       return false;

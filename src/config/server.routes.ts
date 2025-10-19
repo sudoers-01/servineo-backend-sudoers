@@ -1,9 +1,13 @@
 import { Router } from 'express';
+
+
 import HealthRoutes from '../modules/health/health.routes';
 import CardsRoutes from "../Innosys/routes/card.routes";
 import UsersRoutes from "../Innosys/routes/user.routes";
 import PaymentRoutes from "../Innosys/routes/payment.routes";
 import CashPayRoutes from '../Innosys/routes/lab/cashpay.routes';
+
+import LabRoutes from '../Innosys/routes/lab/cashpay.routes';
 
 const router = Router();
 

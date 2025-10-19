@@ -5,6 +5,14 @@ import Server from './config/server.config';
 import { connectDB } from './Innosys/config/database.config'
 import { SERVER_PORT } from './config/env.config';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
+import Server from './config/server.config';
+import { connectDB } from './Innosys/config/database.config'
+import { SERVER_PORT } from './config/env.config';
+
+
 connectDB();
 
 async function startServer() {

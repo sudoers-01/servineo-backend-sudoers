@@ -1,0 +1,21 @@
+//archivos para exportar de variables de entorno de .env
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+
+export const SERVER_PORT = process.env.SERVER_PORT || 3001;
+
+
+export const MONGODB_URI = process.env.MONGODB_URI;
+export const NODE_ENV = process.env.NODE_ENV || 'development';
+
+
+
+
+console.log('🔍 Environment variables loaded:');
+console.log('PORT:', SERVER_PORT);
+console.log('MONGODB_URI:', MONGODB_URI ? '✅ Loaded' : '❌ Missing');
+console.log('   NODE_ENV:', NODE_ENV);
+
+

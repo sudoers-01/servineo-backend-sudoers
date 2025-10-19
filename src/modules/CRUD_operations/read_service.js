@@ -45,22 +45,6 @@ async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id
   );
 }
 
-function change_schedule_state_booked_to_occupied(appointment_schedules) {
-  if (!appointment_schedules || !Array.isArray(appointment_schedules)) {
-    return appointment_schedules || [];
-  }
-  for (const appointment of appointment_schedules) {
-    if (appointment && appointment.schedules && Array.isArray(appointment.schedules)) {
-      for (const schedule of appointment.schedules) {
-        if (schedule.schedule_state === 'booked') {
-          schedule.schedule_state = 'occupied';
-        }
-      }
-    }
-  }
-  return appointment_schedules;
-}
-
 // *: Fixed endpoint Chamo
 async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();

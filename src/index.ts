@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
 
 import Server from './config/server.config';
-import { connectDB } from './Innosys/config/database';
+import { connectDB } from './Innosys/config/database.config'
 import { SERVER_PORT } from './config/env.config';
 
 import dotenv from 'dotenv';
@@ -15,13 +17,9 @@ connectDB();
 
 async function startServer() {
   try {
-
-    
-
-   
+    // 1. Conectar a la base de datos PRIMERO (con await)
     console.log('🔗 Connecting to MongoDB...');
     await connectDB();
-
 
     Server.listen(SERVER_PORT, () => {
       console.info(`Server running on http://localhost:${SERVER_PORT}`);

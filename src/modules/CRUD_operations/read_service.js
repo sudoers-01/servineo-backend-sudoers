@@ -78,23 +78,34 @@ function change_schedule_state_booked_to_occupied(appointment_schedules) {
   return appointment_schedules;
 }
 
-// TODO: Fixear Endpoint Chamo: -
+// *: Fixed endpoint Chamo
 async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();
+  const required_state = "booked";
   const current_date = new Date();
   const current_year = current_date.getUTCFullYear();
-  const target_month = month - 1; // Mongoose usa 0-indexed months
-  const start_date = new Date(current_year, target_month, 1);
-  const finish_date = new Date(current_year, month, 0, 23, 59, 59);
+  const target_month = parseInt(month) - 1; // Mongoose usa 0-indexed months
+  const start_date = new Date(Date.UTC(current_year, target_month, 1, 0, 0, 0));
+  const finish_date = new Date(Date.UTC(current_year, target_month + 1, 0, 23, 59, 59, 999));
   return Appointment.find(
     {
       id_fixer: fixer_id,
       id_requester: requester_id,
-      selected_date: { $gte: start_date, $lte: finish_date },
+      schedule_state: required_state,
+      selected_date: {
+        $gte: start_date,
+        $lte: finish_date
+      },
     },
     {
-      schedules: 1,
-      _id: 0,
+      starting_time: 1,
+      finishing_time: 1,
+      schedule_state: 1,
+      appointment_description: 1,
+      display_name_location: 1,
+      lat: 1,
+      lon: 1,
+      _id: 1
     },
   );
 }

@@ -1,0 +1,30 @@
+import { Request, Response } from "express";
+import { obtenerDatosUsuarioService, actualizarDatosUsuarioService } from "./service";
+
+export const obtenerDatosUsuario = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: "No autorizado" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const data = await obtenerDatosUsuarioService(token);
+    res.json(data);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const actualizarDatosUsuario = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: "No autorizado" });
+
+  const token = authHeader.split(" ")[1];
+  const nuevosDatos = req.body;
+
+  try {
+    const result = await actualizarDatosUsuarioService(token, nuevosDatos);
+    res.json(result);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};

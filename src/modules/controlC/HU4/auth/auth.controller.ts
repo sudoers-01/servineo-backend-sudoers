@@ -42,10 +42,10 @@ export const loginUsuario = async (req: Request, res: Response) => {
     }
 
     const sessionToken = jwt.sign(
-      { email: user.email, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+  { id: user._id.toString(), email: user.email, name: user.name },
+  JWT_SECRET,
+  { expiresIn: '7d' }
+);
 
     return res.json({
       success: true,

@@ -11,6 +11,48 @@ function normalizeNumber(num?: string | number | null): number {
   return isNaN(parsed) ? 0 : parsed;
 }
 
+/**
+ * Búsqueda inteligente por tokens (divide por comas y espacios)
+ * Todos los tokens deben estar presentes en al menos uno de los campos
+ */
+function matchesAllTokens(
+  offer: {
+    fixerName?: string;
+    title?: string;
+    description?: string;
+    category?: string;
+    city?: string;
+    [key: string]: unknown;
+  },
+  searchText: string,
+): boolean {
+  // Dividir por comas, guiones, puntos, guiones bajos y espacios, eliminar vacíos
+  const tokens = searchText
+    .trim()
+    .split(/[\s,\-_.]+/)
+    .filter((token) => token.length > 0);
+
+  if (tokens.length === 0) return false;
+
+  // Generar patrones regex para cada token
+  const regexPatterns = tokens.map((token) => {
+    const pattern = normalizeSearchText(token);
+    return new RegExp(pattern, 'i');
+  });
+
+  // Concatenar todos los campos relevantes
+  const fieldsToSearch = [
+    offer.fixerName || '',
+    offer.title || '',
+    offer.description || '',
+    offer.category || '',
+    offer.city || '',
+  ].join(' ');
+
+  // Verificar que TODOS los tokens coincidan
+  return regexPatterns.every((regex) => regex.test(fieldsToSearch));
+}
+
 export const getAllOffers = async () => {
   return await Offer.find().sort({ createdAt: -1 }).lean().exec();
 };
@@ -63,19 +105,27 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
     filteredOffers = filteredOffers.filter((o) => normalizedCategories.includes(o.category));
   }
 
-  // Filtro de búsqueda insensible a tildes
+  // Filtro de búsqueda inteligente insensible a tildes
   if (options?.search && options.search.trim()) {
-    const searchPattern = normalizeSearchText(options.search.trim());
-    const regex = new RegExp(searchPattern, 'i');
-    filteredOffers = filteredOffers.filter((o) => {
-      return (
-        regex.test(o.fixerName || '') ||
-        regex.test(o.title || '') ||
-        regex.test(o.description || '') ||
-        regex.test(o.category || '') ||
-        regex.test(o.city || '')
-      );
-    });
+    const searchText = options.search.trim();
+
+    // Si contiene separadores (coma, guion, punto, guion bajo o espacios), usa búsqueda inteligente por tokens
+    if (/[,\-_.\s]/.test(searchText)) {
+      filteredOffers = filteredOffers.filter((o) => matchesAllTokens(o, searchText));
+    } else {
+      // Búsqueda simple por un solo término sin separadores
+      const searchPattern = normalizeSearchText(searchText);
+      const regex = new RegExp(searchPattern, 'i');
+      filteredOffers = filteredOffers.filter((o) => {
+        return (
+          regex.test(o.fixerName || '') ||
+          regex.test(o.title || '') ||
+          regex.test(o.description || '') ||
+          regex.test(o.category || '') ||
+          regex.test(o.city || '')
+        );
+      });
+    }
   }
 
   // === ORDENAMIENTO ===

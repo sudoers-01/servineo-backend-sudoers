@@ -16,7 +16,6 @@ async function set_db_connection() {
 // TODO: CHAMO LOCURAS (Todos los occupied de un fixer_id, que NO vayan con el requester_id)
 async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();
-  const required_state = "occupied";
   const current_date = new Date();
   const current_year = current_date.getUTCFullYear();
   const target_month = parseInt(month) - 1; // Mongoose usa 0-indexed months
@@ -26,7 +25,6 @@ async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id
     {
       id_fixer: fixer_id,
       id_requester: { $ne: requester_id },
-      schedule_state: required_state,
       selected_date: {
         $gte: start_date,
         $lte: finish_date
@@ -48,7 +46,6 @@ async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id
 // *: Fixed endpoint Chamo
 async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();
-  const required_state = "booked";
   const current_date = new Date();
   const current_year = current_date.getUTCFullYear();
   const target_month = parseInt(month) - 1; // Mongoose usa 0-indexed months
@@ -58,7 +55,6 @@ async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, mo
     {
       id_fixer: fixer_id,
       id_requester: requester_id,
-      schedule_state: required_state,
       selected_date: {
         $gte: start_date,
         $lte: finish_date

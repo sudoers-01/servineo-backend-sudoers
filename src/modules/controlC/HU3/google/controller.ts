@@ -1,28 +1,52 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { verifyGoogleToken, checkUserExists, createUser } from "./service";
+import { verifyGoogleToken, findUserByEmail, createUser } from "./service";
 
 const JWT_SECRET = process.env.JWT_SECRET || "super_secret_key";
 
 export async function googleAuth(req: Request, res: Response) {
   const { token } = req.body;
-  if (!token) return res.status(400).json({ status: "error", message: "Token no recibido" });
+  if (!token) {
+    return res.status(400).json({ status: "error", message: "Token no recibido" });
+  }
 
   try {
-    const user = await verifyGoogleToken(token);
-    if (!user || !user.email) return res.status(400).json({ status: "error", message: "Token inválido" });
+    const googleUser = await verifyGoogleToken(token);
+    if (!googleUser || !googleUser.email) {
+      return res.status(400).json({ status: "error", message: "Token inválido" });
+    }
 
-    const exists = await checkUserExists(user.email);
+    let dbUser = await findUserByEmail(googleUser.email);
+    const exists = !!dbUser;
 
-    if (!exists) await createUser(user);
+    if (!exists) {
+      dbUser = await createUser(googleUser);
+    }
 
-    const sessionToken = jwt.sign({ email: user.email, name: user.name }, JWT_SECRET, { expiresIn: "7d" });
+    if (!dbUser) {
+      return res.status(500).json({ status: "error", message: "Error interno al obtener el usuario" });
+    }
+
+    const sessionToken = jwt.sign(
+      {
+        id: dbUser._id.toHexString(), 
+        email: dbUser.email,
+        name: dbUser.name,
+      },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     return res.json({
       status: exists ? "exists" : "firstTime",
       firstTime: !exists,
-      user,
-      token: sessionToken
+      user: {
+        _id: dbUser._id.toHexString(),
+        email: dbUser.email,
+        name: dbUser.name,
+        picture: dbUser.url_photo, 
+      },
+      token: sessionToken,
     });
   } catch (err) {
     console.error(err);
@@ -32,7 +56,9 @@ export async function googleAuth(req: Request, res: Response) {
 
 export function verifyJWT(req: Request, res: Response, next: any) {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer ")) return res.status(401).json({ message: "Token no proporcionado" });
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Token no proporcionado" });
+  }
 
   const token = authHeader.split(" ")[1];
   const JWT_SECRET = process.env.JWT_SECRET || "super_secret_key";

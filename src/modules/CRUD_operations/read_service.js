@@ -85,8 +85,10 @@ async function get_meeting_status(requester_id, fixer_id, current_date, start_ho
     const current_year = adjusted_date.getUTCFullYear();
     const current_month = adjusted_date.getUTCMonth();
     const current_day = adjusted_date.getUTCDate();
-    const starting_date = new Date(Date.UTC(current_year, current_month, current_day, start_hour, 0, 0));
-    const finish_date = new Date(Date.UTC(current_year, current_month, current_day, (start_hour + 1), 0, 0));
+    const start_hour_num = parseInt(start_hour, 10);
+    const starting_date = new Date(Date.UTC(current_year, current_month, current_day, start_hour_num, 0, 0));
+    const finish_date = new Date(Date.UTC(current_year, current_month, current_day, (start_hour_num + 1), 0, 0));
+
     const appointment = await Appointment.findOne({
       id_requester: requester_id,
       id_fixer: fixer_id,

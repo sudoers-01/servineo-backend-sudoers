@@ -42,3 +42,4 @@ database-pg/*
 # environment
 .env*
 !.env.example
+.vercel

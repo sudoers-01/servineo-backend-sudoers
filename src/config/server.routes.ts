@@ -6,6 +6,7 @@ import UsersRoutes from "../Innosys/routes/user.routes";
 import PaymentRoutes from "../Innosys/routes/payment.routes";
 import CashPayRoutes from '../Innosys/routes/lab/cashpay.routes';
 import BankAccountRoutes from '../Innosys/routes/BankAccount.routes'; // ← AGREGAR
+import paymentsRouter from "../Innosys/routes/payments.qr";
 
 const router = Router();
 
@@ -30,6 +31,8 @@ router.use('/api', UsersRoutes);
 router.use('/api', PaymentRoutes);
 router.use('/api', BankAccountRoutes); 
 router.use('/api/lab', CashPayRoutes);
+
+router.use("/payments", paymentsRouter);
 
 // Manejo de rutas no encontradas (404)
 router.use((req, res) => {

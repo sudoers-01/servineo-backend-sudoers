@@ -15,16 +15,16 @@ app.use(
 app.use(express.json());
 
 //AppRoutes ya incluye todas las rutas
-app.use(AppRoutes);
+//app.use(AppRoutes);
 app.use('/api', AppRoutes); // prefijo global: todas las rutas empiezan con /api
 
 //const app = express();
 
 //Midleware
-app.use(cors());
-app.use(express.json());
+//app.use(cors());
+//app.use(express.json());
 
 //AppRoutes ya incluye todas las rutas
-app.use(AppRoutes);
+//app.use(AppRoutes);
 
 export default app;

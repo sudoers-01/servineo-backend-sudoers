@@ -9,7 +9,6 @@ export interface IBankAccount extends Document {
     accountType: 'Cuenta de Ahorros' | 'Cuenta Corriente';
     accountNumber: string;
     bankName: string;
-    isFavorite: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -51,10 +50,7 @@ const BankAccountSchema = new Schema<IBankAccount>({
         required: [true, 'El nombre del banco es obligatorio.'] 
     },
     // Indicador si es la cuenta favorita o principal
-    isFavorite: { 
-        type: Boolean, 
-        default: false 
-    },
+    
 }, {
     timestamps: true // Añade campos createdAt y updatedAt automáticamente
 });

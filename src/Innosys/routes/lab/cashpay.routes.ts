@@ -4,6 +4,7 @@ import { getPaymentSummaryByIdLab } from "../../controllers/lab/get-by-id-summar
 import { getPaymentSummaryByJobIdLab } from "../../controllers/lab/get-by-job-summary.controller";
 import { confirmPaymentLab } from "../../controllers/lab/confirm-payment.controller";
 import { createPaymentLab } from "../../controllers/lab/cashpay.controller";
+import { regeneratePaymentCode } from "../../controllers/lab/cashpay.controller";
 
 const labRouter = Router();
 
@@ -45,6 +46,8 @@ labRouter.get("/payments/by-job/:jobId/summary", getPaymentSummaryByJobIdLab);
 
 // Confirmar pago
 labRouter.patch("/payments/:id/confirm", confirmPaymentLab);
+
+labRouter.post("/payments/:id/regenerate-code", regeneratePaymentCode);
 
 // Exporta el router correcto ✅
 export default labRouter;

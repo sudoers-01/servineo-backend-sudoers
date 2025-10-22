@@ -1,12 +1,52 @@
-// servineo-backend/src/controllers/bankAccount.controller.ts
+// servineo-backend/src/Innosys/controllers/bankAccount.controller.ts
 
 import { Request, Response } from 'express';
 import { BankAccount } from '../models/bankAccount.model';
+// 🟢 CORRECCIÓN 1: Importar el modelo User para actualizar el estado
+import User from '../models/user.model';
+
+
+/**
+ * @route DELETE /api/bank-accounts/:fixerId
+ * @desc Elimina la cuenta bancaria de un Fixer y actualiza su estado a SCB.
+ * @access Private
+ */
+export const deleteBankAccount = async (req: Request, res: Response) => {
+    try {
+        const { fixerId } = req.params;
+
+        // 1. Busca y elimina la cuenta.
+        const deletedAccount = await BankAccount.findOneAndDelete({ fixerId }); 
+
+        if (!deletedAccount) {
+            return res.status(404).json({ message: 'No se encontró la cuenta para eliminar.' });
+        }
+
+        // 🟢 LÓGICA CORRECTA: Actualizar el estado del usuario/fixer a SCB
+        await User.findOneAndUpdate(
+            { _id: fixerId },
+            { bank_status: 'SCB' } 
+        );
+
+        res.status(200).json({ 
+            message: 'Cuenta bancaria eliminada exitosamente y estado de usuario actualizado a SCB.',
+            deletedId: deletedAccount._id 
+        });
+
+    } catch (error: any) {
+        console.error('Error al eliminar cuenta bancaria:', error);
+        res.status(500).json({ 
+            message: 'Error interno del servidor al eliminar la cuenta bancaria.',
+            error: error.message 
+        });
+    }
+};
+
 
 /**
  * @route POST /api/bank-accounts
- * @desc Registra una nueva cuenta bancaria para un Fixer.
- * @access Private (Debería ser validado por middleware, pero aquí solo se guarda)
+ * @desc Registra una nueva cuenta bancaria para un Fixer y actualiza su estado a CCB.
+ * @access Private
  */
 export const createBankAccount = async (req: Request, res: Response) => {
     try {
@@ -16,11 +56,10 @@ export const createBankAccount = async (req: Request, res: Response) => {
             identification, 
             accountType, 
             accountNumber, 
-            bankName, 
-            isFavorite 
+            bankName
         } = req.body;
 
-        // Validación básica (Mongoose se encarga del resto con "required: true")
+        // Validación básica
         if (!fixerId || !accountNumber || !bankName) {
             return res.status(400).json({ 
                 message: 'Faltan campos obligatorios (fixerId, accountNumber, bankName).',
@@ -28,28 +67,33 @@ export const createBankAccount = async (req: Request, res: Response) => {
             });
         }
 
-        // Crear una nueva instancia de Cuenta Bancaria
+        // Crear una nueva instancia de Cuenta Bancaria (isFavorite eliminado)
         const newBankAccount = new BankAccount({
             fixerId,
             nameFixer,
             identification,
             accountType,
             accountNumber,
-            bankName,
-            isFavorite: isFavorite || false // Aseguramos un valor booleano
+            bankName
         });
 
         // Guardar en la base de datos
         await newBankAccount.save();
 
+        // 🟢 CORRECCIÓN 2: Actualizar el estado del usuario/fixer a CCB
+        await User.findOneAndUpdate(
+            { _id: fixerId },
+            { bank_status: 'CCB' }
+        );
+
         // Respuesta exitosa
         res.status(201).json({
-            message: 'Cuenta bancaria registrada exitosamente.',
-            data: newBankAccount.toJSON() // Retorna el objeto guardado
+            message: 'Cuenta bancaria registrada exitosamente y estado de usuario actualizado a CCB.',
+            data: newBankAccount.toJSON() 
         });
 
     } catch (error: any) {
-        // Manejo de errores, especialmente si el número de cuenta ya existe (unique: true)
+        // Manejo de errores
         if (error.code === 11000) {
             return res.status(409).json({ 
                 message: 'El número de cuenta bancaria ya ha sido registrado.',

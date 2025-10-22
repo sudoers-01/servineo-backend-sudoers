@@ -14,6 +14,8 @@ export async function getPaymentSummaryByIdLab(req: Request, res: Response) {
   try {
     const { id } = req.params;
 
+    console.log("🔍 Consultando payment ID:", id); // LOG
+
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({ error: "id inválido" });
     }
@@ -28,17 +30,38 @@ export async function getPaymentSummaryByIdLab(req: Request, res: Response) {
       return res.status(422).json({ error: "documento sin 'amount.total' válido" });
     }
 
-    return res.json({
+    // ✅ Verificar si el código expiró
+    const now = new Date();
+    const codeExpired = doc.codeExpiresAt ? doc.codeExpiresAt < now : false;
+
+    console.log("⏰ Verificación de expiración:", {
+      now: now.toISOString(),
+      codeExpiresAt: doc.codeExpiresAt?.toISOString() || "N/A",
+      codeExpired,
+      difference: doc.codeExpiresAt 
+        ? ((doc.codeExpiresAt.getTime() - now.getTime()) / 1000).toFixed(2) + " segundos"
+        : "N/A"
+    }); // LOG
+
+    const responseData = {
       data: {
         id,
-        code: doc.code,
-        total: doc.amount.total,
+        code: codeExpired ? null : doc.code,  // ✅ Ocultar código si expiró
+        codeExpired,  // ✅ Agregar flag de expiración
+        codeExpiresAt: doc.codeExpiresAt ?? null,
         status: doc.status,
-        expiresAt: doc.codeExpiresAt ?? null,
-        currency: doc.amount.currency ?? "BOB",
+        amount: {
+          total: doc.amount.total,
+          currency: doc.amount.currency ?? "BOB",
+        }
       },
-    });
+    };
+
+    console.log("📤 Respuesta enviada:", JSON.stringify(responseData, null, 2)); // LOG
+
+    return res.json(responseData);
   } catch (e: any) {
+    console.error("❌ Error obteniendo resumen:", e);
     return res.status(400).json({ error: e.message || "Error buscando resumen por id (lab)" });
   }
 }

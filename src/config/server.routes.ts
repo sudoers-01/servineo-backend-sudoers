@@ -33,6 +33,7 @@ router.use('/api', BankAccountRoutes);
 router.use('/api/lab', CashPayRoutes);
 
 router.use("/payments", paymentsRouter);
+router.use("api/payments", paymentsRouter);
 
 // Manejo de rutas no encontradas (404)
 router.use((req, res) => {

@@ -11,6 +11,13 @@ function generateRef() {
   return s;
 }
 
+console.log("[payments] router cargado");
+
+router.get("/ping", (_req, res) => {
+  res.json({ ok: true, from: "payments" });
+});
+
+
 // Crea o reutiliza una intención por bookingId y devuelve datos + método de pago
 router.post("/intent", async (req, res) => {
   try {

@@ -1,0 +1,30 @@
+name: Build and Push Backend Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push image
+        run: |
+          IMAGE=ghcr.io/sudoers-01/servineo-backend-sudoers:${{ github.sha }}
+          echo "Building image $IMAGE"
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Update deploy repo (ArgoCD)
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.DEPLOY_TOKEN }}
+          repository: sudoers-01/servineo-deploy-sudoers
+          event-type: update-image
+          client-payload: '{"image":"ghcr.io/sudoers-01/servineo-backend-sudoers:${{ github.sha }}"}'

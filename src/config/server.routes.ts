@@ -17,7 +17,6 @@ import RatingsDetailsRoutes from '../modules/ratings-details/routes';
   router.use('/api', ProfileRoutes);
   router.use('/api', FixersRoutes);
   router.use('/api/ratings', RatingsRoutes);
-  router.use('/api/ratings.details', RatingsDetailsRoutes);
 
   router.use((req, res) => {
     console.log('Not found:', req.method, req.originalUrl);

@@ -88,7 +88,7 @@ export const createPayment = async (req, res) => {
       cardId: cardId || null,
       temporaryPaymentMethodId: cardId ? null : paymentMethodId,
       amount,
-      status: paymentIntent.status,
+      status: paymentIntent.status === "succeeded" ? "paid" : "pending",
       paymentIntentId: paymentIntent.id,
     });
 

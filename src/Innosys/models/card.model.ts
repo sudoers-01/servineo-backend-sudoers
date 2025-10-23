@@ -9,6 +9,7 @@ const cardSchema = new mongoose.Schema({
   expMonth: Number,
   expYear: Number,
   isDefault: Boolean,
+  cardholderName: String,
 });
 
 export default mongoose.model("cards", cardSchema);

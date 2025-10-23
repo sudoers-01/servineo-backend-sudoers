@@ -15,7 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // =========================
 export const createCard = async (req, res) => {
   try {
-    const { userId, paymentMethodId, saveCard } = req.body;
+    const { userId, paymentMethodId, saveCard , cardholderName} = req.body;
 
     // 1️⃣ Buscar usuario en MongoDB
     const user = await User.findById(userId);
@@ -69,6 +69,7 @@ export const createCard = async (req, res) => {
         expMonth: paymentMethod.card.exp_month,
         expYear: paymentMethod.card.exp_year,
         isDefault: true,
+        cardholderName,
       });
 
       return res.json(newCard);

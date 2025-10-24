@@ -1,6 +1,6 @@
 import { Db, ObjectId } from 'mongodb';
 import axios from 'axios';
-import { JobSummary } from '../model/job.model';
+import { JobSummary } from './model';
 
 async function geolocateIp(ip?: string): Promise<string> {
   if (!ip) return 'Desconocida';

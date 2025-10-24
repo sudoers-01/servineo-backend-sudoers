@@ -16,4 +16,3 @@ export async function getRatingsByFixer(db: Db, fixerId: string) {
 
   return results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
-

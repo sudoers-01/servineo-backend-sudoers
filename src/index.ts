@@ -8,6 +8,8 @@ import googleRouter from "./modules/controlC/HU3/google/routes";
 import ubicacionRouter from "./modules/controlC/HU3/ubicacion/routes"; 
 import authRouter from "./modules/controlC/HU4/auth/auth.routes"; 
 import modificarDatosRouter from './modules/controlC/HU5/modificarDatos/routes';
+import nominatimRouter from './modules/controlC/HU5/sugerencias/routes'; // si lo separaste
+
 
 const app = express();
 
@@ -20,5 +22,6 @@ app.use("/api/controlC/ubicacion", ubicacionRouter);
 app.use("/api/controlC/auth", authRouter); 
 app.use('/api/controlC/registro', registrarDatosRouter);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
+app.use('/api/controlC/sugerencias', nominatimRouter);
 
 app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));

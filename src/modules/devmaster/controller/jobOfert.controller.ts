@@ -21,7 +21,7 @@ import { SortCriteria } from '../utils/queryParams.types';
  */
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy, limit, skip } = req.query;
+    const { range, city, category, search, sortBy, limit, skip, page } = req.query;
 
     // Si no hay parámetros, retorna todos
     if (!range && !city && !category && !search && !sortBy) {
@@ -72,12 +72,18 @@ export const getOffers = async (req: Request, res: Response) => {
       }
     }
 
-    // Manejar paginación
-    if (limit && !isNaN(Number(limit))) {
-      options.limit = Number(limit);
-    }
-    if (skip && !isNaN(Number(skip))) {
+    // Manejar paginación: priorizar 'page' sobre 'skip'
+    const itemsPerPage = limit && !isNaN(Number(limit)) ? Number(limit) : 10;
+    options.limit = itemsPerPage;
+
+    if (page && !isNaN(Number(page))) {
+      // Convertir page (1-indexed) a skip (0-indexed)
+      const pageNum = Number(page);
+      options.skip = (pageNum - 1) * itemsPerPage;
+    } else if (skip && !isNaN(Number(skip))) {
       options.skip = Number(skip);
+    } else {
+      options.skip = 0;
     }
 
     // Llamar al servicio unificado

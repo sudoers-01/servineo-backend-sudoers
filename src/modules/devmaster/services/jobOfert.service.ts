@@ -168,7 +168,7 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
   });
 
   // === PAGINACIÓN ===
-  const hasFilters =
+  /*const hasFilters =
     (options?.search && options.search.trim()) ||
     (options?.city && options.city.trim()) ||
     (options?.categories && options.categories.length > 0) ||
@@ -177,10 +177,11 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
   let paginatedOffers = filteredOffers;
 
   if (!hasFilters) {
+  */
     const limit = options?.limit || 10;
     const skip = options?.skip || 0;
-    paginatedOffers = filteredOffers.slice(skip, skip + limit);
-  }
+    const paginatedOffers = filteredOffers.slice(skip, skip + limit);
+  //}
 
   return {
     count: filteredOffers.length,

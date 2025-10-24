@@ -9,11 +9,12 @@ interface TokenPayload extends JwtPayload {
 }
 
 interface UpdateRequesterData {
-  phone: string;
+  telefono: string;
   direction: string;
   coordinates: [number, number];
 }
-const normalizePhone = (phone: string) => phone.replace(/\D/g, ""); 
+
+const normalizeTelefono = (telefono?: string) => (telefono ?? '').replace(/\D/g, "");
 // quita todo lo que no sea digito
 
 export const obtenerDatosUsuarioService = async (token: string) => {
@@ -27,7 +28,7 @@ export const obtenerDatosUsuarioService = async (token: string) => {
 
   return {
     requesterId: usuario._id,
-    phone: usuario.phone || "",
+    telefono: usuario.telefono || "",
     direction: usuario.direction || "",
     coordinates: usuario.coordinates || [0, 0],
   };
@@ -38,19 +39,19 @@ export const actualizarDatosUsuarioService = async (token: string, nuevosDatos: 
   const db = await connectDB();
   //  comprobacion de telefono duplicado ---
   const userIdStr = decoded.id; // id del usuario autenticado
-  const normalizedNewPhone = normalizePhone(nuevosDatos.phone || "");
+  const normalizedNewTelefono = normalizeTelefono(nuevosDatos.telefono || "");
 
-  if (normalizedNewPhone) {
+  if (normalizedNewTelefono) {
     // 1) intentar busqueda directa (si en la bd ya estan los digitos
-    let existing = await db.collection("users").findOne({ phone: normalizedNewPhone });
+    let existing = await db.collection("users").findOne({ telefono: normalizedNewTelefono });
 
-    // 2) si no se encuentra, hacer fallback: escanear usuarios con phone y comparar normalizado.
+    // 2) si no se encuentra, hacer fallback: escanear usuarios con telefono y comparar normalizado.
 //es decir compara digitos normalizados y no normalizados
     if (!existing) {
-      const cursor = db.collection("users").find({ phone: { $exists: true, $ne: "" } }, { projection: { phone: 1 } });
+      const cursor = db.collection("users").find({ telefono: { $exists: true, $ne: "" } }, { projection: { telefono: 1 } });
       while (await cursor.hasNext()) {
         const doc = await cursor.next();
-        if (doc && normalizePhone(doc.phone) === normalizedNewPhone) {
+        if (doc && normalizeTelefono(doc.telefono) === normalizedNewTelefono) {
           existing = doc;
           break;
         }
@@ -70,7 +71,7 @@ export const actualizarDatosUsuarioService = async (token: string, nuevosDatos: 
     { _id: new ObjectId(decoded.id) }, 
     {
       $set: {
-        phone: nuevosDatos.phone,
+        telefono: nuevosDatos.telefono,
         direction: nuevosDatos.direction,
         coordinates: nuevosDatos.coordinates,
       },

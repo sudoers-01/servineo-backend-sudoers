@@ -54,13 +54,16 @@ function matchesAllTokens(
 }
 
 export const getAllOffers = async () => {
+  // Workaround TS callable-union issue: assign query to `any` then call methods
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return await (Offer.find() as any).sort({ createdAt: -1 }).lean().exec();
+  const qAll: any = Offer.find();
+  return await qAll.sort({ createdAt: -1 }).lean().exec();
 };
 
 export const getOfferById = async (id: string) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return await (Offer.findById(id) as any).lean().exec();
+  const qById: any = Offer.findById(id);
+  return await qById.lean().exec();
 };
 
 export type OfferFilterOptions = {
@@ -75,7 +78,8 @@ export type OfferFilterOptions = {
 
 export const getOffersFiltered = async (options?: OfferFilterOptions) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const allOffers = await (Offer.find() as any).lean().exec();
+  const qAll2: any = Offer.find();
+  const allOffers = await qAll2.lean().exec();
 
   if (allOffers.length === 0) {
     return { count: 0, data: [] };

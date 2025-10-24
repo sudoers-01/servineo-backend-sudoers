@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { guardarUbicacionUsuario } from "./service";
 
 export const registrarUbicacion = async (req: Request, res: Response) => {
-  const { lat, lng } = req.body;
+  const { lat, lng, direccion, departamento, pais } = req.body;
   const user = (req as any).user;
 
   if (lat === undefined || lng === undefined)
@@ -12,8 +12,8 @@ export const registrarUbicacion = async (req: Request, res: Response) => {
     return res.status(401).json({ error: "Usuario no autorizado" });
 
   try {
-    await guardarUbicacionUsuario(user.email, lat, lng);
-    res.json({ message: "Ubicación registrada correctamente", lat, lng });
+    await guardarUbicacionUsuario(user.email, lat, lng, direccion, departamento, pais);
+    res.json({ message: "Ubicación registrada correctamente", lat, lng, direccion, departamento, pais });
   } catch (error) {
     console.error("Error guardando ubicación:", error);
     res.status(500).json({ error: "Error interno del servidor" });

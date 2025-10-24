@@ -29,30 +29,29 @@ export const getRangeRegex = (range: string): RegExp | null => {
   const cleanRange = extractRangeLetters(range);
   console.log(`🔤 getRangeRegex: rango limpio = "${cleanRange}"`);
 
-  // Mapa de rangos a letras
-  const rangeMap: Record<string, [string, string]> = {
-    'A-C': ['A', 'C'],
-    'D-F': ['D', 'F'],
-    'G-I': ['G', 'I'],
-    'J-L': ['J', 'L'],
-    'M-Ñ': ['M', 'Ñ'],
-    'O-Q': ['O', 'Q'],
-    'R-T': ['R', 'T'],
-    'U-W': ['U', 'W'],
-    'X-Z': ['X', 'Z'],
+  // Mapa de rangos a letras EXPLÍCITAS (sin usar rangos problemáticos)
+  const rangeMap: Record<string, string[]> = {
+    'A-C': ['a', 'b', 'c', 'A', 'B', 'C'],
+    'D-F': ['d', 'e', 'f', 'D', 'E', 'F'],
+    'G-I': ['g', 'h', 'i', 'G', 'H', 'I'],
+    'J-L': ['j', 'k', 'l', 'J', 'K', 'L'],
+    'M-Ñ': ['m', 'n', 'ñ', 'M', 'N', 'Ñ'], // ✅ EXPLÍCITO
+    'O-Q': ['o', 'p', 'q', 'O', 'P', 'Q'],
+    'R-T': ['r', 's', 't', 'R', 'S', 'T'],
+    'U-W': ['u', 'v', 'w', 'U', 'V', 'W'],
+    'X-Z': ['x', 'y', 'z', 'X', 'Y', 'Z'],
   };
 
-  const [start, end] = rangeMap[cleanRange] || [null, null];
+  const letters = rangeMap[cleanRange];
 
-  if (!start || !end) {
+  if (!letters) {
     console.warn(`❌ getRangeRegex: rango inválido = "${cleanRange}"`);
     console.warn(`   Valores válidos:`, Object.keys(rangeMap).join(', '));
     return null;
   }
 
-  // Crear regex que coincida con cualquier letra en el rango
-  // ej: A-C → /^[a-c]/i
-  const pattern = `^[${start.toLowerCase()}-${end.toLowerCase()}]`;
+  // Crear regex con las letras explícitas
+  const pattern = `^[${letters.join('')}]`;
   const regex = new RegExp(pattern, 'i');
 
   console.log(`✅ getRangeRegex: patrón = "${pattern}", regex = ${regex}`);
@@ -66,33 +65,18 @@ export const getRangeRegex = (range: string): RegExp | null => {
 export const getLettersInRange = (range: string): string[] => {
   const cleanRange = extractRangeLetters(range);
 
-  const rangeMap: Record<string, [string, string]> = {
-    'A-C': ['A', 'C'],
-    'D-F': ['D', 'F'],
-    'G-I': ['G', 'I'],
-    'J-L': ['J', 'L'],
-    'M-Ñ': ['M', 'Ñ'],
-    'O-Q': ['O', 'Q'],
-    'R-T': ['R', 'T'],
-    'U-W': ['U', 'W'],
-    'X-Z': ['X', 'Z'],
+  // Mapa explícito de letras por rango
+  const rangeMap: Record<string, string[]> = {
+    'A-C': ['A', 'B', 'C', 'a', 'b', 'c'],
+    'D-F': ['D', 'E', 'F', 'd', 'e', 'f'],
+    'G-I': ['G', 'H', 'I', 'g', 'h', 'i'],
+    'J-L': ['J', 'K', 'L', 'j', 'k', 'l'],
+    'M-Ñ': ['M', 'N', 'Ñ', 'm', 'n', 'ñ'], // ✅ EXPLÍCITO
+    'O-Q': ['O', 'P', 'Q', 'o', 'p', 'q'],
+    'R-T': ['R', 'S', 'T', 'r', 's', 't'],
+    'U-W': ['U', 'V', 'W', 'u', 'v', 'w'],
+    'X-Z': ['X', 'Y', 'Z', 'x', 'y', 'z'],
   };
 
-  const [start, end] = rangeMap[cleanRange] || [null, null];
-
-  if (!start || !end) {
-    return [];
-  }
-
-  const letters: string[] = [];
-  let current = start.charCodeAt(0);
-  const endCode = end.charCodeAt(0);
-
-  while (current <= endCode) {
-    letters.push(String.fromCharCode(current).toUpperCase());
-    letters.push(String.fromCharCode(current).toLowerCase());
-    current++;
-  }
-
-  return letters;
-};
+  return rangeMap[cleanRange] || [];
+}

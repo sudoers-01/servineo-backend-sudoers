@@ -14,7 +14,7 @@ export async function getJobInfoHandler(req: Request, res: Response) {
     const summary = await getJobSummary(
       db,
       id,
-      lat !== undefined && lng !== undefined ? { lat, lng } : undefined
+      lat !== undefined && lng !== undefined ? { lat, lng } : undefined,
     );
 
     if (!summary) return res.status(404).json({ message: 'Job not found' });

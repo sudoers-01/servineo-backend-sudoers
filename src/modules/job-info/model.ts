@@ -13,8 +13,7 @@ export interface JobSummary {
   title: string;
   description: string;
   createdAt: Date;
-  Ubicacion: string;             
-  UbicacionOriginal?: string;    
+  Ubicacion: string;
+  UbicacionOriginal?: string;
   status: string;
 }
-

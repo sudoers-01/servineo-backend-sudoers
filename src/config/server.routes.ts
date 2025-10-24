@@ -7,8 +7,10 @@ import CommentRoutes from '../modules/comments/comment.routes';
 import ProfileRoutes from '../modules/profile/profile.routes';
 import RatingsRoutes from '../modules/ratings/rating.routes';
 import RatingsDetailsRoutes from '../modules/ratings-details/routes';
+import JobInfoRoutes from '../modules/job-info/routes';
 
 const router = Router();
+router.use('/api/job-info', JobInfoRoutes);
 router.use('/api/ratings.details', RatingsDetailsRoutes);
 router.use('/api/health', HealthRoutes);
 router.use('/api/requested-jobs', RequestedJobsRoutes);

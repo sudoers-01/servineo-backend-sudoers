@@ -8,15 +8,23 @@ interface TokenPayload extends JwtPayload {
   id: string;
 }
 
-interface UpdateRequesterData {
-  telefono: string;
-  direction: string;
-  coordinates: [number, number];
+interface Ubicacion {
+  lat: number;
+  lng: number;
+  direccion: string;
+  departamento: string;
+  pais: string;
 }
 
-const normalizeTelefono = (telefono?: string) => (telefono ?? '').replace(/\D/g, "");
-// quita todo lo que no sea digito
+interface UpdateRequesterData {
+  telefono: string;
+  ubicacion: Ubicacion;
+}
 
+const normalizeTelefono = (telefono?: string) => (telefono ?? "").replace(/\D/g, "");
+// quita todo lo que no sea dígito
+
+// ✅ Obtener datos del usuario logueado
 export const obtenerDatosUsuarioService = async (token: string) => {
   const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
   const db = await connectDB();
@@ -29,26 +37,35 @@ export const obtenerDatosUsuarioService = async (token: string) => {
   return {
     requesterId: usuario._id,
     telefono: usuario.telefono || "",
-    direction: usuario.direction || "",
-    coordinates: usuario.coordinates || [0, 0],
+    ubicacion: usuario.ubicacion || {
+      lat: 0,
+      lng: 0,
+      direccion: "",
+      departamento: "",
+      pais: "",
+    },
   };
 };
 
+// ✅ Actualizar datos del usuario logueado
 export const actualizarDatosUsuarioService = async (token: string, nuevosDatos: UpdateRequesterData) => {
   const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
   const db = await connectDB();
-  //  comprobacion de telefono duplicado ---
+
+  // --- comprobación de teléfono duplicado ---
   const userIdStr = decoded.id; // id del usuario autenticado
   const normalizedNewTelefono = normalizeTelefono(nuevosDatos.telefono || "");
 
   if (normalizedNewTelefono) {
-    // 1) intentar busqueda directa (si en la bd ya estan los digitos
+    // 1) búsqueda directa
     let existing = await db.collection("users").findOne({ telefono: normalizedNewTelefono });
 
-    // 2) si no se encuentra, hacer fallback: escanear usuarios con telefono y comparar normalizado.
-//es decir compara digitos normalizados y no normalizados
+    // 2) si no se encuentra, comparar números normalizados
     if (!existing) {
-      const cursor = db.collection("users").find({ telefono: { $exists: true, $ne: "" } }, { projection: { telefono: 1 } });
+      const cursor = db
+        .collection("users")
+        .find({ telefono: { $exists: true, $ne: "" } }, { projection: { telefono: 1 } });
+
       while (await cursor.hasNext()) {
         const doc = await cursor.next();
         if (doc && normalizeTelefono(doc.telefono) === normalizedNewTelefono) {
@@ -58,22 +75,22 @@ export const actualizarDatosUsuarioService = async (token: string, nuevosDatos: 
       }
     }
 
-    // 3) si existe y no es el mismo usuario -> error con codigo reconocible
+    // 3) si existe y no es el mismo usuario -> error
     if (existing && existing._id.toString() !== userIdStr) {
       const err: any = new Error("Número de teléfono ya registrado por otro usuario");
       err.code = "PHONE_TAKEN";
       throw err;
     }
   }
-  // ---fin de la comprobacion del telefono duplicado
+  // --- fin de comprobación ---
 
+  // ✅ Actualizar en MongoDB con el nuevo formato
   const result = await db.collection("users").updateOne(
-    { _id: new ObjectId(decoded.id) }, 
+    { _id: new ObjectId(decoded.id) },
     {
       $set: {
         telefono: nuevosDatos.telefono,
-        direction: nuevosDatos.direction,
-        coordinates: nuevosDatos.coordinates,
+        ubicacion: nuevosDatos.ubicacion, // 👈 nuevo campo reemplaza direction + coordinates
       },
     }
   );

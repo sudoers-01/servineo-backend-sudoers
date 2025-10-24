@@ -147,7 +147,7 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
       appointment_description: appointment.appointment_description,
       link_id: appointment.link_id,
       current_requester_phone: appointment.current_requester_phone,
-      display_name: appointment.display_name_location,
+      display_name_location: appointment.display_name_location,
       latitude: appointment.lat,
       longitude: appointment.lon,
     };

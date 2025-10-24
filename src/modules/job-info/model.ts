@@ -11,8 +11,10 @@ export interface JobDoc {
 export interface JobSummary {
   _id: string;
   title: string;
-  description?: string;
-  createdAt?: Date | string;
-  Ubicacion: string;
-  status?: string;
+  description: string;
+  createdAt: Date;
+  Ubicacion: string;             
+  UbicacionOriginal?: string;    
+  status: string;
 }
+

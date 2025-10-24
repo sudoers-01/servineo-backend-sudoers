@@ -1,22 +1,11 @@
 import { Db, ObjectId } from 'mongodb';
-import axios from 'axios';
 import { JobSummary } from './model';
 
-async function geolocateIp(ip?: string): Promise<string> {
-  if (!ip) return 'Desconocida';
-  try {
-    const cleanIp = ip.replace(/^::ffff:/, '');
-    const resp = await axios.get(`https://ipapi.co/${cleanIp}/json/`);
-    const data = resp.data;
-    const parts = [data.city, data.region, data.country_name].filter(Boolean);
-    return parts.length ? parts.join(', ') : 'Desconocida';
-  } catch (err) {
-    console.warn('geolocation failed:', (err as Error).message);
-    return 'Desconocida';
-  }
-}
-
-export async function getJobSummary(db: Db, id: string, clientIp?: string): Promise<JobSummary | null> {
+export async function getJobSummary(
+  db: Db,
+  id: string,
+  coords?: { lat: number; lng: number } 
+): Promise<JobSummary | null> {
   if (!ObjectId.isValid(id)) return null;
   const _id = new ObjectId(id);
 
@@ -24,17 +13,25 @@ export async function getJobSummary(db: Db, id: string, clientIp?: string): Prom
     { _id },
     { projection: { title: 1, description: 1, createdAt: 1, status: 1 } }
   );
-
   if (!job) return null;
 
-  const ubicacion = await geolocateIp(clientIp);
+  const appointment = await db.collection('appointments').findOne(
+    { job_id: _id }, 
+    { projection: { lat: 1, lon: 1 } }
+  );
+
+  const UbicacionOriginal =
+    appointment && appointment.lat && appointment.lon
+      ? `${appointment.lat}, ${appointment.lon}`
+      : undefined;
 
   return {
     _id: job._id.toHexString(),
     title: job.title,
-    description: job.description,
-    createdAt: job.createdAt,
-    Ubicacion: ubicacion,
-    status: job.status,
+    description: job.description || '',
+    createdAt: job.createdAt!,
+    Ubicacion: coords ? `${coords.lat}, ${coords.lng}` : 'Desconocida',
+    UbicacionOriginal: UbicacionOriginal || 'Desconocida',
+    status: job.status || 'Desconocido',
   };
 }

@@ -1,23 +1,21 @@
 import { Request, Response } from 'express';
 import { getJobSummary } from './service';
 
-function getClientIp(req: Request): string | undefined {
-  const xff = req.headers['x-forwarded-for'];
-  if (typeof xff === 'string') return xff.split(',')[0].trim();
-  if (Array.isArray(xff) && xff.length) return xff[0];
-  return req.ip;
-}
-
 export async function getJobInfoHandler(req: Request, res: Response) {
   const { id } = req.params;
   const db = req.db;
-  if (!db) return res.status(500).json({ message: 'Database not available' });
 
+  if (!db) return res.status(500).json({ message: 'Database not available' });
   if (!id) return res.status(400).json({ message: 'ID is required' });
 
+  const { lat, lng } = req.body || {};
+
   try {
-    const clientIp = getClientIp(req);
-    const summary = await getJobSummary(db, id, clientIp);
+    const summary = await getJobSummary(
+      db,
+      id,
+      lat !== undefined && lng !== undefined ? { lat, lng } : undefined
+    );
 
     if (!summary) return res.status(404).json({ message: 'Job not found' });
 

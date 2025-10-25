@@ -4,7 +4,9 @@ import {
   getAllRequesterSchedulesByFixerMonth,
   getAppointmentsByDate,
   getModalFormAppointment,
-  getMeetingStatus
+  getMeetingStatus,
+  getRequesterSchedulesByFixerDay,
+  getOtherRequesterSchedulesByFixerDay
 } from './read_controller.js';
 
 const router = Router();
@@ -14,6 +16,11 @@ const router = Router();
 router.get('/schedules/get_by_fixer_current_requester_month', getRequesterSchedulesByFixerMonth);
 // * Fixed ndpoint Chamo (consultar)
 router.get('/schedules/get_by_fixer_other_requesters_month', getAllRequesterSchedulesByFixerMonth);
+
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+router.get('/schedules/get_by_fixer_current_requester_day', getRequesterSchedulesByFixerDay);
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+router.get('/schedules/get_by_fixer_other_requesters_day', getOtherRequesterSchedulesByFixerDay);
 
 // * Fixed Endpoint Arrick: Devolvia mucho 404.
 // * Anteriores 2 endpoints unificados: se obtienen todas las citas de un dia 

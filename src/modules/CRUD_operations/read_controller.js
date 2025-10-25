@@ -6,6 +6,8 @@ import {
   get_appointments_by_fixer_day,
   get_meeting_status,
   get_modal_form_appointment,
+  get_requester_schedules_by_fixer_day,
+  get_other_requester_schedules_by_fixer_day
 } from './read_service.js'; // llamamos al service
 
 // Obtener horarios de un requester en un mes específico
@@ -170,5 +172,35 @@ export async function getMeetingStatus(req, res) {
     return res.status(200).json({ message: 'Meeting status successfully accessed', name, status });
   } catch (err) {
     return res.status(500).json({ message: 'Error updating appointment data', name: "", status: "", error: err.message });
+  }
+}
+
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+export async function getRequesterSchedulesByFixerDay(req, res) {
+  try {
+    const { fixer_id, requester_id, searched_date } = req.query;
+    if (!fixer_id || !requester_id || !searched_date) {
+      return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+    }
+    const data = await get_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date);
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error fetching requester schedules by fixer and day.' });
+  }
+}
+
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+export async function getOtherRequesterSchedulesByFixerDay(req, res) {
+  try {
+    const { fixer_id, requester_id, searched_date } = req.query;
+    if (!fixer_id || !requester_id || !searched_date) {
+      return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+    }
+    const data = await get_other_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date);
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error fetching all requester schedules by fixer and day.' });
   }
 }

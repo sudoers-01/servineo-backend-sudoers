@@ -156,10 +156,86 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
   }
 }
 
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+async function get_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
+  await set_db_connection();
+  const current_date = new Date(searched_date);
+  const current_year = current_date.getUTCFullYear();
+  const current_month = current_date.getUTCMonth();
+  const current_day = current_date.getUTCDate();
+  const start_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
+  const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59, 999));
+  const daily_appointments = await Appointment.find(
+    {
+      id_fixer: fixer_id,
+      id_requester: requester_id,
+      selected_date: {
+        $gte: start_date,
+        $lte: finish_date
+      }
+    },
+    {
+      starting_time: 1,
+      finishing_time: 1,
+      schedule_state: 1,
+    }, { new: true });
+
+  const formated_appointments = [];
+  for (let appointment of daily_appointments) {
+    const start_hour = appointment.starting_time.getUTCHours();
+    const finish_hour = appointment.finishing_time.getUTCHours();
+    formated_appointments.push({
+      starting_hour: start_hour,
+      finishing_hour: finish_hour,
+      schedule_state: appointment.schedule_state
+    });
+  }
+  return formated_appointments;
+}
+
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
+  await set_db_connection();
+  const current_date = new Date(searched_date);
+  const current_year = current_date.getUTCFullYear();
+  const current_month = current_date.getUTCMonth();
+  const current_day = current_date.getUTCDate();
+  const start_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
+  const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59, 999));
+  const daily_appointments = await Appointment.find(
+    {
+      id_fixer: fixer_id,
+      id_requester: { $ne: requester_id },
+      selected_date: {
+        $gte: start_date,
+        $lte: finish_date
+      }
+    },
+    {
+      starting_time: 1,
+      finishing_time: 1,
+      schedule_state: 1,
+    }, { new: true });
+
+  const formated_appointments = [];
+  for (let appointment of daily_appointments) {
+    const start_hour = appointment.starting_time.getUTCHours();
+    const finish_hour = appointment.finishing_time.getUTCHours();
+    formated_appointments.push({
+      starting_hour: start_hour,
+      finishing_hour: finish_hour,
+      schedule_state: appointment.schedule_state
+    });
+  }
+  return formated_appointments;
+}
+
 export {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,
   get_appointments_by_fixer_day,
   get_modal_form_appointment,
-  get_meeting_status
+  get_meeting_status,
+  get_requester_schedules_by_fixer_day,
+  get_other_requester_schedules_by_fixer_day
 };

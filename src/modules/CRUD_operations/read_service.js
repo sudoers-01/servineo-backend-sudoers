@@ -187,7 +187,7 @@ async function get_requester_schedules_by_fixer_day(fixer_id, requester_id, sear
     formated_appointments.push({
       starting_hour: start_hour,
       finishing_hour: finish_hour,
-      schedule_state: appointment.schedule_state
+      schedule_state: 'booked'
     });
   }
   return formated_appointments;
@@ -224,7 +224,7 @@ async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id
     formated_appointments.push({
       starting_hour: start_hour,
       finishing_hour: finish_hour,
-      schedule_state: appointment.schedule_state
+      schedule_state: 'occupied'
     });
   }
   return formated_appointments;

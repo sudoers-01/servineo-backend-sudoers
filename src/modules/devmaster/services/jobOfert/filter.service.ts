@@ -1,3 +1,4 @@
+import { filter, FilterFunction } from '../common/filter.common';
 import { getRangeRegex } from '../../utils/nameRangeHelper';
 import { validateAndNormalizeCity } from '../../utils/cityHelper';
 import { validateAndNormalizeCategory } from '../../utils/categoryHelper';
@@ -16,31 +17,30 @@ export type FilterOptions = {
 };
 
 export function filterOffers<T extends FilterableOffer>(offers: T[], options?: FilterOptions): T[] {
-  let filtered = offers;
+  if (!options) return offers;
 
-  // Filtro por rango de nombre
-  if (options?.ranges && options.ranges.length > 0) {
+  const filters: FilterFunction<T>[] = [];
+
+  if (options.ranges && options.ranges.length > 0) {
     const regexes = options.ranges.map((r) => getRangeRegex(r)).filter((r): r is RegExp => !!r);
-    filtered = filtered.filter((offer) =>
-      regexes.some((regex) => regex.test(offer.fixerName || '')),
-    );
+    filters.push((offer) => regexes.some((regex) => regex.test(offer.fixerName || '')));
   }
 
-  // Filtro por ciudad
-  if (options?.city) {
+  if (options.city) {
     const normalizedCity = validateAndNormalizeCity(options.city);
-    filtered = filtered.filter((o) => o.city === normalizedCity);
+    filters.push((offer) => offer.city === normalizedCity);
   }
 
-  // Filtro por categorías
-  if (options?.categories && options.categories.length > 0) {
+  if (options.categories && options.categories.length > 0) {
     const normalizedCategories = options.categories
       .map((c) => validateAndNormalizeCategory(c))
       .filter(Boolean) as Array<NonNullable<T['category']>>; // assert union type
 
-    filtered = filtered.filter((o) => o.category && normalizedCategories.includes(o.category));
+    filters.push(
+      (offer) => offer.category != null && normalizedCategories.includes(offer.category),
+    );
   }
 
 
-  return filtered;
+  return filter(offers, filters);
 }

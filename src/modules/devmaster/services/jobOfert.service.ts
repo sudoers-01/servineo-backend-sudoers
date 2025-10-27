@@ -1,8 +1,8 @@
 import { Offer } from '../models/offer.model';
-import { searchOffers } from './core/search.service';
-import { filterOffers } from './core/filter.service';
-import { sortOffers } from './core/sort.service';
-import { paginateOffers } from './core/pagination.service';
+import { searchOffers } from './jobOfert/search.service';
+import { filterOffers } from './jobOfert/filter.service';
+import { sortOffers } from './jobOfert/sort.service';
+import { paginateOffers } from './jobOfert/pagination.service';
 import { SortCriteria } from '../types/sort.types';
 
 export type OfferFilterOptions = {
@@ -19,12 +19,6 @@ export const getAllOffers = async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const qAll: any = Offer.find();
   return await qAll.sort({ createdAt: -1 }).lean().exec();
-};
-
-export const getOfferById = async (id: string) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const qById: any = Offer.findById(id);
-  return await qById.lean().exec();
 };
 
 export const getOffersFiltered = async (options?: OfferFilterOptions) => {

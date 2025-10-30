@@ -1,14 +1,8 @@
-import { filter, FilterFunction } from '../common/filter.common';
+// services/jobOfert/filter.service.ts
 import { getRangeRegex } from '../../utils/nameRangeHelper';
 import { validateAndNormalizeCity } from '../../utils/cityHelper';
 import { validateAndNormalizeCategory } from '../../utils/categoryHelper';
-
-type FilterableOffer = {
-  fixerName?: string;
-  city?: string;
-  category?: string;
-  [key: string]: unknown;
-};
+import { FilterCommon } from '../common/filter.common';
 
 export type FilterOptions = {
   ranges?: string[];
@@ -16,31 +10,30 @@ export type FilterOptions = {
   categories?: string[];
 };
 
-export function filterOffers<T extends FilterableOffer>(offers: T[], options?: FilterOptions): T[] {
-  if (!options) return offers;
+export function filterOffers(options?: FilterOptions): any {
+  if (!options) return {};
 
-  const filters: FilterFunction<T>[] = [];
+  const filters: any = {};
 
   if (options.ranges && options.ranges.length > 0) {
-    const regexes = options.ranges.map((r) => getRangeRegex(r)).filter((r): r is RegExp => !!r);
-    filters.push((offer) => regexes.some((regex) => regex.test(offer.fixerName || '')));
+    const regexes = options.ranges.map((r) => getRangeRegex(r)).filter(Boolean);
+    if (regexes.length > 0) {
+      filters.fixerName = { $in: regexes };
+    }
   }
 
   if (options.city) {
-    const normalizedCity = validateAndNormalizeCity(options.city);
-    filters.push((offer) => offer.city === normalizedCity);
+    filters.city = validateAndNormalizeCity(options.city);
   }
 
   if (options.categories && options.categories.length > 0) {
     const normalizedCategories = options.categories
       .map((c) => validateAndNormalizeCategory(c))
-      .filter(Boolean) as Array<NonNullable<T['category']>>; // assert union type
-
-    filters.push(
-      (offer) => offer.category != null && normalizedCategories.includes(offer.category),
-    );
+      .filter(Boolean);
+    if (normalizedCategories.length > 0) {
+      filters.category = { $in: normalizedCategories };
+    }
   }
 
-
-  return filter(offers, filters);
+  return FilterCommon.build(filters);
 }

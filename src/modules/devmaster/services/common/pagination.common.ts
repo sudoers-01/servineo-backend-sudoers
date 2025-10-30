@@ -1,9 +1,16 @@
-export type PaginationOptions = {
-  limit: number;
-  skip: number;
-};
+// services/common/pagination.common.ts
+export class PaginationCommon {
+  static getOptions(limit?: number, skip?: number) {
+    return {
+      limit: limit || 10,
+      skip: skip || 0,
+    };
+  }
 
-export function paginate<T>(items: T[], options: PaginationOptions): T[] {
-  const { limit, skip } = options;
-  return items.slice(skip, skip + limit);
+  static getPageOptions(page: number = 1, pageSize: number = 10) {
+    return {
+      limit: pageSize,
+      skip: (page - 1) * pageSize,
+    };
+  }
 }

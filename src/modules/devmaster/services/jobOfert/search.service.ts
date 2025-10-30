@@ -1,14 +1,52 @@
-import { search } from '../common/search.common';
+// services/jobOfert/search.service.ts
+import { normalizeSearchText } from '../../utils/search.normalizer';
+import { SearchService } from '../common/search.common';
 
-type SearchableOffer = {
-  fixerName?: string;
-  title?: string;
-  description?: string;
-  category?: string;
-  city?: string;
-  [key: string]: unknown;
-};
+const SEARCH_FIELDS = ['fixerName', 'title', 'description', 'category', 'city'];
 
-export function searchOffers<T extends SearchableOffer>(offers: T[], searchText: string): T[] {
-  return search(offers, searchText, ['fixerName', 'title', 'description', 'category', 'city']);
+/**
+ * Búsqueda básica (sin normalizador de acentos, etc.)
+ */
+export function searchOffersBasic(searchText?: string): any {
+  return SearchService.build(searchText, SEARCH_FIELDS);
+}
+
+/**
+ * Búsqueda de ofertas con detección automática de tokens
+ * Mantiene la funcionalidad original completa
+ */
+export function searchOffers(searchText?: string): any {
+  return SearchService.buildSmartSearch(searchText, SEARCH_FIELDS, normalizeSearchText);
+}
+
+/**
+ * Búsqueda simple (sin tokens)
+ */
+export function searchOffersSimple(searchText?: string): any {
+  return SearchService.buildWithNormalizer(searchText, SEARCH_FIELDS, normalizeSearchText);
+}
+
+/**
+ * Búsqueda forzada por tokens
+ */
+export function searchOffersTokens(searchText?: string): any {
+  return SearchService.buildTokenSearch(searchText, SEARCH_FIELDS, normalizeSearchText);
+}
+
+/////////
+
+// Define la configuración de los campos y sus pesos (necesario para la firma del método)
+const WEIGHTED_FIELDS_CONFIG = [
+  { field: 'title', weight: 10 },        // Título tiene mayor importancia
+  { field: 'description', weight: 5 },
+  { field: 'fixerName', weight: 3 },
+  // ... otros campos
+];
+
+/**
+ * Búsqueda con índice de texto ($text) de MongoDB
+ * Permite aplicar ponderaciones al configurar el índice en la DB
+ */
+export function searchOffersWeighted(searchText?: string): any {
+  return SearchService.buildWeightedSearch(searchText, WEIGHTED_FIELDS_CONFIG);
 }

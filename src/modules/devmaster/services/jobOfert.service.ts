@@ -1,8 +1,11 @@
+// services/offer.service.ts
 import { Offer } from '../models/offer.model';
 import { searchOffers } from './jobOfert/search.service';
 import { filterOffers } from './jobOfert/filter.service';
 import { sortOffers } from './jobOfert/sort.service';
-import { paginateOffers } from './jobOfert/pagination.service';
+import { FilterCommon } from './common/filter.common';
+import { PaginationCommon } from './common/pagination.common';
+import { QueryExecutor } from './common/query-executor';
 import { SortCriteria } from '../types/sort.types';
 
 export type OfferFilterOptions = {
@@ -16,44 +19,16 @@ export type OfferFilterOptions = {
 };
 
 export const getAllOffers = async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const qAll: any = Offer.find();
-  return await qAll.sort({ createdAt: -1 }).lean().exec();
+  return await QueryExecutor.findAll(Offer);
 };
 
 export const getOffersFiltered = async (options?: OfferFilterOptions) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const qAll2: any = Offer.find();
-  const allOffers = await qAll2.lean().exec();
+  const filterQuery = filterOffers(options);
+  const searchQuery = searchOffers(options?.search);
+  const sort = sortOffers(options?.sortBy);
+  const { limit, skip } = PaginationCommon.getOptions(options?.limit, options?.skip);
 
-  if (allOffers.length === 0) {
-    return { count: 0, data: [] };
-  }
+  const finalQuery = FilterCommon.combine(filterQuery, searchQuery);
 
-  let filteredOffers = [...allOffers];
-
-  // Filtrar
-  filteredOffers = filterOffers(filteredOffers, {
-    ranges: options?.ranges,
-    city: options?.city,
-    categories: options?.categories,
-  });
-
-  // Buscar
-  if (options?.search && options.search.trim()) {
-    filteredOffers = searchOffers(filteredOffers, options.search);
-  }
-
-  // Ordenar
-  filteredOffers = sortOffers(filteredOffers, options?.sortBy);
-
-  // Paginar
-  const limit = options?.limit || 10;
-  const skip = options?.skip || 0;
-  const paginatedOffers = paginateOffers(filteredOffers, { limit, skip });
-
-  return {
-    count: filteredOffers.length,
-    data: paginatedOffers,
-  };
+  return await QueryExecutor.execute(Offer, finalQuery, sort, skip, limit);
 };

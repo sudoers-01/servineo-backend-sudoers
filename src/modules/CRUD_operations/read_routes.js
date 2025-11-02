@@ -6,7 +6,8 @@ import {
   getModalFormAppointment,
   getMeetingStatus,
   getRequesterSchedulesByFixerDay,
-  getOtherRequesterSchedulesByFixerDay
+  getOtherRequesterSchedulesByFixerDay,
+  getFixerAvailability
 } from './read_controller.js';
 
 const router = Router();
@@ -33,5 +34,7 @@ router.get('/appointments/get_modal_form', getModalFormAppointment);
 
 // * Fixed Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
 router.get('/appointments/get_meeting_status', getMeetingStatus);
+
+router.get('/appointments/get_fixer_availability', getFixerAvailability);
 
 export default router;

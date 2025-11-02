@@ -241,7 +241,8 @@ async function get_fixer_availability(fixer_id) {
     throw new Error("Fixer not found.");
   }
   let availability;
-  if (!('availability' in fixer)) {
+  // la vdd no se cual funciona bien asi que puse ambosxd
+  if (!('availability' in fixer) || !fixer.availability) {
     availability = {
       lunes: [8, 9, 10, 11, 14, 15, 16, 17],
       martes: [8, 9, 10, 11, 14, 15, 16, 17],

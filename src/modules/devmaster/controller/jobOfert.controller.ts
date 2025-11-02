@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
+import { saveSearchToHistory } from '../services/jobOfert/search-history.service';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy, limit, skip, page } = req.query;
+    const { range, city, category, search, sortBy, limit, skip, page, sessionId } = req.query;
 
     // Si no hay query params, retorna todas
     if (!range && !city && !category && !search && !sortBy && !limit && !skip && !page) {
@@ -45,6 +46,14 @@ export const getOffers = async (req: Request, res: Response) => {
 
     // Llamar al service unificado
     const result = await getOffersFiltered(options);
+
+    if (search && typeof search === 'string' && search.trim()) {
+      const sid = typeof sessionId === 'string' ? sessionId : undefined;
+      // AHORA SÍ: llamar a saveSearchToHistory para GUARDAR
+      saveSearchToHistory(search.trim(), sid).catch((error) => {
+      console.error('Error saving search to history:', error);
+      });
+    }
 
     res.status(200).json({
       success: true,

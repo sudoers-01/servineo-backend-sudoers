@@ -7,7 +7,8 @@ import {
   get_meeting_status,
   get_modal_form_appointment,
   get_requester_schedules_by_fixer_day,
-  get_other_requester_schedules_by_fixer_day
+  get_other_requester_schedules_by_fixer_day,
+  get_fixer_availability
 } from './read_service.js'; // llamamos al service
 
 // Obtener horarios de un requester en un mes específico
@@ -102,16 +103,10 @@ export async function getAllRequesterSchedulesByFixerDay(req, res) {
       return res.status(400).json({ message: 'Missing required query parameters: searched_date.' });
     }
 
-    // Convertir searched_date a objeto Date
     const date = new Date(searched_date);
     if (isNaN(date.getTime())) {
       return res.status(400).json({ message: 'Invalid date format for searched_date.' });
     }
-
-    //const data = await get_all_requester_schedules_by_fixer_day(fixer_id, requester_id, date);
-    //const output_fail = 'No schedules found for other requesters on this date.';
-    //const output_success = 'Schedules found for all requesters except this. ';
-    //await dataExist(data, output_fail, output_success, res);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching all requester schedules by fixer and day.' });
@@ -202,5 +197,18 @@ export async function getOtherRequesterSchedulesByFixerDay(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Error fetching all requester schedules by fixer and day.' });
+  }
+}
+
+export async function getFixerAvailability(req, res) {
+  const { fixer_id } = req.query;
+  if (!fixer_id) {
+    return res.status(400).json({ message: 'Missing parameter: required fixer_id' });
+  }
+  try {
+    const data = await get_fixer_availability(fixer_id);
+    return res.status(200).json({ message: 'Fixer availability fetched successfully', availability: data });
+  } catch (err) {
+    return res.status(500).json({ message: 'Error fetching fixer availability: ' + err.message });
   }
 }

@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
@@ -230,6 +231,32 @@ async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id
   return formated_appointments;
 }
 
+async function get_fixer_availability(fixer_id) {
+  const db = mongoose.connection.db;
+  const fixer = await db.collection('users').findOne(
+    { fixer_id: fixer_id },
+    { projection: { availability: 1, _id: 0 } }
+  );
+  if (!fixer) {
+    throw new Error("Fixer not found.");
+  }
+  let availability;
+  if (!('availability' in fixer)) {
+    availability = {
+      lunes: [8, 9, 10, 11, 14, 15, 16, 17],
+      martes: [8, 9, 10, 11, 14, 15, 16, 17],
+      miercoles: [8, 9, 10, 11, 14, 15, 16, 17],
+      jueves: [8, 9, 10, 11, 14, 15, 16, 17],
+      viernes: [8, 9, 10, 11, 14, 15, 16, 17],
+      sabado: [],
+      domingo: []
+    };
+  } else {
+    availability = fixer.availability;
+  }
+  return availability;
+}
+
 export {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,
@@ -237,5 +264,6 @@ export {
   get_modal_form_appointment,
   get_meeting_status,
   get_requester_schedules_by_fixer_day,
-  get_other_requester_schedules_by_fixer_day
+  get_other_requester_schedules_by_fixer_day,
+  get_fixer_availability
 };

@@ -3,12 +3,12 @@ import mongoose from 'mongoose';
 const appointment_schema = new mongoose.Schema(
   {
     id_fixer: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       required: true,
       unique: false,
     },
     id_requester: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       required: true,
       unique: false,
     },

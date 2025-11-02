@@ -112,8 +112,11 @@ async function get_appointments_by_fixer_day(fixer_id, requested_date) {
     await set_db_connection();
     const founded_appointments = await Appointment.find({
       id_fixer: fixer_id,
-      selected_date: requested_date
+      selected_date: requested_date 
     });
+    if (!founded_appointments) {
+      throw new Error("Not appointments founded");
+    }
     return { appointments: founded_appointments };
   } catch (err) {
     throw new Error(err.message);

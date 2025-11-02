@@ -35,9 +35,9 @@ export async function updateFixerAvailability(req, res) {
       return res.status(400).json({ message: 'Missing parameters: required fixer_id and availability.' });
     }
     await update_fixer_availability(fixer_id, availability);
-    return res.status(200).json({ message: 'Fixer availability updated successfully.' });
+    return res.status(200).json({ message: 'Fixer availability updated successfully.', updated: true });
   } catch (err) {
-    return res.status(500).json({ message: 'Error al actualizar disponibilidad: ' + err.message });
+    return res.status(500).json({ message: 'Error al actualizar disponibilidad: ' + err.message, updated: false });
   }
 }
 

@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js';
 import mongoose from 'mongoose';
-import ObjectId from 'mondodb';
 
 dotenv.config();
 
@@ -235,7 +234,7 @@ async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id
 async function get_fixer_availability(fixer_id) {
   const db = mongoose.connection.db;
   const fixer = await db.collection('users').findOne(
-    { _id: new ObjectId(fixer_id) },
+    { _id: new mongoose.Types.ObjectId(fixer_id) },
     { projection: { availability: 1, _id: 0 } }
   );
   if (!fixer) {

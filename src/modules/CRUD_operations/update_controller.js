@@ -29,11 +29,11 @@ export async function updateAppointmentById(req, res) {
 }
 
 export async function updateFixerAvailability(req, res) {
-  const { fixer_id, availability } = req.body;
-  if (!fixer_id || !availability) {
-    return res.status(400).json({ message: 'Missing parameters: required fixer_id and availability.' });
-  }
   try {
+    const { fixer_id, availability } = req.body;
+    if (!fixer_id || !availability) {
+      return res.status(400).json({ message: 'Missing parameters: required fixer_id and availability.' });
+    }
     await update_fixer_availability(fixer_id, availability);
     return res.status(200).json({ message: 'Fixer availability updated successfully.' });
   } catch (err) {

@@ -70,9 +70,9 @@ const appointment_schema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    active: {
+    cancelled_fixer: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   { timestamps: true },

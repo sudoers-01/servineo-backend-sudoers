@@ -39,6 +39,16 @@ async function update_appointment_by_id(id, attributes) {
   }
 }
 
+async function delete_appointment_by_id(id) {
+  try {
+    await set_db_connection();
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 export {
   update_appointment_by_id,
+  delete_appointment_by_id
 };

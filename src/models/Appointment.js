@@ -3,12 +3,12 @@ import mongoose from 'mongoose';
 const appointment_schema = new mongoose.Schema(
   {
     id_fixer: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       unique: false,
     },
     id_requester: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       unique: false,
     },
@@ -73,6 +73,12 @@ const appointment_schema = new mongoose.Schema(
     active: {
       type: Boolean,
       default: true
+    },
+    reprogram_reason: {
+      type: String,
+      default: '',
+      required: false,
+      unique: false
     }
   },
   { timestamps: true },

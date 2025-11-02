@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 
+import mongoose from 'mongoose';
 import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js';
 
@@ -39,6 +40,30 @@ async function update_appointment_by_id(id, attributes) {
   }
 }
 
+async function delete_appointment_by_id(id) {
+  try {
+    await set_db_connection();
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function update_fixer_availability(fixer_id, availability) {
+  try {
+    const db = mongoose.connection.db;
+    const result = await db.collection('users').updateOne(
+      { _id: new mongoose.Types.ObjectId(fixer_id) },
+      { $set: { availability: availability } }
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 export {
   update_appointment_by_id,
+  delete_appointment_by_id,
+  update_fixer_availability
 };

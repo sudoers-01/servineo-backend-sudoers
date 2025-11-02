@@ -6,6 +6,10 @@ import {
   get_appointments_by_fixer_day,
   get_meeting_status,
   get_modal_form_appointment,
+  get_requester_schedules_by_fixer_day,
+  get_other_requester_schedules_by_fixer_day,
+  get_appointment_by_fixer_id_hour,
+  get_fixer_availability
 } from './read_service.js'; // llamamos al service
 
 // Obtener horarios de un requester en un mes específico
@@ -100,16 +104,10 @@ export async function getAllRequesterSchedulesByFixerDay(req, res) {
       return res.status(400).json({ message: 'Missing required query parameters: searched_date.' });
     }
 
-    // Convertir searched_date a objeto Date
     const date = new Date(searched_date);
     if (isNaN(date.getTime())) {
       return res.status(400).json({ message: 'Invalid date format for searched_date.' });
     }
-
-    //const data = await get_all_requester_schedules_by_fixer_day(fixer_id, requester_id, date);
-    //const output_fail = 'No schedules found for other requesters on this date.';
-    //const output_success = 'Schedules found for all requesters except this. ';
-    //await dataExist(data, output_fail, output_success, res);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching all requester schedules by fixer and day.' });
@@ -170,5 +168,72 @@ export async function getMeetingStatus(req, res) {
     return res.status(200).json({ message: 'Meeting status successfully accessed', name, status });
   } catch (err) {
     return res.status(500).json({ message: 'Error updating appointment data', name: "", status: "", error: err.message });
+  }
+}
+
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+export async function getRequesterSchedulesByFixerDay(req, res) {
+  try {
+    const { fixer_id, requester_id, searched_date } = req.query;
+    if (!fixer_id || !requester_id || !searched_date) {
+      return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+    }
+    const data = await get_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date);
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error fetching requester schedules by fixer and day.' });
+  }
+}
+
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+export async function getOtherRequesterSchedulesByFixerDay(req, res) {
+  try {
+    const { fixer_id, requester_id, searched_date } = req.query;
+    if (!fixer_id || !requester_id || !searched_date) {
+      return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+    }
+    const data = await get_other_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date);
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error fetching all requester schedules by fixer and day.' });
+  }
+}
+
+export async function getAppointmentByFixerIdHour(req, res) {
+  try {
+    const { fixer_id, date, hour } = req.query;
+    if (!fixer_id || !date || !hour) {
+      return res.satus(400).json({
+        succeed: false,
+        message: "Missing query parameters"
+      });
+    }
+    const data = await get_appointment_by_fixer_id_hour(fixer_id, date, hour);
+    res.status(200).json({
+      succeed: true,
+      message: data ? "Appointment found" : "Appoitment not found",
+      appointment: data
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      succeed: false,
+      message: "Error fetching appointment"
+    });
+  }
+}
+
+export async function getFixerAvailability(req, res) {
+  const { fixer_id } = req.query;
+  if (!fixer_id) {
+    return res.status(400).json({ message: 'Missing parameter: required fixer_id' });
+  }
+  try {
+    const data = await get_fixer_availability(fixer_id);
+    return res.status(200).json({ message: 'Fixer availability fetched successfully', availability: data });
+  } catch (err) {
+    return res.status(500).json({ message: 'Error fetching fixer availability: ' + err.message });
   }
 }

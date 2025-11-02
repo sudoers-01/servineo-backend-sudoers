@@ -8,4 +8,6 @@ const router = Router();
 // * El endpoint estaba actualizando mas slots de los que deberia, ahora con el nuevo esquema actualiza lo solicitado.
 router.put('/appointments/update_by_id', UpdateModule.updateAppointmentById);
 
+router.put('/appointments/update_fixer_availability', UpdateModule.updateFixerAvailability);
+
 export default router;

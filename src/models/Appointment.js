@@ -72,12 +72,13 @@ const appointment_schema = new mongoose.Schema(
     },
     cancelled_fixer: {
       type: Boolean,
-      default: true
+      default: false
     },
     reprogram_reason: {
       type: String,
       default: '',
       required: false,
+      unique: false
     }
   },
   { timestamps: true },

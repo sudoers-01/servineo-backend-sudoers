@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
@@ -16,7 +17,6 @@ async function set_db_connection() {
 // TODO: CHAMO LOCURAS (Todos los occupied de un fixer_id, que NO vayan con el requester_id)
 async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();
-  const required_state = "occupied";
   const current_date = new Date();
   const current_year = current_date.getUTCFullYear();
   const target_month = parseInt(month) - 1; // Mongoose usa 0-indexed months
@@ -26,7 +26,6 @@ async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id
     {
       id_fixer: fixer_id,
       id_requester: { $ne: requester_id },
-      schedule_state: required_state,
       selected_date: {
         $gte: start_date,
         $lte: finish_date
@@ -48,7 +47,6 @@ async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id
 // *: Fixed endpoint Chamo
 async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
   await set_db_connection();
-  const required_state = "booked";
   const current_date = new Date();
   const current_year = current_date.getUTCFullYear();
   const target_month = parseInt(month) - 1; // Mongoose usa 0-indexed months
@@ -58,7 +56,6 @@ async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, mo
     {
       id_fixer: fixer_id,
       id_requester: requester_id,
-      schedule_state: required_state,
       selected_date: {
         $gte: start_date,
         $lte: finish_date
@@ -115,8 +112,11 @@ async function get_appointments_by_fixer_day(fixer_id, requested_date) {
     await set_db_connection();
     const founded_appointments = await Appointment.find({
       id_fixer: fixer_id,
-      selected_date: requested_date
+      selected_date: requested_date 
     });
+    if (!founded_appointments) {
+      throw new Error("Not appointments founded");
+    }
     return { appointments: founded_appointments };
   } catch (err) {
     throw new Error(err.message);
@@ -151,6 +151,7 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
       appointment_description: appointment.appointment_description,
       link_id: appointment.link_id,
       current_requester_phone: appointment.current_requester_phone,
+      display_name_location: appointment.display_name_location,
       latitude: appointment.lat,
       longitude: appointment.lon,
     };
@@ -159,10 +160,131 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
   }
 }
 
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+async function get_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
+  await set_db_connection();
+  const current_date = new Date(searched_date);
+  const current_year = current_date.getUTCFullYear();
+  const current_month = current_date.getUTCMonth();
+  const current_day = current_date.getUTCDate();
+  const start_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
+  const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59, 999));
+  const daily_appointments = await Appointment.find(
+    {
+      id_fixer: fixer_id,
+      id_requester: requester_id,
+      selected_date: {
+        $gte: start_date,
+        $lte: finish_date
+      }
+    },
+    {
+      starting_time: 1,
+      finishing_time: 1,
+      schedule_state: 1,
+    }, { new: true });
+
+  const formated_appointments = [];
+  for (let appointment of daily_appointments) {
+    const start_hour = appointment.starting_time.getUTCHours();
+    const finish_hour = appointment.finishing_time.getUTCHours();
+    formated_appointments.push({
+      starting_hour: start_hour,
+      finishing_hour: finish_hour,
+      schedule_state: 'booked'
+    });
+  }
+  return formated_appointments;
+}
+
+// * Endpoints de rati ratone que no dice nada de lo que necesita...
+async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
+  await set_db_connection();
+  const current_date = new Date(searched_date);
+  const current_year = current_date.getUTCFullYear();
+  const current_month = current_date.getUTCMonth();
+  const current_day = current_date.getUTCDate();
+  const start_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
+  const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59, 999));
+  const daily_appointments = await Appointment.find(
+    {
+      id_fixer: fixer_id,
+      id_requester: { $ne: requester_id },
+      selected_date: {
+        $gte: start_date,
+        $lte: finish_date
+      }
+    },
+    {
+      starting_time: 1,
+      finishing_time: 1,
+      schedule_state: 1,
+    }, { new: true });
+
+  const formated_appointments = [];
+  for (let appointment of daily_appointments) {
+    const start_hour = appointment.starting_time.getUTCHours();
+    const finish_hour = appointment.finishing_time.getUTCHours();
+    formated_appointments.push({
+      starting_hour: start_hour,
+      finishing_hour: finish_hour,
+      schedule_state: 'occupied'
+    });
+  }
+  return formated_appointments;
+}
+
+async function get_appointment_by_fixer_id_hour(fixer_id, date, hour) {
+  try {
+    await set_db_connection();
+    const hourInt = parseInt(hour);
+    hour = hourInt < 10 ? ('0' + hourInt) : '' + hourInt;
+    const appointmentDate = new Date(`${date}T${hour}:00:00.000Z`);
+    const appointment = await Appointment.find({
+      id_fixer: fixer_id,
+      starting_time: appointmentDate,
+    });
+    return appointment;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function get_fixer_availability(fixer_id) {
+  const db = mongoose.connection.db;
+  const fixer = await db.collection('users').findOne(
+    { _id: new mongoose.Types.ObjectId(fixer_id) },
+    { projection: { availability: 1, _id: 0 } }
+  );
+  if (!fixer) {
+    throw new Error("Fixer not found.");
+  }
+  let availability;
+  // la vdd no se cual funciona bien asi que puse ambosxd
+  if (!('availability' in fixer) || !fixer.availability) {
+    availability = {
+      lunes: [8, 9, 10, 11, 14, 15, 16, 17],
+      martes: [8, 9, 10, 11, 14, 15, 16, 17],
+      miercoles: [8, 9, 10, 11, 14, 15, 16, 17],
+      jueves: [8, 9, 10, 11, 14, 15, 16, 17],
+      viernes: [8, 9, 10, 11, 14, 15, 16, 17],
+      sabado: [],
+      domingo: []
+    };
+  } else {
+    availability = fixer.availability;
+  }
+  return availability;
+}
+
 export {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,
   get_appointments_by_fixer_day,
   get_modal_form_appointment,
-  get_meeting_status
+  get_meeting_status,
+  get_requester_schedules_by_fixer_day,
+  get_other_requester_schedules_by_fixer_day,
+  get_appointment_by_fixer_id_hour,
+  get_fixer_availability
 };

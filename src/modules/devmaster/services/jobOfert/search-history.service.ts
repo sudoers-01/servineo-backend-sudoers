@@ -1,6 +1,6 @@
 // services/jobOfert/search-history.service.ts
 import { SearchHistory } from '../../models/search-history.model';
-import { normalizeSearchText } from '../../utils/search.normalizer';
+import { normalizeForHistory } from '../../utils/search.normalizer';
 import { validateAndCleanSearchTerm, filterSpecialCharacters  } from '../../utils/searchTermValidator';
 
 /**
@@ -25,7 +25,7 @@ export async function saveSearchToHistory(
     if (!filteredTerm) {
       return null; // Solo tenía caracteres especiales
     }
-    const normalizedTerm = normalizeSearchText(cleanedTerm);
+    const normalizedTerm = normalizeForHistory(cleanedTerm);
 
     const identifier = userId || sessionId;
     if (!identifier) {

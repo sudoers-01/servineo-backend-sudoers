@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js';
+import ObjectId from 'mondodb';
 
 dotenv.config();
 
@@ -44,7 +45,7 @@ async function update_fixer_availability(fixer_id, availability) {
   try {
     const db = mongoose.connection.db;
     const result = await db.collection('users').updateOne(
-      { fixer_id: fixer_id },
+      { _id: new ObjectId(fixer_id) },
       { $set: { availability: availability } }
     );
     return result;

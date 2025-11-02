@@ -70,6 +70,15 @@ const appointment_schema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    cancelled_fixer: {
+      type: Boolean,
+      default: true
+    },
+    reprogram_reason: {
+      type: String,
+      default: '',
+      required: false,
+    }
   },
   { timestamps: true },
 );

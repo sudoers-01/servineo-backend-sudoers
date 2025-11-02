@@ -17,28 +17,42 @@ export async function createAppointment(req, res) {
     const appointmentData = req.body;
 
     if (!appointmentData || Object.keys(appointmentData).length === 0) {
-      return res.status(400).json({ success: false, message: 'Missing appointment data in body.' });
+      return res.status(400).json({ success: false, message: 'Parametros insuficientes en el body.' });
     }
 
-    const result = await create_appointment(appointmentData);
+    const { result, message_state } = await create_appointment(appointmentData);
 
+    console.log(result);
+    console.log(message_state);
     if (!result) {
+      if (message_state === 'Fixer no encontrado.') {
+        return res.status(400).json({
+          success: false,
+          message: 'No se pudo crear la cita correctamente, id de fixer no encontrado'
+        });
+      }
+      if (message_state === 'Requester no encontrado.') {
+        return res.status(400).json({
+          success: false,
+          message: 'No se pudo crear la cita correctamente, id de requester no encontrado'
+        });
+      }
       return res.status(400).json({
         success: false,
-        message: 'Cannot create appointment, current appointment already exists.',
+        message: 'No se pudo crear la cita, la cita actual ya existe.',
       });
     } else {
       return res.status(200).json({
         success: true,
-        message: 'Appointment created successfully.',
+        message: 'Cita creada satisfactoriamente.',
         created: result,
       });
     }
 
   } catch (err) {
-    console.error('Error in controller:', err);
+    console.error('Error en el controlador:', err);
     return res
       .status(500)
-      .json({ success: false, message: 'Internal server error.', error: err.message });
+      .json({ success: false, message: 'Error de servidor.', error: err.message });
   }
 }

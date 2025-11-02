@@ -7,7 +7,8 @@ import {
   getMeetingStatus,
   getRequesterSchedulesByFixerDay,
   getOtherRequesterSchedulesByFixerDay,
-  getAppointmentByFixerIdHour
+  getAppointmentByFixerIdHour,
+  getFixerAvailability
 } from './read_controller.js';
 
 const router = Router();
@@ -36,5 +37,7 @@ router.get('/appointments/get_modal_form', getModalFormAppointment);
 router.get('/appointments/get_meeting_status', getMeetingStatus);
 
 router.get('/appointments/get_appointment_by_fixer_hour', getAppointmentByFixerIdHour);
+
+router.get('/appointments/get_fixer_availability', getFixerAvailability);
 
 export default router;

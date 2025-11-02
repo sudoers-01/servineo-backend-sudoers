@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
@@ -21,9 +22,28 @@ async function set_db_connection() {
 async function create_appointment(current_appointment) {
   try {
     await set_db_connection();
+    const requester_id = current_appointment.id_requester;
     const fixer_id = current_appointment.id_fixer;
     const date_selected = current_appointment.selected_date;
     const time_starting = current_appointment.starting_time;
+
+    const db = mongoose.connection.db
+    const formated_id_fixer = new mongoose.Types.ObjectId(fixer_id);
+    const formated_id_requester = new mongoose.Types.ObjectId(requester_id);
+
+    const existingRequester = await db.collection('users').findOne({
+      _id: formated_id_requester
+    });
+    if (!existingRequester || existingRequester.role !== 'requester') {
+      return { result: false, message_state: 'Requester no encontrado.' }
+    }
+
+    const existingFixer = await db.collection('users').findOne({
+      _id: formated_id_fixer
+    });
+    if (!existingFixer || existingFixer.role !== 'fixer') {
+      return { result: false, message_state: 'Fixer no encontrado.' }
+    }
 
     const exists = await Appointment.findOne({
       id_fixer: fixer_id,
@@ -35,9 +55,9 @@ async function create_appointment(current_appointment) {
     if (!exists) {
       appointment = new Appointment(current_appointment);
       await appointment.save();
-      return true;
+      return { result: true, message_state: 'Cita creada correctamente.' };
     } else {
-      return false;
+      return { result: true, message_state: 'No se puede crear la cita, la cita ya existe.' };
     }
   } catch (err) {
     throw new Error('Error creating appointment: ' + err.message);

@@ -234,6 +234,22 @@ async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id
   return formated_appointments;
 }
 
+async function get_appointment_by_fixer_id_hour(fixer_id, date, hour) {
+  try {
+    await set_db_connection();
+    const hourInt = parseInt(hour);
+    hour = hourInt < 10 ? ('0' + hourInt) : '' + hourInt;
+    const appointmentDate = new Date(`${date}T${hour}:00:00.000Z`);
+    const appointment = await Appointment.find({
+      id_fixer: fixer_id,
+      starting_time: appointmentDate,
+    });
+    return appointment;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 async function get_fixer_availability(fixer_id) {
   const db = mongoose.connection.db;
   const fixer = await db.collection('users').findOne(
@@ -269,5 +285,6 @@ export {
   get_meeting_status,
   get_requester_schedules_by_fixer_day,
   get_other_requester_schedules_by_fixer_day,
+  get_appointment_by_fixer_id_hour,
   get_fixer_availability
 };

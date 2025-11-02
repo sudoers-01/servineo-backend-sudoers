@@ -7,6 +7,7 @@ import {
   getMeetingStatus,
   getRequesterSchedulesByFixerDay,
   getOtherRequesterSchedulesByFixerDay,
+  getAppointmentByFixerIdHour,
   getFixerAvailability
 } from './read_controller.js';
 
@@ -34,6 +35,8 @@ router.get('/appointments/get_modal_form', getModalFormAppointment);
 
 // * Fixed Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
 router.get('/appointments/get_meeting_status', getMeetingStatus);
+
+router.get('/appointments/get_appointment_by_fixer_hour', getAppointmentByFixerIdHour);
 
 router.get('/appointments/get_fixer_availability', getFixerAvailability);
 

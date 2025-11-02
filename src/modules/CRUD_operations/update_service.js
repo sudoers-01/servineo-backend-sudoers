@@ -40,6 +40,15 @@ async function update_appointment_by_id(id, attributes) {
   }
 }
 
+async function delete_appointment_by_id(id) {
+  try {
+    await set_db_connection();
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 async function update_fixer_availability(fixer_id, availability) {
   try {
     const db = mongoose.connection.db;
@@ -55,5 +64,6 @@ async function update_fixer_availability(fixer_id, availability) {
 
 export {
   update_appointment_by_id,
+  delete_appointment_by_id,
   update_fixer_availability
 };

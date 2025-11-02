@@ -8,6 +8,7 @@ import {
   get_modal_form_appointment,
   get_requester_schedules_by_fixer_day,
   get_other_requester_schedules_by_fixer_day,
+  get_appointment_by_fixer_id_hour,
   get_fixer_availability
 } from './read_service.js'; // llamamos al service
 
@@ -197,6 +198,30 @@ export async function getOtherRequesterSchedulesByFixerDay(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Error fetching all requester schedules by fixer and day.' });
+  }
+}
+
+export async function getAppointmentByFixerIdHour(req, res) {
+  try {
+    const { fixer_id, date, hour } = req.query;
+    if (!fixer_id || !date || !hour) {
+      return res.satus(400).json({
+        succeed: false,
+        message: "Missing query parameters"
+      });
+    }
+    const data = await get_appointment_by_fixer_id_hour(fixer_id, date, hour);
+    res.status(200).json({
+      succeed: true,
+      message: data ? "Appointment found" : "Appoitment not found",
+      appointment: data
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      succeed: false,
+      message: "Error fetching appointment"
+    });
   }
 }
 

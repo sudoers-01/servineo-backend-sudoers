@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
-import { saveSearchToHistory } from '../services/jobOfert/search-history.service';
+import { saveSearchToHistory, filterSearchHistory } from '../services/jobOfert/search-history.service';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy, limit, skip, page, sessionId } = req.query;
+    const { range, city, category, search, sortBy, limit, skip, page, sessionId, userId } = req.query;
 
     // Si no hay query params, retorna todas
     if (!range && !city && !category && !search && !sortBy && !limit && !skip && !page) {
@@ -47,12 +47,30 @@ export const getOffers = async (req: Request, res: Response) => {
     // Llamar al service unificado
     const result = await getOffersFiltered(options);
 
+    const response: any = {
+      success: true,
+      count: result.count,
+      total: result.count,
+      data: result.data,
+    };
     if (search && typeof search === 'string' && search.trim()) {
       const sid = typeof sessionId === 'string' ? sessionId : undefined;
-      // AHORA SÍ: llamar a saveSearchToHistory para GUARDAR
-      saveSearchToHistory(search.trim(), sid).catch((error) => {
-      console.error('Error saving search to history:', error);
+      const uid = typeof userId === 'string' ? userId : undefined;
+      
+      // Guardar búsqueda en historial
+      saveSearchToHistory(search.trim(), sid, uid).catch((error) => {
+        console.error('Error saving search to history:', error);
       });
+
+      // Obtener historial filtrado basado en el término de búsqueda
+      try {
+        const searchHistory = await filterSearchHistory(search.trim(), sid, uid, 5);
+        if (searchHistory.length > 0) {
+          response.searchHistory = searchHistory;
+        }
+      } catch (error) {
+        console.error('Error filtering search history:', error);
+      }
     }
 
     res.status(200).json({

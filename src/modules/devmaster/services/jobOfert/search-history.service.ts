@@ -93,3 +93,44 @@ export async function getSearchHistory(
     throw error;
   }
 }
+
+export async function filterSearchHistory(
+  searchTerm: string,
+  sessionId?: string,
+  userId?: string,
+  limit: number = 5
+): Promise<any[]> {
+  try {
+    if (!searchTerm || !searchTerm.trim()) {
+      return getSearchHistory(sessionId, userId, limit);
+    }
+
+    const identifier = userId || sessionId;
+    if (!identifier) {
+      return [];
+    }
+
+    const normalizedInput = normalizeForHistory(searchTerm.trim());
+    
+    const query = userId
+      ? { userId, isArchived: false }
+      : { sessionId, isArchived: false };
+
+    const history = await SearchHistory.find(query)
+      .sort({ searchedAt: -1 })
+      .select('searchTerm normalizedTerm searchedAt')
+      .lean();
+
+    const filtered = history.filter((item: any) =>
+      item.normalizedTerm.includes(normalizedInput)
+    );
+
+    return filtered.slice(0, limit).map((item: any) => ({
+      searchTerm: item.searchTerm,
+      searchedAt: item.searchedAt,
+    }));
+  } catch (error) {
+    console.error('Error filtering search history:', error);
+    throw error;
+  }
+}

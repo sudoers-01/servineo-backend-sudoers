@@ -57,9 +57,17 @@ export const getOffers = async (req: Request, res: Response) => {
     };
 
     if (search && typeof search === 'string' && search.trim()) {
-      const sid = typeof sessionId === 'string' ? sessionId : undefined;
+      let sid = typeof sessionId === 'string' ? sessionId : undefined;
       const uid = typeof userId === 'string' ? userId : undefined;
       const searchTermTrimmed = search.trim();
+
+      // Si no hay ni sessionId ni userId, generamos uno en el servidor
+      // y lo devolvemos en la respuesta JSON para que el cliente lo persista.
+      if (!sid && !uid) {
+        sid = `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        // Añadir sessionId generado a la respuesta para que el frontend lo guarde
+        response.sessionId = sid;
+      }
       
       // Guardar búsqueda en historial
       saveSearchToHistory(searchTermTrimmed, sid, uid).catch((error) => {

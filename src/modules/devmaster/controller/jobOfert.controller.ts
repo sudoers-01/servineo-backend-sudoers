@@ -38,6 +38,12 @@ export const getOffers = async (req: Request, res: Response) => {
     if (category)
       options.categories = Array.isArray(category) ? category.map(String) : [String(category)];
     if (search && typeof search === 'string') options.search = search.trim();
+    // ADD: activar modo exact cuando el frontend envía ?exact=true
+    if (req.query.exact === 'true' || req.query.exact === '1') {
+      options.searchMode = 'exact';
+      // Forzamos búsqueda en title + description si exact=true
+      options.searchFields = ['title', 'description'];
+    }
 
     // 2. AÑADIR LOS NUEVOS FILTROS
     if (tags) options.tags = Array.isArray(tags) ? tags.map(String) : String(tags);

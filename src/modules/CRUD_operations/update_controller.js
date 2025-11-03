@@ -1,7 +1,8 @@
 import 'express';
 import {
   update_appointment_by_id,
-  update_fixer_availability
+  update_fixer_availability,
+  fixer_cancell_appointment_by_id
 } from './update_service.js';
 
 // * Fixed Endpoint Pichon: Refactorizar y probar en Postman.
@@ -41,6 +42,30 @@ export async function updateFixerAvailability(req, res) {
   }
 }
 
+export async function fixerCancellAppointment(req, res) {
+  try {
+    const { appointment_id } = req.query;
+    if (!appointment_id) {
+      return res.status(400).json({
+        succedd: false,
+        message: "Missing query parameter"
+      });
+    }
+    const modified = await fixer_cancell_appointment_by_id(appointment_id);
+    res.status(200).json({
+      succeed: true,
+      message: `Appointment with id: ${appointment_id} cancelled`,
+      modified
+    });
+  } catch (error) {
+    res.status(500).json({
+      succeed: false,
+      message: "Error cancelling appointment",
+      error: error.message
+    });
+  }
+}
+
 export default {
-  updateAppointmentById,
+  updateAppointmentById
 };

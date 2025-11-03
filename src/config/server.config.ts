@@ -6,8 +6,9 @@ const app = express();
 
 app.use(
   cors({
-    origin: 'https://devmasters-servineo-frontend-zk3q.vercel.app',
-     // ← Puerto de tu frontend
+    origin: [
+      'https://devmasters-servineo-frontend-zk3q.vercel.app',
+      'http://localhost:8080'],
     credentials: true,
   }),
 );

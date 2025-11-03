@@ -30,6 +30,7 @@ async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id
         $gte: start_date,
         $lte: finish_date
       },
+      cancelled_fixer: { $ne: true }
     },
     {
       starting_time: 1,
@@ -60,6 +61,7 @@ async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, mo
         $gte: start_date,
         $lte: finish_date
       },
+      cancelled_fixer: { $ne: true }
     },
     {
       starting_time: 1,
@@ -106,13 +108,14 @@ async function get_meeting_status(requester_id, fixer_id, current_date, start_ho
 
 // * Fixed Endpoint Arrick: Devolvia mucho 404.
 // * Anteriores 2 endpoints unificados: se obtienen todas las citas de un dia 
-// ? Inclue a todas las citas de todos los requesters en el dia
+// ? Incluye a todas las citas de todos los requesters en el dia
 async function get_appointments_by_fixer_day(fixer_id, requested_date) {
   try {
     await set_db_connection();
     const founded_appointments = await Appointment.find({
       id_fixer: fixer_id,
-      selected_date: requested_date 
+      selected_date: requested_date,
+      cancelled_fixer: { $ne: true }
     });
     if (!founded_appointments) {
       throw new Error("Not appointments founded");
@@ -176,7 +179,8 @@ async function get_requester_schedules_by_fixer_day(fixer_id, requester_id, sear
       selected_date: {
         $gte: start_date,
         $lte: finish_date
-      }
+      },
+      cancelled_fixer: { $ne: true }
     },
     {
       starting_time: 1,
@@ -213,7 +217,8 @@ async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id
       selected_date: {
         $gte: start_date,
         $lte: finish_date
-      }
+      },
+      cancelled_fixer: { $ne: true }
     },
     {
       starting_time: 1,
@@ -280,13 +285,13 @@ async function get_fixer_availability(fixer_id) {
 export async function get_appointments_by_fixer_id_date(fixer_id, date) {
   try {
     const [year, month] = date.split('-').map(Number);
-    const startOfMonth  = new Date(Date.UTC(year, month - 1, 1));
-    const endOfMonth    = new Date(Date.UTC(year, month, 1));
-    const appointments  = await Appointment.find({
+    const startOfMonth = new Date(Date.UTC(year, month - 1, 1));
+    const endOfMonth = new Date(Date.UTC(year, month, 1));
+    const appointments = await Appointment.find({
       id_fixer: fixer_id,
       selected_date: {
         $gte: startOfMonth,
-        $lt:  endOfMonth
+        $lt: endOfMonth
       },
       cancelled_fixer: false
     }).sort({ selected_date: 1, starting_time: 1 });

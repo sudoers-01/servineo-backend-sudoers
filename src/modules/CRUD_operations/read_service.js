@@ -277,6 +277,25 @@ async function get_fixer_availability(fixer_id) {
   return availability;
 }
 
+export async function get_appointments_by_fixer_id_date(fixer_id, date) {
+  try {
+    const [year, month] = date.split('-').map(Number);
+    const startOfMonth  = new Date(Date.UTC(year, month - 1, 1));
+    const endOfMonth    = new Date(Date.UTC(year, month, 1));
+    const appointments  = await Appointment.find({
+      id_fixer: fixer_id,
+      selected_date: {
+        $gte: startOfMonth,
+        $lt:  endOfMonth
+      },
+      cancelled_fixer: false
+    }).sort({ selected_date: 1, starting_time: 1 });
+    return appointments;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 export {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,

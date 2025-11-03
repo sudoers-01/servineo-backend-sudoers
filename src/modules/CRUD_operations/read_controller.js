@@ -9,7 +9,8 @@ import {
   get_requester_schedules_by_fixer_day,
   get_other_requester_schedules_by_fixer_day,
   get_appointment_by_fixer_id_hour,
-  get_fixer_availability
+  get_fixer_availability,
+  get_appointments_by_fixer_id_date
 } from './read_service.js'; // llamamos al service
 
 // Obtener horarios de un requester en un mes específico
@@ -235,5 +236,29 @@ export async function getFixerAvailability(req, res) {
     return res.status(200).json({ message: 'Fixer availability fetched successfully', availability: data });
   } catch (err) {
     return res.status(500).json({ message: 'Error fetching fixer availability: ' + err.message });
+  }
+}
+
+export async function getAppointmentsByFixerIdAndDate(req, res) {
+  try {
+    const { id_fixer, date } = req.query;
+    if (!id_fixer || !date) {
+      return res.status(400).json({
+        succeed: false,
+        message: "Missing query parameters"
+      });
+    }
+    const appointments = await get_appointments_by_fixer_id_date(id_fixer, date);
+    res.status(200).json({
+      succeed: true,
+      message: "Appointments fetched succesfully",
+      appointments
+    });
+  } catch (error) {
+    res.status(500).json({
+      succeed: false,
+      message: "Error fetching appointments",
+      error: error.message
+    });
   }
 }

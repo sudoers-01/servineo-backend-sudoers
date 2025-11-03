@@ -40,10 +40,18 @@ async function update_appointment_by_id(id, attributes) {
   }
 }
 
-async function delete_appointment_by_id(id) {
+async function fixer_cancell_appointment_by_id(appointment_id) {
   try {
     await set_db_connection();
-
+    const result = await Appointment.findByIdAndUpdate(appointment_id, {
+      cancelled_fixer: true
+    }, {
+      new: true
+    });
+    if (!result) {
+      throw new Error("Appointment no econtrado");
+    }
+    return result;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -64,6 +72,6 @@ async function update_fixer_availability(fixer_id, availability) {
 
 export {
   update_appointment_by_id,
-  delete_appointment_by_id,
-  update_fixer_availability
+  update_fixer_availability,
+  fixer_cancell_appointment_by_id
 };

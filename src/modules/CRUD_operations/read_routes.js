@@ -8,7 +8,8 @@ import {
   getRequesterSchedulesByFixerDay,
   getOtherRequesterSchedulesByFixerDay,
   getAppointmentByFixerIdHour,
-  getFixerAvailability
+  getFixerAvailability,
+  getAppointmentsByFixerIdAndDate
 } from './read_controller.js';
 
 const router = Router();
@@ -37,6 +38,7 @@ router.get('/appointments/get_modal_form', getModalFormAppointment);
 router.get('/appointments/get_meeting_status', getMeetingStatus);
 
 router.get('/appointments/get_appointment_by_fixer_hour', getAppointmentByFixerIdHour);
+router.get('/appointments/get_all_appointments_by_fixer_date', getAppointmentsByFixerIdAndDate);
 
 router.get('/appointments/get_fixer_availability', getFixerAvailability);
 

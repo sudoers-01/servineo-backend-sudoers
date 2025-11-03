@@ -4,10 +4,23 @@ import { SortCriteria } from '../types/sort.types';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy, limit, skip, page } = req.query;
+    const { range, city, category, search, sortBy, limit, skip, page, tags, minPrice, maxPrice } =
+      req.query;
 
     // Si no hay query params, retorna todas
-    if (!range && !city && !category && !search && !sortBy && !limit && !skip && !page) {
+    if (
+      !range &&
+      !city &&
+      !category &&
+      !search &&
+      !sortBy &&
+      !limit &&
+      !skip &&
+      !page &&
+      !tags &&
+      !minPrice &&
+      !maxPrice
+    ) {
       const offers = await getAllOffers();
       return res.status(200).json({
         success: true,
@@ -25,6 +38,11 @@ export const getOffers = async (req: Request, res: Response) => {
     if (category)
       options.categories = Array.isArray(category) ? category.map(String) : [String(category)];
     if (search && typeof search === 'string') options.search = search.trim();
+
+    // 2. AÑADIR LOS NUEVOS FILTROS
+    if (tags) options.tags = Array.isArray(tags) ? tags.map(String) : String(tags);
+    if (minPrice && typeof minPrice === 'string') options.minPrice = minPrice;
+    if (maxPrice && typeof maxPrice === 'string') options.maxPrice = maxPrice;
 
     if (sortBy && typeof sortBy === 'string') {
       const validSorts = Object.values(SortCriteria).map((v) => v.toLowerCase());

@@ -52,7 +52,7 @@ async function create_appointment(current_appointment) {
     });
     console.log(exists);
     let appointment = null;
-    if (!exists) {
+    if (!exists || (exists && exists.cancelled_fixer)) {
       appointment = new Appointment(current_appointment);
       await appointment.save();
       return { result: true, message_state: 'Cita creada correctamente.' };

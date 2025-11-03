@@ -84,7 +84,7 @@ export async function getSearchHistory(
     const history = await SearchHistory.find(query)
       .sort({ searchedAt: -1 })
       .limit(limit)
-      .select('searchTerm searchedAt')
+      .select('searchTerm searchedAt isArchived')
       .lean();
 
     return history;
@@ -118,7 +118,7 @@ export async function filterSearchHistory(
 
     const history = await SearchHistory.find(query)
       .sort({ searchedAt: -1 })
-      .select('searchTerm normalizedTerm searchedAt')
+      .select('searchTerm normalizedTerm searchedAt isArchived')
       .lean();
 
     const filtered = history.filter((item: any) =>
@@ -131,6 +131,97 @@ export async function filterSearchHistory(
     }));
   } catch (error) {
     console.error('Error filtering search history:', error);
+    throw error;
+  }
+}
+
+/**
+ * Elimina (archiva) un ítem específico del historial
+ * Automáticamente re-encola búsquedas antiguas si quedan menos de 5
+ */
+export async function deleteHistoryItem(
+  searchTerm: string,
+  sessionId?: string,
+  userId?: string
+): Promise<boolean> {
+  try {
+    const identifier = userId || sessionId;
+    if (!identifier) {
+      return false;
+    }
+
+    if (!searchTerm || !searchTerm.trim()) {
+      return false;
+    }
+
+    const normalizedTerm = normalizeForHistory(searchTerm.trim());
+
+    const query = userId
+      ? { userId, normalizedTerm, isArchived: false }
+      : { sessionId, normalizedTerm, isArchived: false };
+
+    const updated = await SearchHistory.findOneAndUpdate(
+      query,
+      { isArchived: true },
+      { new: true }
+    );
+
+    if (updated) {
+      await reenqueueOldSearches(sessionId, userId);
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error deleting history item:', error);
+    throw error;
+  }
+}
+
+/**
+ * Recupera búsquedas antiguas cuando se archiva un ítem
+ * Mantiene el límite de 5 ítems activos
+ */
+export async function reenqueueOldSearches(
+  sessionId?: string,
+  userId?: string
+): Promise<any[]> {
+  try {
+    const identifier = userId || sessionId;
+    if (!identifier) {
+      return [];
+    }
+
+    // Contar cuántos ítems activos hay
+    const activeQuery = userId
+      ? { userId, isArchived: false }
+      : { sessionId, isArchived: false };
+
+    const activeCount = await SearchHistory.countDocuments(activeQuery);
+
+    // Si hay menos de 5, recuperar archivados más recientes
+    if (activeCount < 5) {
+      const needed = 5 - activeCount;
+      const archivedQuery = userId
+        ? { userId, isArchived: true }
+        : { sessionId, isArchived: true };
+
+      const toRecover = await SearchHistory.find(archivedQuery)
+        .sort({ searchedAt: -1 })
+        .limit(needed);
+
+      // Desmarcar como archivados
+      for (const item of toRecover) {
+        item.isArchived = false;
+        await item.save();
+      }
+
+      return toRecover;
+    }
+
+    return [];
+  } catch (error) {
+    console.error('Error reenqueuing old searches:', error);
     throw error;
   }
 }

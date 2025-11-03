@@ -1,13 +1,72 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
-import { saveSearchToHistory, filterSearchHistory } from '../services/jobOfert/search-history.service';
+import { saveSearchToHistory, filterSearchHistory, deleteHistoryItem, reenqueueOldSearches } from '../services/jobOfert/search-history.service';
 import { filterSuggestions } from '../services/jobOfert/search-suggestions.service';
 
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy, limit, skip, page, sessionId, userId } = req.query;
+    const { range, city, category, search, sortBy, limit, skip, page, sessionId, userId, action, searchTerm } = req.query;
+
+    if (action && typeof action === 'string') {
+      const act = action.toString();
+
+      // identificar quién hace la acción
+      const sid = typeof sessionId === 'string' ? sessionId : undefined;
+      const uid = typeof userId === 'string' ? userId : undefined;
+
+      // Para estas acciones exigimos sessionId o userId (no generamos anon id)
+      if (!sid && !uid) {
+        return res.status(400).json({
+          success: false,
+          message: 'Para la acción requerida debe enviarse sessionId o userId',
+        });
+      }
+
+      if (act === 'deleteHistory') {
+        // searchTerm puede venir en query ?searchTerm=... o en search (si lo usas)
+        const term = (typeof searchTerm === 'string' && searchTerm.trim()) ? searchTerm.trim()
+          : (typeof search === 'string' && search.trim()) ? search.trim()
+          : undefined;
+
+        if (!term) {
+          return res.status(400).json({
+            success: false,
+            message: 'Parámetro searchTerm es requerido para deleteHistory',
+          });
+        }
+
+        // Llamar al servicio que archiva el ítem
+        const deleted = await deleteHistoryItem(term, sid, uid);
+
+        // Obtener qué se reactivó (el service deleteHistoryItem internamente llama reenqueue,
+        // pero para devolver los items reactivados llamamos explícitamente a reenqueueOldSearches)
+        const requeued = await reenqueueOldSearches(sid, uid);
+
+        return res.status(200).json({
+          success: true,
+          action: 'deleteHistory',
+          deleted,
+          requeued, // array de items reactivados (puede ser [])
+        });
+      }
+
+      if (act === 'reenqueue') {
+        // Forzar re-enqueue: reactivar archivados recientes hasta llenar 5
+        const requeued = await reenqueueOldSearches(sid, uid);
+        return res.status(200).json({
+        success: true,
+        action: 'reenqueue',
+        requeued,
+      });
+    }
+      // Acción no soportada
+      return res.status(400).json({
+        success: false,
+        message: `Acción no soportada: ${act}`,
+      });
+    }
 
     // Si no hay query params, retorna todas
     if (!range && !city && !category && !search && !sortBy && !limit && !skip && !page) {

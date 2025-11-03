@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
 import { saveSearchToHistory, filterSearchHistory } from '../services/jobOfert/search-history.service';
+import { filterSuggestions } from '../services/jobOfert/search-suggestions.service';
+
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
@@ -53,32 +55,38 @@ export const getOffers = async (req: Request, res: Response) => {
       total: result.count,
       data: result.data,
     };
+
     if (search && typeof search === 'string' && search.trim()) {
       const sid = typeof sessionId === 'string' ? sessionId : undefined;
       const uid = typeof userId === 'string' ? userId : undefined;
+      const searchTermTrimmed = search.trim();
       
       // Guardar búsqueda en historial
-      saveSearchToHistory(search.trim(), sid, uid).catch((error) => {
+      saveSearchToHistory(searchTermTrimmed, sid, uid).catch((error) => {
         console.error('Error saving search to history:', error);
       });
 
       // Obtener historial filtrado basado en el término de búsqueda
       try {
-        const searchHistory = await filterSearchHistory(search.trim(), sid, uid, 5);
+        const searchHistory = await filterSearchHistory(searchTermTrimmed, sid, uid, 5);
         if (searchHistory.length > 0) {
           response.searchHistory = searchHistory;
         }
       } catch (error) {
         console.error('Error filtering search history:', error);
       }
+
+      try {
+        const suggestions = await filterSuggestions(searchTermTrimmed, 5);
+        if (suggestions.length > 0) {
+          response.suggestions = suggestions;
+        }
+      } catch (error) {
+        console.error('Error filtering suggestions:', error);
+      }
     }
 
-    res.status(200).json({
-      success: true,
-      count: result.count,
-      total: result.count,
-      data: result.data,
-    });
+    res.status(200).json(response);
   } catch (error) {
     res.status(500).json({
       success: false,

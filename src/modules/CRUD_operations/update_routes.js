@@ -10,4 +10,6 @@ router.put('/appointments/update_by_id', UpdateModule.updateAppointmentById);
 
 router.put('/appointments/update_fixer_availability', UpdateModule.updateFixerAvailability);
 
+router.put('/appointments/update_cancell_appointment_fixer', UpdateModule.fixerCancellAppointment);
+
 export default router;

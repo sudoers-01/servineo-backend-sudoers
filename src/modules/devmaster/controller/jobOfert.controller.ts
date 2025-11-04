@@ -46,12 +46,7 @@ export const getOffers = async (req: Request, res: Response) => {
       options.searchFields = ['title', 'description'];
     }
 
-    // ADD: si el frontend pide buscar solo en el título (?titleOnly=true),
-    // marcamos explícitamente el campo 'title' para que el service lo respete.
     if (req.query.titleOnly === 'true' || req.query.titleOnly === '1') {
-      // No forzamos searchMode a 'exact' aquí: queremos la versión "smart"
-      // (tokenizada/normalizada) pero limitada a title. El servicio elegirá
-      // la estrategia adecuada según searchMode/searchFields.
       options.searchFields = ['title'];
     }
 

@@ -68,8 +68,6 @@ export function searchOffersTitleDescExact(searchText?: string): any {
 
 /**
  * Búsqueda 'smart' limitada a los campos especificados.
- * Útil para title-only searches donde queremos la lógica tokenizada/normalizada
- * pero restringida a uno o más campos concretos.
  */
 export function searchOffersInFields(searchText?: string, fields: string[] = ['title']): any {
   return SearchService.buildSmartSearch(searchText, fields, normalizeSearchText);

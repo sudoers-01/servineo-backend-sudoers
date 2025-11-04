@@ -10,10 +10,7 @@ import { FilterCommon } from './common/filter.common';
 import { PaginationCommon } from './common/pagination.common';
 import { QueryExecutor } from './common/query-executor';
 import { SortCriteria } from '../types/sort.types';
-// Importar el filtro estándar (actual)
 import { filterOffers as standardFilterOffers } from './jobOfert/filter.service';
-
-// Importar el filtro avanzado (tu nuevo archivo)
 import { filterOffers as advancedFilterOffers } from './jobOfert/advancedFilter.service';
 
 export type OfferFilterOptions = {
@@ -23,10 +20,10 @@ export type OfferFilterOptions = {
   search?: string;
   sortBy?: string | SortCriteria;
   limit?: number;
-  skip?: number; // Campos de Búsqueda Avanzada
+  skip?: number;
   tags?: string[] | string;
   minPrice?: string;
-  maxPrice?: string; // Campos de la compañera
+  maxPrice?: string;
 
   searchMode?: 'exact' | 'smart';
   searchFields?: string[];

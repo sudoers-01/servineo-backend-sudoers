@@ -1,3 +1,7 @@
+// ============================================
+// ARCHIVO: src/config/server.routes.ts
+// ============================================
+
 import { Router } from 'express';
 
 import HealthRoutes from '../modules/health/health.routes';
@@ -5,8 +9,9 @@ import CardsRoutes from "../Innosys/routes/card.routes";
 import UsersRoutes from "../Innosys/routes/user.routes";
 import PaymentRoutes from "../Innosys/routes/payment.routes";
 import CashPayRoutes from '../Innosys/routes/lab/cashpay.routes';
-import BankAccountRoutes from '../Innosys/routes/BankAccount.routes'; // ← AGREGAR
+import BankAccountRoutes from '../Innosys/routes/BankAccount.routes';
 import paymentsRouter from "../Innosys/routes/payments.qr";
+import PaymentCenterRoutes from '../Innosys/routes/paymentCenter.routes'; // ← NUEVO
 
 const router = Router();
 
@@ -32,6 +37,10 @@ router.use('/api', PaymentRoutes);
 router.use('/api', BankAccountRoutes); 
 router.use('/api/lab', CashPayRoutes);
 
+// Rutas de Payment Center - Centro de Pagos del Fixer
+router.use('/api/fixer/payment-center', PaymentCenterRoutes); // ← NUEVO
+
+// Rutas de pagos QR
 router.use("/payments", paymentsRouter);
 router.use("api/payments", paymentsRouter);
 

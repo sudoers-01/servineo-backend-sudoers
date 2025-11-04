@@ -53,7 +53,10 @@ export function searchOffersWeighted(searchText?: string): any {
  * Wrapper mínimo: búsqueda exacta (normalizada) sobre los campos recibidos.
  * Por compatibilidad con el service orquestador, acepta un array de campos.
  */
-export function searchOffersExactFields(searchText?: string, fields: string[] = ['title', 'description']): any {
+export function searchOffersExactFields(
+  searchText?: string,
+  fields: string[] = ['title', 'description'],
+): any {
   return SearchService.buildWithNormalizer(searchText, fields, normalizeSearchText);
 }
 
@@ -61,4 +64,13 @@ export function searchOffersExactFields(searchText?: string, fields: string[] = 
 export function searchOffersTitleDescExact(searchText?: string): any {
   const fields = ['title', 'description'];
   return SearchService.buildWithNormalizer(searchText, fields, normalizeSearchText);
+}
+
+/**
+ * Búsqueda 'smart' limitada a los campos especificados.
+ * Útil para title-only searches donde queremos la lógica tokenizada/normalizada
+ * pero restringida a uno o más campos concretos.
+ */
+export function searchOffersInFields(searchText?: string, fields: string[] = ['title']): any {
+  return SearchService.buildSmartSearch(searchText, fields, normalizeSearchText);
 }

@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
-// ⚠️ 1. IMPORTACIÓN DEL MODELO REAL
 import { Offer } from '../models/offer.model';
+
 export const getOffers = async (req: Request, res: Response) => {
   try {
     const { range, city, category, search, sortBy, limit, skip, page, tags, minPrice, maxPrice } =
@@ -46,6 +46,15 @@ export const getOffers = async (req: Request, res: Response) => {
       options.searchFields = ['title', 'description'];
     }
 
+    // ADD: si el frontend pide buscar solo en el título (?titleOnly=true),
+    // marcamos explícitamente el campo 'title' para que el service lo respete.
+    if (req.query.titleOnly === 'true' || req.query.titleOnly === '1') {
+      // No forzamos searchMode a 'exact' aquí: queremos la versión "smart"
+      // (tokenizada/normalizada) pero limitada a title. El servicio elegirá
+      // la estrategia adecuada según searchMode/searchFields.
+      options.searchFields = ['title'];
+    }
+
     // 2. AÑADIR LOS NUEVOS FILTROS
     if (tags) options.tags = Array.isArray(tags) ? tags.map(String) : String(tags);
     if (minPrice && typeof minPrice === 'string') options.minPrice = minPrice;
@@ -85,21 +94,16 @@ export const getOffers = async (req: Request, res: Response) => {
     });
   }
 };
-/**
- * Función controladora para obtener todas las etiquetas únicas de la DB.
- * Usamos 'export' para que el router pueda importarla.
- */
+
 export const getUniqueTags = async (req: Request, res: Response) => {
   try {
-    // Usa el modelo 'Offer' que importaste.
-    const uniqueTags: string[] = await Offer.distinct('tags'); // El error no está aquí, sino en la carga del módulo.
-
-    // ...
-    res.status(200).json(uniqueTags);
+    // Devuelve todas las etiquetas únicas presentes en la colección de ofertas
+    const tags = await Offer.distinct('tags').exec();
+    return res.status(200).json({ success: true, count: tags.length, data: tags });
   } catch (error) {
-    // ...
-    res.status(500).json({
-      message: 'Error interno al obtener etiquetas',
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener las etiquetas únicas',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }

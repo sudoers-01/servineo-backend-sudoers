@@ -1,6 +1,10 @@
 // services/offer.service.ts
 import { Offer } from '../models/offer.model';
-import { searchOffers, searchOffersExactFields } from './jobOfert/search.service';
+import {
+  searchOffers,
+  searchOffersExactFields,
+  searchOffersInFields,
+} from './jobOfert/search.service';
 import { sortOffers } from './jobOfert/sort.service';
 import { FilterCommon } from './common/filter.common';
 import { PaginationCommon } from './common/pagination.common';
@@ -10,10 +14,7 @@ import { SortCriteria } from '../types/sort.types';
 import { filterOffers as standardFilterOffers } from './jobOfert/filter.service';
 
 // Importar el filtro avanzado (tu nuevo archivo)
-import {
-  filterOffers as advancedFilterOffers,
-  FilterOptions,
-} from './jobOfert/advancedFilter.service';
+import { filterOffers as advancedFilterOffers } from './jobOfert/advancedFilter.service';
 
 export type OfferFilterOptions = {
   ranges?: string[];
@@ -58,14 +59,18 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
 
   if (options.search) {
     if (options.searchMode === 'exact') {
-      // Lógica para búsqueda exacta de la compañera
+      // Lógica para búsqueda exacta (normalizada) cuando se pide exact
       const fields =
         options.searchFields && options.searchFields.length > 0
           ? options.searchFields
           : ['title', 'description'];
       searchQuery = searchOffersExactFields(options.search, fields);
+    } else if (options.searchFields && options.searchFields.length > 0) {
+      // Si el caller indicó campos concretos (por ejemplo title-only),
+      // usamos la variante smart limitada a esos campos.
+      searchQuery = searchOffersInFields(options.search, options.searchFields);
     } else {
-      // Comportamiento por defecto (smart search)
+      // Comportamiento por defecto (smart search sobre todos los campos)
       searchQuery = searchOffers(options.search);
     }
   } // 3. COMBINAR TODOS LOS FILTROS

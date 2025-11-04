@@ -7,15 +7,6 @@ export async function getLocation(req, res) {
       return res.status(400).json({ message: 'Missing query parameter: q' });
     }
     const data = await searchLocation(q);
-    console.log(data);
-
-    /*try {
-      const test = await createModule.insert_one_location(data[0]);
-      console.log("OK: " + test);
-    } catch (error) {
-      console.log("ERROR: " + error);
-    }*/
-
     res.json(data);
   } catch (error) {
     console.log(error);

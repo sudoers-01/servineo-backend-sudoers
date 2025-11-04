@@ -225,3 +225,32 @@ export async function reenqueueOldSearches(
     throw error;
   }
 }
+
+/**
+ * Archiva TODO el historial de un usuario/sesión
+ * No elimina de la BD, solo marca como archivado
+ */
+export async function clearAllHistory(
+  sessionId?: string,
+  userId?: string
+): Promise<number> {
+  try {
+    const identifier = userId || sessionId;
+    if (!identifier) {
+      return 0;
+    }
+
+    const query = userId
+      ? { userId, isArchived: false }
+      : { sessionId, isArchived: false };
+
+    const result = await SearchHistory.updateMany(query, { 
+      isArchived: true 
+    });
+
+    return result.modifiedCount;
+  } catch (error) {
+    console.error('Error clearing all history:', error);
+    throw error;
+  }
+}

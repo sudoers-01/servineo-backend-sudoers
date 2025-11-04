@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
-import { saveSearchToHistory, filterSearchHistory, deleteHistoryItem, reenqueueOldSearches } from '../services/jobOfert/search-history.service';
+import { saveSearchToHistory, filterSearchHistory, deleteHistoryItem, reenqueueOldSearches, clearAllHistory } from '../services/jobOfert/search-history.service';
 import { filterSuggestions } from '../services/jobOfert/search-suggestions.service';
 
 
@@ -61,12 +61,21 @@ export const getOffers = async (req: Request, res: Response) => {
         requeued,
       });
     }
+       if (act === 'clearAllHistory') {
+         const cleared = await clearAllHistory(sid, uid);
+         return res.status(200).json({
+         success: true,
+         action: 'clearAllHistory',
+         cleared,
+      });
+    }
       // Acción no soportada
       return res.status(400).json({
         success: false,
         message: `Acción no soportada: ${act}`,
       });
     }
+
 
     // Si no hay query params, retorna todas
     if (!range && !city && !category && !search && !sortBy && !limit && !skip && !page) {

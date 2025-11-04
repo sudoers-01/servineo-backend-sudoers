@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
-
+// ⚠️ 1. IMPORTACIÓN DEL MODELO REAL
+import { Offer } from '../models/offer.model';
 export const getOffers = async (req: Request, res: Response) => {
   try {
     const { range, city, category, search, sortBy, limit, skip, page, tags, minPrice, maxPrice } =
@@ -80,6 +81,25 @@ export const getOffers = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Error al obtener las ofertas',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+/**
+ * Función controladora para obtener todas las etiquetas únicas de la DB.
+ * Usamos 'export' para que el router pueda importarla.
+ */
+export const getUniqueTags = async (req: Request, res: Response) => {
+  try {
+    // Usa el modelo 'Offer' que importaste.
+    const uniqueTags: string[] = await Offer.distinct('tags'); // El error no está aquí, sino en la carga del módulo.
+
+    // ...
+    res.status(200).json(uniqueTags);
+  } catch (error) {
+    // ...
+    res.status(500).json({
+      message: 'Error interno al obtener etiquetas',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }

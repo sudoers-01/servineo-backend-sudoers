@@ -69,6 +69,18 @@ export const getOffers = async (req: Request, res: Response) => {
          cleared,
       });
     }
+
+       if (act === 'getHistory') {
+      const term = typeof search === 'string' ? search.trim() : '';
+  
+      const historyItems = await filterSearchHistory(term, sid, uid, 5);
+  
+      return res.status(200).json({
+        success: true,
+        action: 'getHistory',
+        searchHistory: historyItems,
+      });
+    }
       // Acción no soportada
       return res.status(400).json({
         success: false,

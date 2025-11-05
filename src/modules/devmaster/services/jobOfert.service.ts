@@ -27,6 +27,9 @@ export type OfferFilterOptions = {
   // Optional specific date filter in format YYYY-MM-DD
   date?: string;
 
+  // Optional rating filter (integer 1..5)
+  rating?: number;
+
   searchMode?: 'exact' | 'smart';
   searchFields?: string[];
 };
@@ -90,6 +93,14 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
       filterQuery = FilterCommon.combine(filterQuery, {
         createdAt: { $gte: start, $lt: nextStart },
       });
+    }
+  }
+
+  // Filtrado por rating: si se pasa rating (1..5) aplicamos >=n AND < n+1
+  if (options && typeof options.rating === 'number' && !isNaN(options.rating)) {
+    const n = Math.floor(options.rating);
+    if (n >= 1 && n <= 5) {
+      filterQuery = FilterCommon.combine(filterQuery, { rating: { $gte: n, $lt: n + 1 } });
     }
   }
 

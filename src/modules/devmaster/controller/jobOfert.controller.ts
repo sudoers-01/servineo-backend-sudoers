@@ -19,6 +19,7 @@ export const getOffers = async (req: Request, res: Response) => {
       tags,
       minPrice,
       maxPrice,
+      rating,
       action,
     } = req.query;
 
@@ -54,7 +55,8 @@ export const getOffers = async (req: Request, res: Response) => {
       !tags &&
       !minPrice &&
       !maxPrice &&
-      !req.query.date
+      !req.query.date &&
+      !req.query.rating
     ) {
       const offers = await getAllOffers();
       return res.status(200).json({
@@ -105,6 +107,17 @@ export const getOffers = async (req: Request, res: Response) => {
       // validar formato básico YYYY-MM-DD
       if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
         options.date = dateStr;
+      }
+    }
+
+    // Rating (entero 1..5)
+    if (
+      req.query.rating &&
+      (typeof req.query.rating === 'string' || typeof req.query.rating === 'number')
+    ) {
+      const r = Number(req.query.rating);
+      if (!isNaN(r) && Number.isInteger(r) && r >= 1 && r <= 5) {
+        options.rating = r;
       }
     }
 

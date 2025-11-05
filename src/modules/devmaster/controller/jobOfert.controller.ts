@@ -3,6 +3,16 @@ import { getAllOffers, getOffersFiltered, getPriceRanges } from '../services/job
 import { SortCriteria } from '../types/sort.types';
 import { Offer } from '../models/offer.model';
 
+import {
+  saveSearchToHistory,
+  filterSearchHistory,
+  deleteHistoryItem,
+  reenqueueOldSearches,
+  clearAllHistory,
+  getSearchHistory,
+} from '../services/jobOfert/search-history.service';
+import { filterSuggestions } from '../services/jobOfert/search-suggestions.service';
+
 export const getOffers = async (req: Request, res: Response) => {
   try {
     const {
@@ -19,11 +29,103 @@ export const getOffers = async (req: Request, res: Response) => {
       tags,
       minPrice,
       maxPrice,
-      rating,
       action,
+      sessionId,
+      userId,
+      searchTerm,
+      record,
     } = req.query;
 
-    // Acción especial: devolver rangos de precio calculados dinámicamente
+    // ==================== ACCIONES DE HISTORIAL ====================
+    if (action && typeof action === 'string') {
+      const act = action.toString();
+
+      const sid = typeof sessionId === 'string' ? sessionId : undefined;
+      const uid = typeof userId === 'string' ? userId : undefined;
+
+      if (
+        !sid &&
+        !uid &&
+        ['deleteHistory', 'reenqueue', 'clearAllHistory', 'getHistory'].includes(act)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: 'Para la acción requerida debe enviarse sessionId o userId',
+        });
+      }
+
+      // ===== DELETE HISTORY =====
+      if (act === 'deleteHistory') {
+        const term =
+          typeof searchTerm === 'string' && searchTerm.trim()
+            ? searchTerm.trim()
+            : typeof search === 'string' && search.trim()
+              ? search.trim()
+              : undefined;
+
+        if (!term) {
+          return res.status(400).json({
+            success: false,
+            message: 'Parámetro searchTerm es requerido para deleteHistory',
+          });
+        }
+
+        const deleted = await deleteHistoryItem(term, sid, uid);
+        const updatedHistory = await getSearchHistory(sid, uid, 5);
+
+        return res.status(200).json({
+          success: true,
+          action: 'deleteHistory',
+          deleted,
+          searchHistory: updatedHistory,
+        });
+      }
+
+      // ===== REENQUEUE =====
+      if (act === 'reenqueue') {
+        const requeued = await reenqueueOldSearches(sid, uid);
+        const updatedHistory = await getSearchHistory(sid, uid, 5);
+
+        return res.status(200).json({
+          success: true,
+          action: 'reenqueue',
+          requeued,
+          searchHistory: updatedHistory,
+        });
+      }
+
+      // ===== CLEAR ALL HISTORY =====
+      if (act === 'clearAllHistory') {
+        const cleared = await clearAllHistory(sid, uid);
+
+        return res.status(200).json({
+          success: true,
+          action: 'clearAllHistory',
+          cleared,
+          searchHistory: [],
+        });
+      }
+
+      // ===== GET HISTORY =====
+      if (act === 'getHistory') {
+        const term = typeof search === 'string' ? search.trim() : '';
+        const historyItems = await filterSearchHistory(term, sid, uid, 5);
+        return res.status(200).json({
+          success: true,
+          action: 'getHistory',
+          searchHistory: historyItems,
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: `Acción no soportada: ${act}`,
+      });
+    }
+
+    // ==================== BÚSQUEDA DE OFERTAS ====================
+
+    // Acción especial: devolver rangos de precio
     if (action === 'getPriceRanges') {
       const buckets = typeof req.query.buckets === 'string' ? parseInt(req.query.buckets, 10) : 4;
       const includeExtremes = req.query.includeExtremes !== 'false';
@@ -39,9 +141,7 @@ export const getOffers = async (req: Request, res: Response) => {
       }
     }
 
-    // Si no hay query params relevantes, retorna todas
-    // NOTE: incluimos 'date' en la comprobación para evitar que una llamada
-    // con sólo ?date=YYYY-MM-DD devuelva todas las ofertas sin filtrar.
+    // Si no hay query params relevantes, retornar todas
     if (
       !range &&
       !city &&
@@ -67,32 +167,24 @@ export const getOffers = async (req: Request, res: Response) => {
       });
     }
 
-    // Preparar opciones para el service
+    // Preparar opciones para getOffersFiltered
     const options: any = {};
-
     if (range) options.ranges = Array.isArray(range) ? range.map(String) : [String(range)];
     if (city && typeof city === 'string') options.city = city;
     if (category)
       options.categories = Array.isArray(category) ? category.map(String) : [String(category)];
     if (search && typeof search === 'string') options.search = search.trim();
-    // ADD: activar modo exact cuando el frontend envía ?exact=true
     if (req.query.exact === 'true' || req.query.exact === '1') {
       options.searchMode = 'exact';
-      // Forzamos búsqueda en title + description si exact=true
       options.searchFields = ['title', 'description'];
     }
-
     if (req.query.titleOnly === 'true' || req.query.titleOnly === '1') {
       options.searchFields = ['title'];
     }
-
-    // 2. AÑADIR LOS NUEVOS FILTROS
     if (tags) options.tags = Array.isArray(tags) ? tags.map(String) : String(tags);
     if (minPrice && typeof minPrice === 'string') options.minPrice = minPrice;
     if (maxPrice && typeof maxPrice === 'string') options.maxPrice = maxPrice;
 
-    // Normalizar sort: aceptar tanto `sortBy` como el alias `sort` usado por el
-    // frontend en algunas rutas. Priorizar `sortBy` cuando exista.
     const sortCandidate =
       (typeof sortBy === 'string' && sortBy) || (typeof sort === 'string' && sort);
     if (sortCandidate && typeof sortCandidate === 'string') {
@@ -101,45 +193,33 @@ export const getOffers = async (req: Request, res: Response) => {
         options.sortBy = sortCandidate.toLowerCase();
     }
 
-    // Fecha específica (YYYY-MM-DD)
     if (req.query.date && typeof req.query.date === 'string') {
       const dateStr = req.query.date.trim();
-      // validar formato básico YYYY-MM-DD
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-        options.date = dateStr;
-      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) options.date = dateStr;
     }
 
-    // Rating (entero 1..5)
-    if (
-      req.query.rating &&
-      (typeof req.query.rating === 'string' || typeof req.query.rating === 'number')
-    ) {
+    if (req.query.rating) {
       const r = Number(req.query.rating);
-      if (!isNaN(r) && Number.isInteger(r) && r >= 1 && r <= 5) {
-        options.rating = r;
-      }
+      if (!isNaN(r) && Number.isInteger(r) && r >= 1 && r <= 5) options.rating = r;
     }
 
-    // Paginación
     const itemsPerPage = limit && !isNaN(Number(limit)) ? Number(limit) : 10;
     options.limit = itemsPerPage;
+    if (page && !isNaN(Number(page))) options.skip = (Number(page) - 1) * itemsPerPage;
+    else if (skip && !isNaN(Number(skip))) options.skip = Number(skip);
+    else options.skip = 0;
 
-    if (page && !isNaN(Number(page))) {
-      options.skip = (Number(page) - 1) * itemsPerPage;
-    } else if (skip && !isNaN(Number(skip))) {
-      options.skip = Number(skip);
-    } else {
-      options.skip = 0;
-    }
-
-    // Llamar al service unificado
     const result = await getOffersFiltered(options);
 
-    // Añadir campos derivados de fecha para que el frontend pueda mostrar la
-    // fecha esperada independientemente de la zona horaria del cliente.
-    // publishedDateUTC: DD/MM/YYYY calculada en UTC
-    // publishedDateLaPaz: DD/MM/YYYY calculada en 'America/La_Paz' (útil para Bolivia)
+    // Combinar funcionalidades de ambos equipos:
+    const response: any = {
+      success: true,
+      count: result.count,
+      total: result.count,
+      data: result.data,
+    };
+
+    // ===== Añadir campos derivados de fecha =====
     const formatDateInTimezone = (d: any, timeZone: string) => {
       try {
         const date = new Date(d);
@@ -153,24 +233,48 @@ export const getOffers = async (req: Request, res: Response) => {
         return null;
       }
     };
+    if (Array.isArray(response.data)) {
+      response.data = response.data.map((item: any) => ({
+        ...item,
+        publishedDateUTC: item.createdAt ? formatDateInTimezone(item.createdAt, 'UTC') : null,
+        publishedDateLaPaz: item.createdAt
+          ? formatDateInTimezone(item.createdAt, 'America/La_Paz')
+          : null,
+      }));
+    }
 
-    const dataWithPublished = Array.isArray(result.data)
-      ? result.data.map((item: any) => ({
-          ...item,
-          publishedDateUTC: item.createdAt ? formatDateInTimezone(item.createdAt, 'UTC') : null,
-          publishedDateLaPaz: item.createdAt
-            ? formatDateInTimezone(item.createdAt, 'America/La_Paz')
-            : null,
-        }))
-      : result.data;
+    // ===== Guardar búsqueda en historial y obtener sugerencias =====
+    if (search && typeof search === 'string' && search.trim()) {
+      const recordFlag = typeof record === 'string' ? record : undefined;
+      let sid = typeof sessionId === 'string' ? sessionId : undefined;
+      const uid = typeof userId === 'string' ? userId : undefined;
+      const searchTermTrimmed = search.trim();
 
-    res.status(200).json({
-      success: true,
-      count: result.count,
-      total: result.count,
-      data: dataWithPublished,
-    });
+      if (recordFlag !== 'false') {
+        if (!sid && !uid) sid = `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        response.sessionId = sid;
+
+        saveSearchToHistory(searchTermTrimmed, sid, uid).catch(console.error);
+
+        try {
+          const searchHistory = await filterSearchHistory(searchTermTrimmed, sid, uid, 5);
+          if (searchHistory.length > 0) response.searchHistory = searchHistory;
+        } catch (error) {
+          console.error('Error filtering search history:', error);
+        }
+      }
+
+      try {
+        const suggestions = await filterSuggestions(searchTermTrimmed, 5, uid, sid);
+        if (suggestions && suggestions.length > 0) response.suggestions = suggestions;
+      } catch (error) {
+        console.error('Error filtering suggestions:', error);
+      }
+    }
+
+    res.status(200).json(response);
   } catch (error) {
+    console.error('Error en getOffers:', error);
     res.status(500).json({
       success: false,
       message: 'Error al obtener las ofertas',
@@ -181,7 +285,6 @@ export const getOffers = async (req: Request, res: Response) => {
 
 export const getUniqueTags = async (req: Request, res: Response) => {
   try {
-    // Devuelve todas las etiquetas únicas presentes en la colección de ofertas
     const tags = await Offer.distinct('tags').exec();
     return res.status(200).json({ success: true, count: tags.length, data: tags });
   } catch (error) {

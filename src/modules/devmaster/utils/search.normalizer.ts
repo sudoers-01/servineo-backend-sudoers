@@ -55,3 +55,28 @@ export function normalizeSearchText(text: string): string {
   // 4. Se asegura de recomponer la cadena si es necesario
   return normalizedText.normalize('NFC');
 }
+
+export function normalizeForHistory(text: string): string {
+  if (!text) {
+    return '';
+  }
+
+  // 1. Convertir a minúsculas y limpiar espacios
+  let normalized = text.trim().toLowerCase();
+
+  // 2. Reemplazar múltiples espacios por uno solo
+  normalized = normalized.replace(/\s+/g, ' ');
+
+  // 3. Eliminar acentos y diéresis
+  normalized = normalized.replace(/[ÁáÀàÂâÄäÃãÅåĀāĂăǍǎȦȧ]/g, 'a');
+  normalized = normalized.replace(/[ÉéÈèÊêËëĒēĔĕĚěĖė]/g, 'e');
+  normalized = normalized.replace(/[ÍíÌìÎîÏïĨĩĪīĬĭǏǐ]/g, 'i');
+  normalized = normalized.replace(/[ÓóÒòÔôÖöÕõŌōŎŏǑǒȮȯ]/g, 'o');
+  normalized = normalized.replace(/[ÚúÙùÛûÜüŨũŮůŪūŬŭǓǔ]/g, 'u');
+  
+  // Mantener la ñ como ñ (no convertir a n)
+  // Si quieres convertir ñ → n, descomenta la siguiente línea:
+  // normalized = normalized.replace(/ñ/g, 'n');
+
+  return normalized;
+}

@@ -24,6 +24,8 @@ export type OfferFilterOptions = {
   tags?: string[] | string;
   minPrice?: string;
   maxPrice?: string;
+  // Optional specific date filter in format YYYY-MM-DD
+  date?: string;
 
   searchMode?: 'exact' | 'smart';
   searchFields?: string[];
@@ -72,6 +74,22 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
     }
   } // 3. COMBINAR TODOS LOS FILTROS
   // Combina la Query de Filtros (filterQuery) y la Query de Búsqueda por Texto (searchQuery)
+  // Si se proporciona un filtro de fecha (YYYY-MM-DD), añadir rango createdAt [00:00:00,23:59:59.999]
+  if (options && options.date) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(options.date);
+    if (m) {
+      const y = Number(m[1]);
+      const mo = Number(m[2]);
+      const d = Number(m[3]);
+      // Crear inicio y fin del día en zona horaria del servidor (Date local)
+      const start = new Date(y, mo - 1, d, 0, 0, 0, 0);
+      const end = new Date(y, mo - 1, d, 23, 59, 59, 999);
+
+      // Añadir al filterQuery existente
+      filterQuery = FilterCommon.combine(filterQuery, { createdAt: { $gte: start, $lte: end } });
+    }
+  }
+
   const finalQuery = FilterCommon.combine(filterQuery, searchQuery); // 4. APLICAR ORDENAMIENTO Y PAGINACIÓN
 
   const sort = sortOffers(options?.sortBy);
@@ -85,10 +103,7 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
  * Devuelve un array de rangos con labels y valores { min, max } donde null indica -inf/+inf.
  * Por defecto crea 4 buckets internos y añade opciones "Menos de" y "Más de" (por lo que se devuelven 6 items si includeExtremes=true).
  */
-export const getPriceRanges = async (
-  buckets = 4,
-  includeExtremes = true,
-) => {
+export const getPriceRanges = async (buckets = 4, includeExtremes = true) => {
   // Agregación para obtener min y max
   const agg = await Offer.aggregate([
     {

@@ -5,8 +5,20 @@ import { Offer } from '../models/offer.model';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy, limit, skip, page, tags, minPrice, maxPrice, action } =
-      req.query;
+    const {
+      range,
+      city,
+      category,
+      search,
+      sortBy,
+      limit,
+      skip,
+      page,
+      tags,
+      minPrice,
+      maxPrice,
+      action,
+    } = req.query;
 
     // Acción especial: devolver rangos de precio calculados dinámicamente
     if (action === 'getPriceRanges') {
@@ -16,7 +28,13 @@ export const getOffers = async (req: Request, res: Response) => {
         const result = await getPriceRanges(buckets, includeExtremes);
         return res.status(200).json({ success: true, ...result });
       } catch (error) {
-        return res.status(500).json({ success: false, message: 'Error obteniendo rangos de precio', error: error instanceof Error ? error.message : String(error) });
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: 'Error obteniendo rangos de precio',
+            error: error instanceof Error ? error.message : String(error),
+          });
       }
     }
 
@@ -70,6 +88,15 @@ export const getOffers = async (req: Request, res: Response) => {
     if (sortBy && typeof sortBy === 'string') {
       const validSorts = Object.values(SortCriteria).map((v) => v.toLowerCase());
       if (validSorts.includes(sortBy.toLowerCase())) options.sortBy = sortBy.toLowerCase();
+    }
+
+    // Fecha específica (YYYY-MM-DD)
+    if (req.query.date && typeof req.query.date === 'string') {
+      const dateStr = req.query.date.trim();
+      // validar formato básico YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        options.date = dateStr;
+      }
     }
 
     // Paginación

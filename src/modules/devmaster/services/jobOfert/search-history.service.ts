@@ -17,13 +17,13 @@ export async function saveSearchToHistory(
     const cleanedTerm = validateAndCleanSearchTerm(searchTerm);
     
     if (!cleanedTerm) {
-      return null; // Término inválido
+      return null;
     }
 
     const filteredTerm = filterSpecialCharacters(cleanedTerm);
     
     if (!filteredTerm) {
-      return null; // Solo tenía caracteres especiales
+      return null;
     }
     const normalizedTerm = normalizeForHistory(cleanedTerm);
 
@@ -64,7 +64,7 @@ export async function saveSearchToHistory(
 
 /**
  * Obtiene el historial de búsquedas de un usuario/sesión
- * Limitado a los últimos 5 registros, ordenados por más reciente
+ * Limitado a los últimos registros, ordenados por más reciente
  */
 export async function getSearchHistory(
   sessionId?: string,
@@ -94,6 +94,10 @@ export async function getSearchHistory(
   }
 }
 
+/**
+ * Filtra el historial basado en el término de búsqueda
+ * Si no hay término, devuelve todo el historial activo
+ */
 export async function filterSearchHistory(
   searchTerm: string,
   sessionId?: string,
@@ -101,13 +105,14 @@ export async function filterSearchHistory(
   limit: number = 5
 ): Promise<any[]> {
   try {
-    if (!searchTerm || !searchTerm.trim()) {
-      return getSearchHistory(sessionId, userId, limit);
-    }
-
     const identifier = userId || sessionId;
     if (!identifier) {
       return [];
+    }
+
+    // Si no hay término de búsqueda, devolver todo el historial
+    if (!searchTerm || !searchTerm.trim()) {
+      return getSearchHistory(sessionId, userId, limit);
     }
 
     const normalizedInput = normalizeForHistory(searchTerm.trim());
@@ -147,44 +152,69 @@ export async function deleteHistoryItem(
   try {
     const identifier = userId || sessionId;
     if (!identifier) {
+      console.log('deleteHistoryItem: No identifier provided');
       return false;
     }
 
     if (!searchTerm || !searchTerm.trim()) {
+      console.log('deleteHistoryItem: Empty search term');
       return false;
     }
 
     const normalizedTerm = normalizeForHistory(searchTerm.trim());
+    console.log('deleteHistoryItem: Normalized term:', normalizedTerm);
 
     const query = userId
       ? { userId, normalizedTerm, isArchived: false }
       : { sessionId, normalizedTerm, isArchived: false };
 
-    const updated = await SearchHistory.findOneAndUpdate(
-      query,
-      { isArchived: true },
-      { new: true }
-    );
+    console.log('deleteHistoryItem: Query:', JSON.stringify(query));
 
-    if (updated) {
-      await reenqueueOldSearches(sessionId, userId);
-      return true;
+    // Buscar el documento primero para debug
+    const found = await SearchHistory.findOne(query);
+    console.log('deleteHistoryItem: Found document:', found ? 'YES' : 'NO');
+
+    if (!found) {
+      // Intentar buscar sin normalizar (por si hay discrepancia)
+      const queryOriginal = userId
+        ? { userId, searchTerm: searchTerm.trim(), isArchived: false }
+        : { sessionId, searchTerm: searchTerm.trim(), isArchived: false };
+      
+      const foundOriginal = await SearchHistory.findOne(queryOriginal);
+      console.log('deleteHistoryItem: Found by original term:', foundOriginal ? 'YES' : 'NO');
+
+      if (foundOriginal) {
+        foundOriginal.isArchived = true;
+        foundOriginal.isDeletedManually = true;
+        await foundOriginal.save();
+        console.log('deleteHistoryItem: Deleted using original term');
+        // Pasar el término normalizado para excluirlo del re-enqueue
+        await reenqueueOldSearches(sessionId, userId, foundOriginal.normalizedTerm);
+        return true;
+      }
+
+      return false;
     }
+
+    // Marcar como archivado
+    found.isArchived = true;
+    found.isDeletedManually = true;
+    await found.save();
+
+    // Re-encolar búsquedas antiguas EXCLUYENDO el que acabamos de archivar
+    await reenqueueOldSearches(sessionId, userId, normalizedTerm);
     
-    return false;
+    return true;
   } catch (error) {
     console.error('Error deleting history item:', error);
     throw error;
   }
 }
 
-/**
- * Recupera búsquedas antiguas cuando se archiva un ítem
- * Mantiene el límite de 5 ítems activos
- */
 export async function reenqueueOldSearches(
   sessionId?: string,
-  userId?: string
+  userId?: string,
+  excludeNormalizedTerm?: string
 ): Promise<any[]> {
   try {
     const identifier = userId || sessionId;
@@ -192,31 +222,57 @@ export async function reenqueueOldSearches(
       return [];
     }
 
-    // Contar cuántos ítems activos hay
     const activeQuery = userId
-      ? { userId, isArchived: false }
-      : { sessionId, isArchived: false };
+      ? { userId, isArchived: true, isDeletedManually: { $ne: true } }
+      : { sessionId, isArchived: true, isDeletedManually: { $ne: true } };
 
     const activeCount = await SearchHistory.countDocuments(activeQuery);
+    console.log('reenqueueOldSearches: Active count:', activeCount);
 
-    // Si hay menos de 5, recuperar archivados más recientes
+    if (activeCount === 0) {
+      console.log('reenqueueOldSearches: Skipping recovery because active count is 0');
+     return [];
+    }
+
     if (activeCount < 5) {
       const needed = 5 - activeCount;
-      const archivedQuery = userId
+
+      // 🔒 Aquí nos aseguramos de buscar solo dentro de la MISMA sesión o usuario
+      const archivedQuery: any = userId
         ? { userId, isArchived: true }
         : { sessionId, isArchived: true };
+
+      // ⚠️ Evita traer cosas viejas de otras sesiones sin relación
+      if (excludeNormalizedTerm) {
+        archivedQuery.normalizedTerm = { $ne: excludeNormalizedTerm };
+        console.log('reenqueueOldSearches: Excluding term:', excludeNormalizedTerm);
+      }
+
+      // 🔥 NUEVA SEGURIDAD: No recuperar nada si no hay históricos en esta sesión
+      const archivedCount = await SearchHistory.countDocuments(archivedQuery);
+      if (archivedCount === 0) {
+        console.log('reenqueueOldSearches: No archived items found for this session.');
+        return [];
+      }
 
       const toRecover = await SearchHistory.find(archivedQuery)
         .sort({ searchedAt: -1 })
         .limit(needed);
 
-      // Desmarcar como archivados
+      console.log('reenqueueOldSearches: Found to recover:', toRecover.length);
+
+      const recovered = [];
       for (const item of toRecover) {
         item.isArchived = false;
         await item.save();
+        recovered.push({
+          searchTerm: item.searchTerm,
+          searchedAt: item.searchedAt,
+        });
       }
 
-      return toRecover;
+      console.log('reenqueueOldSearches: Recovered items:', recovered.length);
+      return recovered;
     }
 
     return [];
@@ -244,10 +300,12 @@ export async function clearAllHistory(
       ? { userId, isArchived: false }
       : { sessionId, isArchived: false };
 
-    const result = await SearchHistory.updateMany(query, { 
-      isArchived: true 
-    });
+    const result = await SearchHistory.updateMany(
+     { sessionId, isArchived: false },
+      { $set: { isArchived: true, isDeletedManually: true } }
+    );
 
+    console.log('clearAllHistory: Modified count:', result.modifiedCount);
     return result.modifiedCount;
   } catch (error) {
     console.error('Error clearing all history:', error);

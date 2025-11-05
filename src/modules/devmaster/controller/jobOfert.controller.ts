@@ -1,22 +1,27 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
-import { saveSearchToHistory, filterSearchHistory, deleteHistoryItem, reenqueueOldSearches, clearAllHistory } from '../services/jobOfert/search-history.service';
+import { 
+  saveSearchToHistory, 
+  filterSearchHistory, 
+  deleteHistoryItem, 
+  reenqueueOldSearches, 
+  clearAllHistory,
+  getSearchHistory 
+} from '../services/jobOfert/search-history.service';
 import { filterSuggestions } from '../services/jobOfert/search-suggestions.service';
-
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
     const { range, city, category, search, sortBy, limit, skip, page, sessionId, userId, action, searchTerm } = req.query;
 
+    // ==================== ACCIONES DE HISTORIAL ====================
     if (action && typeof action === 'string') {
       const act = action.toString();
 
-      // identificar quién hace la acción
       const sid = typeof sessionId === 'string' ? sessionId : undefined;
       const uid = typeof userId === 'string' ? userId : undefined;
 
-      // Para estas acciones exigimos sessionId o userId (no generamos anon id)
       if (!sid && !uid) {
         return res.status(400).json({
           success: false,
@@ -24,63 +29,75 @@ export const getOffers = async (req: Request, res: Response) => {
         });
       }
 
-      if (act === 'deleteHistory') {
-        // searchTerm puede venir en query ?searchTerm=... o en search (si lo usas)
-        const term = (typeof searchTerm === 'string' && searchTerm.trim()) ? searchTerm.trim()
-          : (typeof search === 'string' && search.trim()) ? search.trim()
-          : undefined;
+      // ===== DELETE HISTORY =====
+if (act === 'deleteHistory') {
+  const term = (typeof searchTerm === 'string' && searchTerm.trim()) 
+    ? searchTerm.trim()
+    : (typeof search === 'string' && search.trim()) 
+    ? search.trim()
+    : undefined;
 
-        if (!term) {
-          return res.status(400).json({
-            success: false,
-            message: 'Parámetro searchTerm es requerido para deleteHistory',
-          });
-        }
+  if (!term) {
+    return res.status(400).json({
+      success: false,
+      message: 'Parámetro searchTerm es requerido para deleteHistory',
+    });
+  }
 
-        // Llamar al servicio que archiva el ítem
-        const deleted = await deleteHistoryItem(term, sid, uid);
+  // Eliminar el item
+  const deleted = await deleteHistoryItem(term, sid, uid);
 
-        // Obtener qué se reactivó (el service deleteHistoryItem internamente llama reenqueue,
-        // pero para devolver los items reactivados llamamos explícitamente a reenqueueOldSearches)
+  // CAMBIO: Siempre devolver 200 aunque no encuentre el documento
+  // porque puede que ya esté archivado
+  
+  // Obtener historial actualizado después de re-encolar
+  const updatedHistory = await getSearchHistory(sid, uid, 5);
+
+  return res.status(200).json({
+    success: true,  // <-- Siempre true si no hay error de servidor
+    action: 'deleteHistory',
+    deleted,
+    searchHistory: updatedHistory,
+  });
+}
+      // ===== REENQUEUE =====
+      if (act === 'reenqueue') {
         const requeued = await reenqueueOldSearches(sid, uid);
-
+        const updatedHistory = await getSearchHistory(sid, uid, 5);
+        
         return res.status(200).json({
           success: true,
-          action: 'deleteHistory',
-          deleted,
-          requeued, // array de items reactivados (puede ser [])
+          action: 'reenqueue',
+          requeued,
+          searchHistory: updatedHistory,
         });
       }
 
-      if (act === 'reenqueue') {
-        // Forzar re-enqueue: reactivar archivados recientes hasta llenar 5
-        const requeued = await reenqueueOldSearches(sid, uid);
+      // ===== CLEAR ALL HISTORY =====
+      if (act === 'clearAllHistory') {
+        const cleared = await clearAllHistory(sid, uid);
+        
         return res.status(200).json({
-        success: true,
-        action: 'reenqueue',
-        requeued,
-      });
-    }
-       if (act === 'clearAllHistory') {
-         const cleared = await clearAllHistory(sid, uid);
-         return res.status(200).json({
-         success: true,
-         action: 'clearAllHistory',
-         cleared,
-      });
-    }
+          success: true,
+          action: 'clearAllHistory',
+          cleared,
+          searchHistory: [], // Historial vacío después de limpiar
+        });
+      }
 
-       if (act === 'getHistory') {
-      const term = typeof search === 'string' ? search.trim() : '';
-  
-      const historyItems = await filterSearchHistory(term, sid, uid, 5);
-  
-      return res.status(200).json({
-        success: true,
-        action: 'getHistory',
-        searchHistory: historyItems,
-      });
-    }
+      // ===== GET HISTORY =====
+      if (act === 'getHistory') {
+        const term = typeof search === 'string' ? search.trim() : '';
+        
+        const historyItems = await filterSearchHistory(term, sid, uid, 5);
+        
+        return res.status(200).json({
+          success: true,
+          action: 'getHistory',
+          searchHistory: historyItems,
+        });
+      }
+
       // Acción no soportada
       return res.status(400).json({
         success: false,
@@ -88,6 +105,7 @@ export const getOffers = async (req: Request, res: Response) => {
       });
     }
 
+    // ==================== BÚSQUEDA DE OFERTAS ====================
 
     // Si no hay query params, retorna todas
     if (!range && !city && !category && !search && !sortBy && !limit && !skip && !page) {
@@ -136,25 +154,24 @@ export const getOffers = async (req: Request, res: Response) => {
       data: result.data,
     };
 
+    // Guardar búsqueda en historial si hay término de búsqueda
     if (search && typeof search === 'string' && search.trim()) {
       let sid = typeof sessionId === 'string' ? sessionId : undefined;
       const uid = typeof userId === 'string' ? userId : undefined;
       const searchTermTrimmed = search.trim();
 
-      // Si no hay ni sessionId ni userId, generamos uno en el servidor
-      // y lo devolvemos en la respuesta JSON para que el cliente lo persista.
+      // Si no hay ni sessionId ni userId, generar uno
       if (!sid && !uid) {
         sid = `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-        // Añadir sessionId generado a la respuesta para que el frontend lo guarde
         response.sessionId = sid;
       }
       
-      // Guardar búsqueda en historial
+      // Guardar búsqueda en historial (asíncrono, no esperar)
       saveSearchToHistory(searchTermTrimmed, sid, uid).catch((error) => {
         console.error('Error saving search to history:', error);
       });
 
-      // Obtener historial filtrado basado en el término de búsqueda
+      // Obtener historial filtrado
       try {
         const searchHistory = await filterSearchHistory(searchTermTrimmed, sid, uid, 5);
         if (searchHistory.length > 0) {
@@ -164,6 +181,7 @@ export const getOffers = async (req: Request, res: Response) => {
         console.error('Error filtering search history:', error);
       }
 
+      // Obtener sugerencias
       try {
         const suggestions = await filterSuggestions(searchTermTrimmed, 5);
         if (suggestions.length > 0) {
@@ -176,6 +194,7 @@ export const getOffers = async (req: Request, res: Response) => {
 
     res.status(200).json(response);
   } catch (error) {
+    console.error('Error en getOffers:', error);
     res.status(500).json({
       success: false,
       message: 'Error al obtener las ofertas',

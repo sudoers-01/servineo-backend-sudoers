@@ -31,6 +31,11 @@ const searchHistorySchema = new Schema(
       default: false,
       index: true,
     },
+    isDeletedManually: {
+      type: Boolean,
+      default: false,
+      index: true
+    }
   },
   {
     timestamps: true,

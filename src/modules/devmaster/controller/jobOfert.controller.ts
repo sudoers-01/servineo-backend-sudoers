@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
-import { validatePageRange, normalizePageParam } from '../utils/pagination.validator';
+import {
+  validatePageRange,
+  normalizePageParam,
+  calculatePaginationParams,
+  validatePaginationConsistency,
+} from '../utils/pagination.validator';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
@@ -34,17 +39,12 @@ export const getOffers = async (req: Request, res: Response) => {
 
     // Paginación
     const itemsPerPage = limit && !isNaN(Number(limit)) ? Number(limit) : 10;
-    options.limit = itemsPerPage;
-
     const currentPage = normalizePageParam(page);
 
-    if (page && !isNaN(Number(page))) {
-      options.skip = (Number(page) - 1) * itemsPerPage;
-    } else if (skip && !isNaN(Number(skip))) {
-      options.skip = Number(skip);
-    } else {
-      options.skip = 0;
-    }
+    // Calcular skip y limit de forma consistente
+    const paginationParams = calculatePaginationParams(currentPage, itemsPerPage);
+    options.limit = paginationParams.limit;
+    options.skip = paginationParams.skip;
 
     // Llamar al service unificado
     const result = await getOffersFiltered(options);

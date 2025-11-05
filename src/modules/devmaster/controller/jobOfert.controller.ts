@@ -13,7 +13,7 @@ import { filterSuggestions } from '../services/jobOfert/search-suggestions.servi
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy, limit, skip, page, sessionId, userId, action, searchTerm } = req.query;
+  const { range, city, category, search, sortBy, limit, skip, page, sessionId, userId, action, searchTerm, record } = req.query;
 
     // ==================== ACCIONES DE HISTORIAL ====================
     if (action && typeof action === 'string') {
@@ -156,35 +156,39 @@ if (act === 'deleteHistory') {
 
     // Guardar búsqueda en historial si hay término de búsqueda
     if (search && typeof search === 'string' && search.trim()) {
+      const recordFlag = typeof record === 'string' ? record : undefined;
       let sid = typeof sessionId === 'string' ? sessionId : undefined;
       const uid = typeof userId === 'string' ? userId : undefined;
       const searchTermTrimmed = search.trim();
 
-      // Si no hay ni sessionId ni userId, generar uno
-      if (!sid && !uid) {
-        sid = `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-        response.sessionId = sid;
-      }
-      
-      // Guardar búsqueda en historial (asíncrono, no esperar)
-      saveSearchToHistory(searchTermTrimmed, sid, uid).catch((error) => {
-        console.error('Error saving search to history:', error);
-      });
-
-      // Obtener historial filtrado
-      try {
-        const searchHistory = await filterSearchHistory(searchTermTrimmed, sid, uid, 5);
-        if (searchHistory.length > 0) {
-          response.searchHistory = searchHistory;
+      // Solo generar sessionId y guardar historial si record !== 'false'
+      if (recordFlag !== 'false') {
+        // Si no hay ni sessionId ni userId, generar uno
+        if (!sid && !uid) {
+          sid = `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+          response.sessionId = sid;
         }
-      } catch (error) {
-        console.error('Error filtering search history:', error);
+        
+        // Guardar búsqueda en historial (asíncrono, no esperar)
+        saveSearchToHistory(searchTermTrimmed, sid, uid).catch((error) => {
+          console.error('Error saving search to history:', error);
+        });
+
+        // Obtener historial filtrado
+        try {
+          const searchHistory = await filterSearchHistory(searchTermTrimmed, sid, uid, 5);
+          if (searchHistory.length > 0) {
+            response.searchHistory = searchHistory;
+          }
+        } catch (error) {
+          console.error('Error filtering search history:', error);
+        }
       }
 
-      // Obtener sugerencias
+      // Obtener sugerencias (siempre)
       try {
-        const suggestions = await filterSuggestions(searchTermTrimmed, 5);
-        if (suggestions.length > 0) {
+        const suggestions = await filterSuggestions(searchTermTrimmed, 5, uid, sid);
+        if (suggestions && suggestions.length > 0) {
           response.suggestions = suggestions;
         }
       } catch (error) {

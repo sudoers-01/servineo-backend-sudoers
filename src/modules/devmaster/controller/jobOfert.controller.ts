@@ -1,12 +1,24 @@
 import { Request, Response } from 'express';
-import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
+import { getAllOffers, getOffersFiltered, getPriceRanges } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
 import { Offer } from '../models/offer.model';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
-    const { range, city, category, search, sortBy, limit, skip, page, tags, minPrice, maxPrice } =
+    const { range, city, category, search, sortBy, limit, skip, page, tags, minPrice, maxPrice, action } =
       req.query;
+
+    // Acción especial: devolver rangos de precio calculados dinámicamente
+    if (action === 'getPriceRanges') {
+      const buckets = typeof req.query.buckets === 'string' ? parseInt(req.query.buckets, 10) : 4;
+      const includeExtremes = req.query.includeExtremes !== 'false';
+      try {
+        const result = await getPriceRanges(buckets, includeExtremes);
+        return res.status(200).json({ success: true, ...result });
+      } catch (error) {
+        return res.status(500).json({ success: false, message: 'Error obteniendo rangos de precio', error: error instanceof Error ? error.message : String(error) });
+      }
+    }
 
     // Si no hay query params, retorna todas
     if (

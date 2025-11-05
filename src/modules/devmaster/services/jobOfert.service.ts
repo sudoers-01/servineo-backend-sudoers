@@ -79,3 +79,106 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
 
   return await QueryExecutor.execute(Offer, finalQuery, sort, skip, limit);
 };
+
+/**
+ * Calcula rangos de precio dinámicos basados en el mínimo y máximo de la colección `offers`.
+ * Devuelve un array de rangos con labels y valores { min, max } donde null indica -inf/+inf.
+ * Por defecto crea 4 buckets internos y añade opciones "Menos de" y "Más de" (por lo que se devuelven 6 items si includeExtremes=true).
+ */
+export const getPriceRanges = async (
+  buckets = 4,
+  includeExtremes = true,
+) => {
+  // Agregación para obtener min y max
+  const agg = await Offer.aggregate([
+    {
+      $group: {
+        _id: null,
+        min: { $min: '$price' },
+        max: { $max: '$price' },
+      },
+    },
+  ]);
+
+  if (!agg || agg.length === 0) return { min: null, max: null, ranges: [] };
+
+  let min = agg[0].min as number;
+  let max = agg[0].max as number;
+
+  if (min == null || max == null) return { min: null, max: null, ranges: [] };
+
+  if (min === max) {
+    // Un solo valor: devolver rangos sencillos alrededor
+    const one = Math.floor(min);
+    return {
+      min: one,
+      max: one,
+      ranges: [{ label: `= $${one}`, min: one, max: one }],
+    };
+  }
+
+  // calcular step y límites (algoritmo más estable):
+  // 1) stepRaw = span / buckets
+  // 2) base = 10^floor(log10(stepRaw))
+  // 3) step = ceil(stepRaw / base) * base  (redondear hacia arriba al múltiplo de base)
+  // 4) lower = floor(min / step) * step  (redondear el límite inferior hacia abajo)
+  // 5) boundaries = [lower, lower+step, ..., lower + step * buckets]
+  // 6) ajustar último boundary para que >= max
+  const span = max - min;
+  const stepRaw = span / buckets;
+
+  const roundBase = (n: number) => {
+    if (n <= 1) return 1;
+    const exp = Math.floor(Math.log10(n));
+    return Math.pow(10, Math.max(0, exp));
+  };
+
+  const base = roundBase(stepRaw);
+  const step = Math.max(1, Math.ceil(stepRaw / base) * base);
+
+  const boundaries: number[] = [];
+  let lower = Math.floor(min / step) * step;
+  // If lower is negative and prices are positive, clamp to 0
+  if (lower < 0 && min >= 0) lower = 0;
+
+  for (let i = 0; i <= buckets; i++) {
+    boundaries.push(lower + step * i);
+  }
+
+  // Ensure last boundary covers max
+  while (boundaries[boundaries.length - 1] < max) {
+    boundaries.push(boundaries[boundaries.length - 1] + step);
+  }
+
+  const ranges: Array<{ label: string; min: number | null; max: number | null }> = [];
+
+  if (includeExtremes) {
+    // Menos de first upper
+    const firstUpper = boundaries[1] ?? boundaries[boundaries.length - 1];
+    ranges.push({ label: `Menos de $${firstUpper}`, min: null, max: firstUpper });
+
+    // mid boundaries: omit the very low (boundaries[0]) and the last padded boundary
+    const mid = boundaries.slice(1, Math.max(2, boundaries.length - 1));
+    if (mid.length >= 2) {
+      for (let i = 0; i < mid.length - 1; i++) {
+        const a = mid[i];
+        const b = mid[i + 1];
+        ranges.push({ label: `$${a} - $${b}`, min: a, max: b });
+      }
+      const lastMin = mid[mid.length - 1];
+      ranges.push({ label: `Más de $${lastMin}`, min: lastMin, max: null });
+    } else {
+      // Fallback: si no hay suficientes boundaries intermedias, usar firstUpper como límite inferior
+      ranges.push({ label: `Más de $${firstUpper}`, min: firstUpper, max: null });
+    }
+  } else {
+    // Sin extremos: devolver todos los pares de boundaries
+    for (let i = 0; i < boundaries.length - 1; i++) {
+      const a = boundaries[i];
+      const b = boundaries[i + 1];
+      ranges.push({ label: `$${a} - $${b}`, min: a, max: b });
+    }
+  }
+
+  return { min, max, ranges };
+};

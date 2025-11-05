@@ -1,19 +1,40 @@
 import { Request, Response } from 'express';
-import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
+import { getAllOffers, getOffersFiltered, getPriceRanges } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
-import { 
-  saveSearchToHistory, 
-  filterSearchHistory, 
-  deleteHistoryItem, 
-  reenqueueOldSearches, 
+import { Offer } from '../models/offer.model';
+
+import {
+  saveSearchToHistory,
+  filterSearchHistory,
+  deleteHistoryItem,
+  reenqueueOldSearches,
   clearAllHistory,
-  getSearchHistory 
+  getSearchHistory,
 } from '../services/jobOfert/search-history.service';
 import { filterSuggestions } from '../services/jobOfert/search-suggestions.service';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
-  const { range, city, category, search, sortBy, limit, skip, page, sessionId, userId, action, searchTerm, record } = req.query;
+    const {
+      range,
+      city,
+      category,
+      search,
+      sortBy,
+      // alias 'sort' is accepted from frontend in some places — normalize below
+      sort,
+      limit,
+      skip,
+      page,
+      tags,
+      minPrice,
+      maxPrice,
+      action,
+      sessionId,
+      userId,
+      searchTerm,
+      record,
+    } = req.query;
 
     // ==================== ACCIONES DE HISTORIAL ====================
     if (action && typeof action === 'string') {
@@ -22,7 +43,11 @@ export const getOffers = async (req: Request, res: Response) => {
       const sid = typeof sessionId === 'string' ? sessionId : undefined;
       const uid = typeof userId === 'string' ? userId : undefined;
 
-      if (!sid && !uid) {
+      if (
+        !sid &&
+        !uid &&
+        ['deleteHistory', 'reenqueue', 'clearAllHistory', 'getHistory'].includes(act)
+      ) {
         return res.status(400).json({
           success: false,
           message: 'Para la acción requerida debe enviarse sessionId o userId',
@@ -30,41 +55,37 @@ export const getOffers = async (req: Request, res: Response) => {
       }
 
       // ===== DELETE HISTORY =====
-if (act === 'deleteHistory') {
-  const term = (typeof searchTerm === 'string' && searchTerm.trim()) 
-    ? searchTerm.trim()
-    : (typeof search === 'string' && search.trim()) 
-    ? search.trim()
-    : undefined;
+      if (act === 'deleteHistory') {
+        const term =
+          typeof searchTerm === 'string' && searchTerm.trim()
+            ? searchTerm.trim()
+            : typeof search === 'string' && search.trim()
+              ? search.trim()
+              : undefined;
 
-  if (!term) {
-    return res.status(400).json({
-      success: false,
-      message: 'Parámetro searchTerm es requerido para deleteHistory',
-    });
-  }
+        if (!term) {
+          return res.status(400).json({
+            success: false,
+            message: 'Parámetro searchTerm es requerido para deleteHistory',
+          });
+        }
 
-  // Eliminar el item
-  const deleted = await deleteHistoryItem(term, sid, uid);
+        const deleted = await deleteHistoryItem(term, sid, uid);
+        const updatedHistory = await getSearchHistory(sid, uid, 5);
 
-  // CAMBIO: Siempre devolver 200 aunque no encuentre el documento
-  // porque puede que ya esté archivado
-  
-  // Obtener historial actualizado después de re-encolar
-  const updatedHistory = await getSearchHistory(sid, uid, 5);
+        return res.status(200).json({
+          success: true,
+          action: 'deleteHistory',
+          deleted,
+          searchHistory: updatedHistory,
+        });
+      }
 
-  return res.status(200).json({
-    success: true,  // <-- Siempre true si no hay error de servidor
-    action: 'deleteHistory',
-    deleted,
-    searchHistory: updatedHistory,
-  });
-}
       // ===== REENQUEUE =====
       if (act === 'reenqueue') {
         const requeued = await reenqueueOldSearches(sid, uid);
         const updatedHistory = await getSearchHistory(sid, uid, 5);
-        
+
         return res.status(200).json({
           success: true,
           action: 'reenqueue',
@@ -76,21 +97,19 @@ if (act === 'deleteHistory') {
       // ===== CLEAR ALL HISTORY =====
       if (act === 'clearAllHistory') {
         const cleared = await clearAllHistory(sid, uid);
-        
+
         return res.status(200).json({
           success: true,
           action: 'clearAllHistory',
           cleared,
-          searchHistory: [], // Historial vacío después de limpiar
+          searchHistory: [],
         });
       }
 
       // ===== GET HISTORY =====
       if (act === 'getHistory') {
         const term = typeof search === 'string' ? search.trim() : '';
-        
         const historyItems = await filterSearchHistory(term, sid, uid, 5);
-        
         return res.status(200).json({
           success: true,
           action: 'getHistory',
@@ -98,7 +117,6 @@ if (act === 'deleteHistory') {
         });
       }
 
-      // Acción no soportada
       return res.status(400).json({
         success: false,
         message: `Acción no soportada: ${act}`,
@@ -107,8 +125,39 @@ if (act === 'deleteHistory') {
 
     // ==================== BÚSQUEDA DE OFERTAS ====================
 
-    // Si no hay query params, retorna todas
-    if (!range && !city && !category && !search && !sortBy && !limit && !skip && !page) {
+    // Acción especial: devolver rangos de precio
+    if (action === 'getPriceRanges') {
+      const buckets = typeof req.query.buckets === 'string' ? parseInt(req.query.buckets, 10) : 4;
+      const includeExtremes = req.query.includeExtremes !== 'false';
+      try {
+        const result = await getPriceRanges(buckets, includeExtremes);
+        return res.status(200).json({ success: true, ...result });
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: 'Error obteniendo rangos de precio',
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    // Si no hay query params relevantes, retornar todas
+    if (
+      !range &&
+      !city &&
+      !category &&
+      !search &&
+      !sortBy &&
+      !sort &&
+      !limit &&
+      !skip &&
+      !page &&
+      !tags &&
+      !minPrice &&
+      !maxPrice &&
+      !req.query.date &&
+      !req.query.rating
+    ) {
       const offers = await getAllOffers();
       return res.status(200).json({
         success: true,
@@ -118,35 +167,51 @@ if (act === 'deleteHistory') {
       });
     }
 
-    // Preparar opciones para el service
+    // Preparar opciones para getOffersFiltered
     const options: any = {};
-
     if (range) options.ranges = Array.isArray(range) ? range.map(String) : [String(range)];
     if (city && typeof city === 'string') options.city = city;
     if (category)
       options.categories = Array.isArray(category) ? category.map(String) : [String(category)];
     if (search && typeof search === 'string') options.search = search.trim();
+    if (req.query.exact === 'true' || req.query.exact === '1') {
+      options.searchMode = 'exact';
+      options.searchFields = ['title', 'description'];
+    }
+    if (req.query.titleOnly === 'true' || req.query.titleOnly === '1') {
+      options.searchFields = ['title'];
+    }
+    if (tags) options.tags = Array.isArray(tags) ? tags.map(String) : String(tags);
+    if (minPrice && typeof minPrice === 'string') options.minPrice = minPrice;
+    if (maxPrice && typeof maxPrice === 'string') options.maxPrice = maxPrice;
 
-    if (sortBy && typeof sortBy === 'string') {
+    const sortCandidate =
+      (typeof sortBy === 'string' && sortBy) || (typeof sort === 'string' && sort);
+    if (sortCandidate && typeof sortCandidate === 'string') {
       const validSorts = Object.values(SortCriteria).map((v) => v.toLowerCase());
-      if (validSorts.includes(sortBy.toLowerCase())) options.sortBy = sortBy.toLowerCase();
+      if (validSorts.includes(sortCandidate.toLowerCase()))
+        options.sortBy = sortCandidate.toLowerCase();
     }
 
-    // Paginación
+    if (req.query.date && typeof req.query.date === 'string') {
+      const dateStr = req.query.date.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) options.date = dateStr;
+    }
+
+    if (req.query.rating) {
+      const r = Number(req.query.rating);
+      if (!isNaN(r) && Number.isInteger(r) && r >= 1 && r <= 5) options.rating = r;
+    }
+
     const itemsPerPage = limit && !isNaN(Number(limit)) ? Number(limit) : 10;
     options.limit = itemsPerPage;
+    if (page && !isNaN(Number(page))) options.skip = (Number(page) - 1) * itemsPerPage;
+    else if (skip && !isNaN(Number(skip))) options.skip = Number(skip);
+    else options.skip = 0;
 
-    if (page && !isNaN(Number(page))) {
-      options.skip = (Number(page) - 1) * itemsPerPage;
-    } else if (skip && !isNaN(Number(skip))) {
-      options.skip = Number(skip);
-    } else {
-      options.skip = 0;
-    }
-
-    // Llamar al service unificado
     const result = await getOffersFiltered(options);
 
+    // Combinar funcionalidades de ambos equipos:
     const response: any = {
       success: true,
       count: result.count,
@@ -154,43 +219,54 @@ if (act === 'deleteHistory') {
       data: result.data,
     };
 
-    // Guardar búsqueda en historial si hay término de búsqueda
+    // ===== Añadir campos derivados de fecha =====
+    const formatDateInTimezone = (d: any, timeZone: string) => {
+      try {
+        const date = new Date(d);
+        return new Intl.DateTimeFormat('es-ES', {
+          timeZone,
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }).format(date);
+      } catch (e) {
+        return null;
+      }
+    };
+    if (Array.isArray(response.data)) {
+      response.data = response.data.map((item: any) => ({
+        ...item,
+        publishedDateUTC: item.createdAt ? formatDateInTimezone(item.createdAt, 'UTC') : null,
+        publishedDateLaPaz: item.createdAt
+          ? formatDateInTimezone(item.createdAt, 'America/La_Paz')
+          : null,
+      }));
+    }
+
+    // ===== Guardar búsqueda en historial y obtener sugerencias =====
     if (search && typeof search === 'string' && search.trim()) {
       const recordFlag = typeof record === 'string' ? record : undefined;
       let sid = typeof sessionId === 'string' ? sessionId : undefined;
       const uid = typeof userId === 'string' ? userId : undefined;
       const searchTermTrimmed = search.trim();
 
-      // Solo generar sessionId y guardar historial si record !== 'false'
       if (recordFlag !== 'false') {
-        // Si no hay ni sessionId ni userId, generar uno
-        if (!sid && !uid) {
-          sid = `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-          response.sessionId = sid;
-        }
-        
-        // Guardar búsqueda en historial (asíncrono, no esperar)
-        saveSearchToHistory(searchTermTrimmed, sid, uid).catch((error) => {
-          console.error('Error saving search to history:', error);
-        });
+        if (!sid && !uid) sid = `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        response.sessionId = sid;
 
-        // Obtener historial filtrado
+        saveSearchToHistory(searchTermTrimmed, sid, uid).catch(console.error);
+
         try {
           const searchHistory = await filterSearchHistory(searchTermTrimmed, sid, uid, 5);
-          if (searchHistory.length > 0) {
-            response.searchHistory = searchHistory;
-          }
+          if (searchHistory.length > 0) response.searchHistory = searchHistory;
         } catch (error) {
           console.error('Error filtering search history:', error);
         }
       }
 
-      // Obtener sugerencias (siempre)
       try {
         const suggestions = await filterSuggestions(searchTermTrimmed, 5, uid, sid);
-        if (suggestions && suggestions.length > 0) {
-          response.suggestions = suggestions;
-        }
+        if (suggestions && suggestions.length > 0) response.suggestions = suggestions;
       } catch (error) {
         console.error('Error filtering suggestions:', error);
       }
@@ -202,6 +278,19 @@ if (act === 'deleteHistory') {
     res.status(500).json({
       success: false,
       message: 'Error al obtener las ofertas',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getUniqueTags = async (req: Request, res: Response) => {
+  try {
+    const tags = await Offer.distinct('tags').exec();
+    return res.status(200).json({ success: true, count: tags.length, data: tags });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener las etiquetas únicas',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }

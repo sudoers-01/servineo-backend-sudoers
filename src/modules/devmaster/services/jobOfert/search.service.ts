@@ -33,11 +33,9 @@ export function searchOffersTokens(searchText?: string): any {
   return SearchService.buildTokenSearch(searchText, SEARCH_FIELDS, normalizeSearchText);
 }
 
-/////////
-
 // Define la configuración de los campos y sus pesos (necesario para la firma del método)
 const WEIGHTED_FIELDS_CONFIG = [
-  { field: 'title', weight: 10 },        // Título tiene mayor importancia
+  { field: 'title', weight: 10 }, // Título tiene mayor importancia
   { field: 'description', weight: 5 },
   { field: 'fixerName', weight: 3 },
   // ... otros campos
@@ -49,4 +47,28 @@ const WEIGHTED_FIELDS_CONFIG = [
  */
 export function searchOffersWeighted(searchText?: string): any {
   return SearchService.buildWeightedSearch(searchText, WEIGHTED_FIELDS_CONFIG);
+}
+
+/**
+ * Wrapper mínimo: búsqueda exacta (normalizada) sobre los campos recibidos.
+ * Por compatibilidad con el service orquestador, acepta un array de campos.
+ */
+export function searchOffersExactFields(
+  searchText?: string,
+  fields: string[] = ['title', 'description'],
+): any {
+  return SearchService.buildWithNormalizer(searchText, fields, normalizeSearchText);
+}
+
+// ADD: búsqueda exacta en title + description (usa normalizador existente)
+export function searchOffersTitleDescExact(searchText?: string): any {
+  const fields = ['title', 'description'];
+  return SearchService.buildWithNormalizer(searchText, fields, normalizeSearchText);
+}
+
+/**
+ * Búsqueda 'smart' limitada a los campos especificados.
+ */
+export function searchOffersInFields(searchText?: string, fields: string[] = ['title']): any {
+  return SearchService.buildSmartSearch(searchText, fields, normalizeSearchText);
 }

@@ -1,7 +1,5 @@
 import { Router } from 'express';
-import {
-  getOffers,
-} from '../controller/jobOfert.controller';
+import { getOffers, getUniqueTags } from '../controller/jobOfert.controller';
 
 const router = Router();
 
@@ -29,5 +27,11 @@ const router = Router();
  * /api/devmaster/offers?search=prueba&sortBy=name_asc
  */
 router.get('/offers', getOffers);
-
+/**
+ * GET /api/devmaster/tags
+ *  * Endpoint que devuelve un array con todas las etiquetas únicas
+ * de la colección de ofertas de trabajo.
+ * Respuesta: ["pisos", "paredes", "instalación", ...]
+ */
+router.get('/tags', getUniqueTags); // <-- 2. Define la nueva ruta
 export default router;

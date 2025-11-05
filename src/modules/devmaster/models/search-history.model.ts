@@ -47,7 +47,6 @@ const searchHistorySchema = new Schema(
 searchHistorySchema.index({ sessionId: 1, searchedAt: -1 });
 searchHistorySchema.index({ userId: 1, searchedAt: -1 });
 searchHistorySchema.index({ sessionId: 1, isArchived: 1, searchedAt: -1 });
-searchHistorySchema.index({ normalizedTerm: 1 });
 
 searchHistorySchema.pre('save', function (next) {
   if (!this.sessionId && !this.userId) {

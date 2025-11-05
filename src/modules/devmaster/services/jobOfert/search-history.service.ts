@@ -152,27 +152,22 @@ export async function deleteHistoryItem(
   try {
     const identifier = userId || sessionId;
     if (!identifier) {
-      console.log('deleteHistoryItem: No identifier provided');
       return false;
     }
 
     if (!searchTerm || !searchTerm.trim()) {
-      console.log('deleteHistoryItem: Empty search term');
       return false;
     }
 
-    const normalizedTerm = normalizeForHistory(searchTerm.trim());
-    console.log('deleteHistoryItem: Normalized term:', normalizedTerm);
+  const normalizedTerm = normalizeForHistory(searchTerm.trim());
 
     const query = userId
       ? { userId, normalizedTerm, isArchived: false }
       : { sessionId, normalizedTerm, isArchived: false };
 
-    console.log('deleteHistoryItem: Query:', JSON.stringify(query));
+  // Debug query removed to reduce log noise
 
-    // Buscar el documento primero para debug
-    const found = await SearchHistory.findOne(query);
-    console.log('deleteHistoryItem: Found document:', found ? 'YES' : 'NO');
+  const found = await SearchHistory.findOne(query);
 
     if (!found) {
       // Intentar buscar sin normalizar (por si hay discrepancia)
@@ -180,14 +175,12 @@ export async function deleteHistoryItem(
         ? { userId, searchTerm: searchTerm.trim(), isArchived: false }
         : { sessionId, searchTerm: searchTerm.trim(), isArchived: false };
       
-      const foundOriginal = await SearchHistory.findOne(queryOriginal);
-      console.log('deleteHistoryItem: Found by original term:', foundOriginal ? 'YES' : 'NO');
+  const foundOriginal = await SearchHistory.findOne(queryOriginal);
 
       if (foundOriginal) {
-        foundOriginal.isArchived = true;
-        foundOriginal.isDeletedManually = true;
-        await foundOriginal.save();
-        console.log('deleteHistoryItem: Deleted using original term');
+  foundOriginal.isArchived = true;
+  foundOriginal.isDeletedManually = true;
+  await foundOriginal.save();
         // Pasar el término normalizado para excluirlo del re-enqueue
         await reenqueueOldSearches(sessionId, userId, foundOriginal.normalizedTerm);
         return true;
@@ -226,11 +219,9 @@ export async function reenqueueOldSearches(
       ? { userId, isArchived: true, isDeletedManually: { $ne: true } }
       : { sessionId, isArchived: true, isDeletedManually: { $ne: true } };
 
-    const activeCount = await SearchHistory.countDocuments(activeQuery);
-    console.log('reenqueueOldSearches: Active count:', activeCount);
+  const activeCount = await SearchHistory.countDocuments(activeQuery);
 
     if (activeCount === 0) {
-      console.log('reenqueueOldSearches: Skipping recovery because active count is 0');
      return [];
     }
 
@@ -245,13 +236,11 @@ export async function reenqueueOldSearches(
       // ⚠️ Evita traer cosas viejas de otras sesiones sin relación
       if (excludeNormalizedTerm) {
         archivedQuery.normalizedTerm = { $ne: excludeNormalizedTerm };
-        console.log('reenqueueOldSearches: Excluding term:', excludeNormalizedTerm);
       }
 
       // 🔥 NUEVA SEGURIDAD: No recuperar nada si no hay históricos en esta sesión
       const archivedCount = await SearchHistory.countDocuments(archivedQuery);
       if (archivedCount === 0) {
-        console.log('reenqueueOldSearches: No archived items found for this session.');
         return [];
       }
 
@@ -259,7 +248,7 @@ export async function reenqueueOldSearches(
         .sort({ searchedAt: -1 })
         .limit(needed);
 
-      console.log('reenqueueOldSearches: Found to recover:', toRecover.length);
+  // Removed debug log
 
       const recovered = [];
       for (const item of toRecover) {
@@ -270,8 +259,6 @@ export async function reenqueueOldSearches(
           searchedAt: item.searchedAt,
         });
       }
-
-      console.log('reenqueueOldSearches: Recovered items:', recovered.length);
       return recovered;
     }
 
@@ -305,7 +292,7 @@ export async function clearAllHistory(
       { $set: { isArchived: true, isDeletedManually: true } }
     );
 
-    console.log('clearAllHistory: Modified count:', result.modifiedCount);
+  // Removed debug log for modified count
     return result.modifiedCount;
   } catch (error) {
     console.error('Error clearing all history:', error);

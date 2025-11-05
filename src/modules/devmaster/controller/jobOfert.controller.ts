@@ -56,8 +56,8 @@ export const getOffers = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: validation.errorMessage,
-        //totalPages: validation.totalPages,
-        //currentPage: validation.currentPage,
+        totalPages: validation.totalPages,
+        currentPage: validation.currentPage,
         total: result.count,
       });
     }
@@ -66,6 +66,8 @@ export const getOffers = async (req: Request, res: Response) => {
       success: true,
       count: result.count,
       total: result.count,
+      currentPage: validation.currentPage,
+      totalPages: validation.totalPages,
       data: result.data,
     });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
+import { validatePageRange, normalizePageParam } from '../utils/pagination.validator';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
@@ -35,6 +36,8 @@ export const getOffers = async (req: Request, res: Response) => {
     const itemsPerPage = limit && !isNaN(Number(limit)) ? Number(limit) : 10;
     options.limit = itemsPerPage;
 
+    const currentPage = normalizePageParam(page);
+
     if (page && !isNaN(Number(page))) {
       options.skip = (Number(page) - 1) * itemsPerPage;
     } else if (skip && !isNaN(Number(skip))) {
@@ -45,6 +48,19 @@ export const getOffers = async (req: Request, res: Response) => {
 
     // Llamar al service unificado
     const result = await getOffersFiltered(options);
+
+    // Validar página fuera de rango
+    const validation = validatePageRange(currentPage, result.count, itemsPerPage);
+
+    if (!validation.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: validation.errorMessage,
+        //totalPages: validation.totalPages,
+        //currentPage: validation.currentPage,
+        total: result.count,
+      });
+    }
 
     res.status(200).json({
       success: true,

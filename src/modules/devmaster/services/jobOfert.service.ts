@@ -78,15 +78,18 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
   if (options && options.date) {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(options.date);
     if (m) {
-      const y = Number(m[1]);
-      const mo = Number(m[2]);
-      const d = Number(m[3]);
-      // Crear inicio y fin del día en zona horaria del servidor (Date local)
-      const start = new Date(y, mo - 1, d, 0, 0, 0, 0);
-      const end = new Date(y, mo - 1, d, 23, 59, 59, 999);
+      const y = m[1];
+      const mo = m[2];
+      const d = m[3];
+      // Construir inicio del día UTC y el inicio del día siguiente (exclusivo)
+      // Esto evita problemas por millis y es una práctica robusta: [startUTC, nextStartUTC)
+      const start = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), 0, 0, 0, 0));
+      const nextStart = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d) + 1, 0, 0, 0, 0));
 
-      // Añadir al filterQuery existente
-      filterQuery = FilterCommon.combine(filterQuery, { createdAt: { $gte: start, $lte: end } });
+      // Añadir al filterQuery existente usando $lt en lugar de $lte para el límite superior
+      filterQuery = FilterCommon.combine(filterQuery, {
+        createdAt: { $gte: start, $lt: nextStart },
+      });
     }
   }
 

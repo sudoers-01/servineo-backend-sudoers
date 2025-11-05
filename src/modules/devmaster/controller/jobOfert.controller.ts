@@ -11,6 +11,8 @@ export const getOffers = async (req: Request, res: Response) => {
       category,
       search,
       sortBy,
+      // alias 'sort' is accepted from frontend in some places — normalize below
+      sort,
       limit,
       skip,
       page,
@@ -28,29 +30,31 @@ export const getOffers = async (req: Request, res: Response) => {
         const result = await getPriceRanges(buckets, includeExtremes);
         return res.status(200).json({ success: true, ...result });
       } catch (error) {
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Error obteniendo rangos de precio',
-            error: error instanceof Error ? error.message : String(error),
-          });
+        return res.status(500).json({
+          success: false,
+          message: 'Error obteniendo rangos de precio',
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
-    // Si no hay query params, retorna todas
+    // Si no hay query params relevantes, retorna todas
+    // NOTE: incluimos 'date' en la comprobación para evitar que una llamada
+    // con sólo ?date=YYYY-MM-DD devuelva todas las ofertas sin filtrar.
     if (
       !range &&
       !city &&
       !category &&
       !search &&
       !sortBy &&
+      !sort &&
       !limit &&
       !skip &&
       !page &&
       !tags &&
       !minPrice &&
-      !maxPrice
+      !maxPrice &&
+      !req.query.date
     ) {
       const offers = await getAllOffers();
       return res.status(200).json({
@@ -85,9 +89,14 @@ export const getOffers = async (req: Request, res: Response) => {
     if (minPrice && typeof minPrice === 'string') options.minPrice = minPrice;
     if (maxPrice && typeof maxPrice === 'string') options.maxPrice = maxPrice;
 
-    if (sortBy && typeof sortBy === 'string') {
+    // Normalizar sort: aceptar tanto `sortBy` como el alias `sort` usado por el
+    // frontend en algunas rutas. Priorizar `sortBy` cuando exista.
+    const sortCandidate =
+      (typeof sortBy === 'string' && sortBy) || (typeof sort === 'string' && sort);
+    if (sortCandidate && typeof sortCandidate === 'string') {
       const validSorts = Object.values(SortCriteria).map((v) => v.toLowerCase());
-      if (validSorts.includes(sortBy.toLowerCase())) options.sortBy = sortBy.toLowerCase();
+      if (validSorts.includes(sortCandidate.toLowerCase()))
+        options.sortBy = sortCandidate.toLowerCase();
     }
 
     // Fecha específica (YYYY-MM-DD)
@@ -114,11 +123,39 @@ export const getOffers = async (req: Request, res: Response) => {
     // Llamar al service unificado
     const result = await getOffersFiltered(options);
 
+    // Añadir campos derivados de fecha para que el frontend pueda mostrar la
+    // fecha esperada independientemente de la zona horaria del cliente.
+    // publishedDateUTC: DD/MM/YYYY calculada en UTC
+    // publishedDateLaPaz: DD/MM/YYYY calculada en 'America/La_Paz' (útil para Bolivia)
+    const formatDateInTimezone = (d: any, timeZone: string) => {
+      try {
+        const date = new Date(d);
+        return new Intl.DateTimeFormat('es-ES', {
+          timeZone,
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }).format(date);
+      } catch (e) {
+        return null;
+      }
+    };
+
+    const dataWithPublished = Array.isArray(result.data)
+      ? result.data.map((item: any) => ({
+          ...item,
+          publishedDateUTC: item.createdAt ? formatDateInTimezone(item.createdAt, 'UTC') : null,
+          publishedDateLaPaz: item.createdAt
+            ? formatDateInTimezone(item.createdAt, 'America/La_Paz')
+            : null,
+        }))
+      : result.data;
+
     res.status(200).json({
       success: true,
       count: result.count,
       total: result.count,
-      data: result.data,
+      data: dataWithPublished,
     });
   } catch (error) {
     res.status(500).json({

@@ -12,6 +12,12 @@ import {
   getSearchHistory,
 } from '../services/jobOfert/search-history.service';
 import { filterSuggestions } from '../services/jobOfert/search-suggestions.service';
+import {
+  validatePageRange,
+  normalizePageParam,
+  calculatePaginationParams,
+  validatePaginationConsistency,
+} from '../utils/pagination.validator';
 
 export const getOffers = async (req: Request, res: Response) => {
   try {
@@ -204,18 +210,36 @@ export const getOffers = async (req: Request, res: Response) => {
     }
 
     const itemsPerPage = limit && !isNaN(Number(limit)) ? Number(limit) : 10;
-    options.limit = itemsPerPage;
-    if (page && !isNaN(Number(page))) options.skip = (Number(page) - 1) * itemsPerPage;
-    else if (skip && !isNaN(Number(skip))) options.skip = Number(skip);
-    else options.skip = 0;
+    const currentPage = normalizePageParam(page);
 
+    // Calcular skip y limit de forma consistente
+    const paginationParams = calculatePaginationParams(currentPage, itemsPerPage);
+    options.limit = paginationParams.limit;
+    options.skip = paginationParams.skip;
+
+    // Llamar al service unificado
     const result = await getOffersFiltered(options);
+
+    // Validar página fuera de rango
+    const validation = validatePageRange(currentPage, result.count, itemsPerPage);
+
+    if (!validation.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: validation.errorMessage,
+        totalPages: validation.totalPages,
+        currentPage: validation.currentPage,
+        total: result.count,
+      });
+    }
 
     // Combinar funcionalidades de ambos equipos:
     const response: any = {
       success: true,
       count: result.count,
       total: result.count,
+      currentPage: validation.currentPage,
+      totalPages: validation.totalPages,
       data: result.data,
     };
 

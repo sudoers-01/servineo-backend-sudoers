@@ -1,7 +1,11 @@
 import { Db, ObjectId } from 'mongodb';
 import { JobRatingDetails } from './job-rating-details.model';
 
-export async function getJobRatingDetails(db: Db, jobId: ObjectId, fixerId: ObjectId): Promise<JobRatingDetails | null> {
+export async function getJobRatingDetails(
+  db: Db,
+  jobId: ObjectId,
+  fixerId: ObjectId,
+): Promise<JobRatingDetails | null> {
   const collection = db.collection('jobs');
 
   if (!ObjectId.isValid(jobId)) {

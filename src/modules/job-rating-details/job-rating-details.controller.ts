@@ -10,7 +10,11 @@ export async function getJobRatingDetails(req: Request, res: Response) {
       return res.status(400).json({ message: 'Missing jobId or fixerId' });
     }
 
-    const details = await jobRatingDetailsService.getJobRatingDetails(req.db, new ObjectId(jobId), new ObjectId(fixerId));
+    const details = await jobRatingDetailsService.getJobRatingDetails(
+      req.db,
+      new ObjectId(jobId),
+      new ObjectId(fixerId),
+    );
 
     if (!details) {
       return res.status(404).json({ message: 'Job not found or does not belong to fixer' });

@@ -1,222 +1,55 @@
+// En: src/services/paymentCenter.service.ts
 import mongoose from 'mongoose';
-// import { Fixer } from '../models/Fixer'; // Descomentar cuando exista el modelo
+import Job from '../models/job.model'; // Asegúrate de que la ruta a tu modelo Job sea correcta
 
 /**
- * Interface para los datos del centro de pagos
+ * Obtiene las estadísticas del centro de pagos para un Fixer.
+ * @param fixerId El ID (en string) del Fixer
  */
-export interface PaymentCenterData {
-  saldoActual: number;
-  totalGanado: number;
-  trabajosCompletados: number;
-  fixerId: string;
-  isTestData: boolean;
-}
+export const getPaymentCenterData = async (fixerId: string) => {
+  // 1. Convertir el string del ID a un ObjectId de MongoDB.
+  // ¡Este paso es crucial porque en tu base de datos se guarda como ObjectId!
+  const fixerObjectId = new mongoose.Types.ObjectId(fixerId);
 
-/**
- * Interface para la wallet del fixer
- */
-export interface WalletUpdate {
-  success: boolean;
-  message?: string;
-  currentBalance?: number;
-}
-
-/**
- * Servicio para manejar la lógica de negocio del centro de pagos
- */
-export class PaymentCenterService {
-  
-  /**
-   * Obtener datos del fixer para el centro de pagos
-   * @param fixerId - ID del fixer
-   * @returns Datos del centro de pagos o null si no existe
-   */
-  async getFixerPaymentData(fixerId: string): Promise<PaymentCenterData | null> {
-    try {
-      // TODO: Descomentar cuando se defina la estructura de la base de datos
-      
-      // OPCIÓN 1: Si toda la información está en la colección 'fixers'
-      /*
-      const fixer = await Fixer.findOne({ 
-        _id: new mongoose.Types.ObjectId(fixerId) 
-      }).select('wallet stats');
-      
-      if (!fixer) {
-        return null;
-      }
-      
-      return {
-        saldoActual: fixer.wallet?.currentBalance || 0,
-        totalGanado: fixer.wallet?.totalEarnings || 0,
-        trabajosCompletados: fixer.stats?.completedJobs || 0,
-        fixerId: fixerId,
-        isTestData: false
-      };
-      */
-
-      // OPCIÓN 2: Si hay colecciones separadas
-      /*
-      const db = mongoose.connection.db;
-      if (!db) {
-        throw new Error('Database connection not established');
-      }
-      
-      const walletsCollection = db.collection('fixer_wallets');
-      const jobsCollection = db.collection('jobs');
-      
-      // Obtener datos de la wallet
-      const walletData = await walletsCollection.findOne({ 
-        fixerId: fixerId 
-      });
-      
-      if (!walletData) {
-        return null;
-      }
-      
-      // Contar trabajos completados
-      const completedJobs = await jobsCollection.countDocuments({
-        fixerId: fixerId,
-        status: 'completed'
-      });
-      
-      return {
-        saldoActual: walletData.currentBalance || 0,
-        totalGanado: walletData.totalEarnings || 0,
-        trabajosCompletados: completedJobs,
-        fixerId: fixerId,
-        isTestData: false
-      };
-      */
-
-      // OPCIÓN 3: Calcular todo desde jobs
-      /*
-      const db = mongoose.connection.db;
-      if (!db) {
-        throw new Error('Database connection not established');
-      }
-      
-      const jobsCollection = db.collection('jobs');
-      const walletsCollection = db.collection('fixer_wallets');
-      
-      // Verificar si el fixer existe
-      const fixerExists = await jobsCollection.findOne({ fixerId: fixerId });
-      if (!fixerExists) {
-        return null;
-      }
-      
-      // Obtener saldo actual de la wallet
-      const wallet = await walletsCollection.findOne({ fixerId: fixerId });
-      
-      // Calcular total ganado
-      const earnings = await jobsCollection.aggregate([
-        { 
-          $match: { 
-            fixerId: fixerId, 
-            status: 'completed' 
-          } 
-        },
-        { 
-          $group: { 
-            _id: null, 
-            total: { $sum: '$amount' },
-            count: { $sum: 1 }
-          } 
+  try {
+    // 2. Usar un Pipeline de Agregación
+    const stats = await Job.aggregate([
+      {
+        // 3. Fase $match: Filtra solo los jobs que nos interesan
+        $match: {
+          fixerId: fixerObjectId, // Coincide con el ID del fixer
+          status: "Pagado"         // Y el estado es "Pagado"
         }
-      ]).toArray();
-      
-      const totalEarnings = earnings[0]?.total || 0;
-      const completedJobs = earnings[0]?.count || 0;
-      
-      return {
-        saldoActual: wallet?.currentBalance || 0,
-        totalGanado: totalEarnings,
-        trabajosCompletados: completedJobs,
-        fixerId: fixerId,
-        isTestData: false
-      };
-      */
-
-      // DATOS DE PRUEBA (mientras se define la estructura)
-      console.log(`[PRUEBA] Consultando datos para fixer: ${fixerId}`);
-      
-      // Simular diferentes datos según el ID para testing
-      const testData: { [key: string]: PaymentCenterData } = {
-        '123456': {
-          saldoActual: 13.00,
-          totalGanado: 15420.00,
-          trabajosCompletados: 23,
-          fixerId: fixerId,
-          isTestData: true
-        },
-        '789012': {
-          saldoActual: 250.75,
-          totalGanado: 28340.50,
-          trabajosCompletados: 45,
-          fixerId: fixerId,
-          isTestData: true
+      },
+      {
+        // 4. Fase $group: Agrupa los resultados en un solo documento
+        $group: {
+          _id: null, // Agrupamos todo junto, sin subgrupos
+          
+          // 5. Calcula el "Total Ganado" sumando el campo "price"
+          totalGanado: { $sum: "$price" },
+          
+          // 6. Calcula los "Trabajos Completados" contando los documentos
+          trabajosCompletados: { $sum: 1 } // Suma 1 por cada documento
         }
-      };
-
-      // Retornar datos de prueba si existe, sino null
-      return testData[fixerId] || null;
-
-    } catch (error) {
-      console.error('Error en getFixerPaymentData:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Actualizar saldo de la wallet del fixer
-   * @param fixerId - ID del fixer
-   * @param amount - Monto a agregar/deducir
-   * @param type - Tipo de transacción: 'charge' o 'deduction'
-   * @returns Wallet actualizada
-   */
-  async updateWalletBalance(
-    fixerId: string, 
-    amount: number, 
-    type: 'charge' | 'deduction' = 'charge'
-  ): Promise<WalletUpdate> {
-    try {
-      // TODO: Implementar cuando se defina la estructura
-      /*
-      const db = mongoose.connection.db;
-      if (!db) {
-        throw new Error('Database connection not established');
       }
-      
-      const walletsCollection = db.collection('fixer_wallets');
-      
-      const operation = type === 'charge' 
-        ? { $inc: { currentBalance: amount } }
-        : { $inc: { currentBalance: -amount } };
-      
-      const result = await walletsCollection.findOneAndUpdate(
-        { fixerId: fixerId },
-        operation,
-        { returnDocument: 'after' }
-      );
-      
-      if (!result.value) {
-        throw new Error('Wallet not found');
-      }
-      
+    ]);
+
+    // 7. Manejar el resultado
+    if (stats.length > 0) {
+      // Si la agregación encontró datos, devuelve el primer elemento
+      return stats[0]; 
+    } else {
+      // Si no se encontraron jobs "Pagado" para ese fixer
       return {
-        success: true,
-        currentBalance: result.value.currentBalance
+        _id: null,
+        totalGanado: 0,
+        trabajosCompletados: 0
       };
-      */
-      
-      console.log(`[PRUEBA] Actualizar balance para ${fixerId}: ${type} ${amount}`);
-      return { 
-        success: true, 
-        message: 'Función pendiente de implementar' 
-      };
-      
-    } catch (error) {
-      console.error('Error en updateWalletBalance:', error);
-      throw error;
     }
+
+  } catch (error) {
+    console.error("Error al calcular estadísticas del centro de pagos:", error);
+    throw new Error("Error al consultar los datos de pago.");
   }
-}
+};

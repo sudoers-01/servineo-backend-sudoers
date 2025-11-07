@@ -34,7 +34,9 @@ export async function createJobRequest(req: Request, res: Response) {
       return res.status(400).json({ message: 'requesterId is required' });
     }
 
-    if (!(ObjectId.isValid(requesterId) && new ObjectId(requesterId).toHexString() === requesterId)) {
+    if (
+      !(ObjectId.isValid(requesterId) && new ObjectId(requesterId).toHexString() === requesterId)
+    ) {
       return res.status(422).json({ error: 'Invalid requester ID format' });
     }
 

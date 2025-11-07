@@ -39,3 +39,9 @@ export const getCommentsByFixer = async (fixerId: string) => {
     ])
     .toArray();
 };
+export const decideCommentSentiment = (comment: string) => {
+  //TODO: Analize with AI maybexdd
+  //return analize(comment) for example
+
+  return comment && Math.random() > 0.5 ? true : false; //This is mock
+};

@@ -1,32 +1,32 @@
-// En: src/controllers/paymentCenter.controllers.ts
 import { Request, Response } from 'express';
 import * as paymentCenterService from '../services/paymentCenter.service';
 import mongoose from 'mongoose';
 
 /**
- * Obtiene los datos del centro de pagos para el frontend.
+ * Obtiene los datos del centro de pagos (Stats de Jobs Y Saldo de Wallet).
  */
 export const handleGetPaymentCenter = async (req: Request, res: Response) => {
   try {
     const { fixerId } = req.params;
 
-    // Validación simple del ID
+    // Validación del ID
     if (!fixerId || !mongoose.Types.ObjectId.isValid(fixerId)) {
       return res.status(400).json({ success: false, error: "ID de Fixer inválido." });
     }
 
-    // Llama al servicio con la lógica
-    const data = await paymentCenterService.getPaymentCenterData(fixerId);
+    // Ejecuta ambas consultas en paralelo para mayor eficiencia
+    const [jobStats, wallet] = await Promise.all([
+      paymentCenterService.getPaymentCenterData(fixerId),
+      paymentCenterService.findOrCreateWalletByUserId(fixerId)
+    ]);
 
-    // El frontend espera recibir { success: true, data: {...} }
-    // Tu servicio ya devuelve los campos { totalGanado, trabajosCompletados }
-    // Le añadimos el saldo (que manejarás en otra lógica)
+    // Combina los resultados de ambas consultas
     res.status(200).json({
       success: true,
       data: {
-        saldoActual: 13.00, // TODO: Este valor vendrá de otra consulta (ej. Fixer Wallet)
-        totalGanado: data.totalGanado,
-        trabajosCompletados: data.trabajosCompletados,
+        saldoActual: wallet.balance, // <-- Dato de la Wallet
+        totalGanado: jobStats.totalGanado, // <-- Dato de Jobs
+        trabajosCompletados: jobStats.trabajosCompletados, // <-- Dato de Jobs
         fixerId: fixerId,
       }
     });

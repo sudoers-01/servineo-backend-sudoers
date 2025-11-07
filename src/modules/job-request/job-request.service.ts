@@ -10,7 +10,7 @@ export interface JobRequest {
   };
   startTime: string;
   endTime: string;
-  suggestedRate: number;
+  suggestedPrice: number;
   id_requester: ObjectId;
   id_fixer: ObjectId;
   status: 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';

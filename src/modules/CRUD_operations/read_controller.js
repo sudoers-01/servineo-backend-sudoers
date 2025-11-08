@@ -10,7 +10,9 @@ import {
   get_other_requester_schedules_by_fixer_day,
   get_appointment_by_fixer_id_hour,
   get_fixer_availability,
-  get_appointments_by_fixer_id_date
+  get_appointments_by_fixer_id_date,
+  get_cancelled_schedules_by_requester_day,
+  get_cancelled_schedules_by_fixer_day
 } from './read_service.js'; // llamamos al service
 
 // Obtener horarios de un requester en un mes específico
@@ -260,5 +262,53 @@ export async function getAppointmentsByFixerIdAndDate(req, res) {
       message: "Error fetching appointments",
       error: error.message
     });
+  }
+}
+
+// TODO: Endpoint que devuelve las citas canceladas por el propio requester que ve el calendario de un determinadon fixer en una fecha determinada.
+export async function getCancelledSchedulesByRequesterDay(req, res) {
+  try {
+    const { fixer_id, requester_id, searched_date } = req.query;
+    if (!fixer_id || !requester_id || !searched_date) {
+      return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+    }
+    const data = await get_cancelled_schedules_by_requester_day(fixer_id, requester_id, searched_date);
+    if (!data) {
+      return res.status(400).json({
+        message: 'Could not find any cancelled schedule by the requester on this date.'
+      });
+    } else {
+      return res.status(200).json({
+        cancelled_schedules_requester: data,
+        message: 'Cancelled schedules by requester accessed successfully.'
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error fetching cancelled schedules by requester.' })
+  }
+}
+
+// TODO: Endpoint que devuelve las citas canceladas por el fixer respecto a un determinado requester en una determinada fecha.
+export async function getCancelledSchedulesByFixerDay(req, res) {
+  try {
+    const { fixer_id, requester_id, searched_date } = req.query;
+    if (!fixer_id || !requester_id || !searched_date) {
+      return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+    }
+    const data = await get_cancelled_schedules_by_fixer_day(fixer_id, requester_id, searched_date);
+    if (!data) {
+      return res.status(400).json({
+        message: 'Could not find any cancelled schedule by the fixer on this date.'
+      });
+    } else {
+      return res.status(200).json({
+        cancelled_schedules_fixer: data,
+        message: 'Cancelled schedules by fixer accessed successfully.'
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error fetching cancelled schedules by fixer.' })
   }
 }

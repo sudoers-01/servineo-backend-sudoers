@@ -9,7 +9,9 @@ import {
   getOtherRequesterSchedulesByFixerDay,
   getAppointmentByFixerIdHour,
   getFixerAvailability,
-  getAppointmentsByFixerIdAndDate
+  getAppointmentsByFixerIdAndDate,
+  getCancelledSchedulesByRequesterDay,
+  getCancelledSchedulesByFixerDay
 } from './read_controller.js';
 
 const router = Router();
@@ -41,5 +43,10 @@ router.get('/appointments/get_appointment_by_fixer_hour', getAppointmentByFixerI
 router.get('/appointments/get_all_appointments_by_fixer_date', getAppointmentsByFixerIdAndDate);
 
 router.get('/appointments/get_fixer_availability', getFixerAvailability);
+
+// TODO: Endpoint que devuelve las citas canceladas por el propio requester que ve el calendario de un determinadon fixer en una fecha determinada.
+router.get('/schedules/get_cancelled_appointments_by_requester_date', getCancelledSchedulesByRequesterDay);
+// TODO: Endpoint que devuelve las citas canceladas por el fixer respecto a un determinado requester en una determinada fecha.
+router.get('/schedules/get_cancelled_appointments_by_fixer_date', getCancelledSchedulesByFixerDay);
 
 export default router;

@@ -28,6 +28,7 @@ export async function getJobRatingDetails(
     description: job.description,
     type: job.type,
     rating: job.rating,
+    comment: job.comment,
     createdAt: job.createdAt,
   };
 }

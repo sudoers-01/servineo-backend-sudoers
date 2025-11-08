@@ -5,5 +5,6 @@ export interface JobRatingDetails {
   description: string;
   type: string;
   rating: number;
+  comment: string;
   createdAt: string;
 }

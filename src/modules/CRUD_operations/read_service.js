@@ -301,6 +301,96 @@ export async function get_appointments_by_fixer_id_date(fixer_id, date) {
   }
 }
 
+// TODO: Endpoint que devuelve las citas canceladas por el propio requester que ve el calendario de un determinadon fixer en una fecha determinada.
+export async function get_cancelled_schedules_by_requester_day(fixer_id, requester_id, searched_date) {
+  try {
+    await set_db_connection();
+    const current_date = new Date(searched_date);
+    const current_year = current_date.getUTCFullYear();
+    const current_month = current_date.getUTCMonth();
+    const current_day = current_date.getUTCDate();
+    const starting_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
+    const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59, 999));
+    const cancelled_appointments_requester = await Appointment.find(
+      {
+        id_fixer: fixer_id,
+        id_requester: requester_id,
+        selected_date: {
+          $gte: starting_date,
+          $lte: finish_date
+        },
+        schedule_state: 'cancelled',
+        cancelled_fixer: false
+      },
+      {
+        starting_time: 1,
+        finishing_time: 1,
+        schedule_state: 1
+      }, { new: true });
+
+    const formated_appointments = [];
+    for (let cancelled_appointment of cancelled_appointments_requester) {
+      const start_hour = cancelled_appointment.starting_time.getUTCHours();
+      const finish_hour = cancelled_appointment.finishing_time.getUTCHours();
+      const current_appointment_state = cancelled_appointment.schedule_state;
+      formated_appointments.push({
+        starting_hour: start_hour,
+        finishing_hour: finish_hour,
+        schedule_state: current_appointment_state
+      });
+    }
+    return formated_appointments;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+// TODO: Endpoint que devuelve las citas canceladas por el fixer respecto a un determinado requester en una determinada fecha.
+export async function get_cancelled_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
+  try {
+    await set_db_connection();
+    const current_date = new Date(searched_date);
+    const current_year = current_date.getUTCFullYear();
+    const current_month = current_date.getUTCMonth();
+    const current_day = current_date.getUTCDate();
+    const start_date = new Date(Date.UTC(current_year, current_month, current_day, 0, 0, 0));
+    const finish_date = new Date(Date.UTC(current_year, current_month, current_day, 23, 59, 59, 999));
+    const cancelled_appointments_fixer = await Appointment.find(
+      {
+        id_fixer: fixer_id,
+        id_requester: requester_id,
+        selected_date: {
+          $gte: start_date,
+          $lte: finish_date
+        },
+        cancelled_fixer: true
+      },
+      {
+        starting_time: 1,
+        finishing_time: 1,
+        cancelled_fixer: 1,
+        schedule_state: 1
+      }, { new: true });
+
+    const formated_appointments = []
+    for (let cancelled_appointment of cancelled_appointments_fixer) {
+      const start_hour = cancelled_appointment.starting_time.getUTCHours();
+      const finish_hour = cancelled_appointment.finishing_time.getUTCHours();
+      const wasCanceelledByFixer = cancelled_appointment.cancelled_fixer;
+      const current_appointment_state = cancelled_appointment.schedule_state;
+      formated_appointments.push({
+        starting_hour: start_hour,
+        finishing_hour: finish_hour,
+        schedule_state: current_appointment_state,
+        cancelled_fixer: wasCanceelledByFixer
+      });
+    }
+    return formated_appointments;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 export {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,

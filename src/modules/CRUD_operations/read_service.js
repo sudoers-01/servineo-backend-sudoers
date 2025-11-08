@@ -391,6 +391,34 @@ export async function get_cancelled_schedules_by_fixer_day(fixer_id, requester_i
   }
 }
 
+export async function get_six_months_appointments(fixer_id, date) {
+  try {
+    await set_db_connection();
+    const actualDate = new Date(date);
+    const month = actualDate.getMonth();
+    const year = actualDate.getFullYear();
+    const lastDay = new Date(year, month + 6, 0).getDate();
+
+    const lastMonth = month + 6;
+    const finish_date = new Date(Date.UTC(year, lastMonth, lastDay, 23, 59, 59, 999));
+
+    console.log(finish_date);
+    const appointments = Appointment.find({
+      id_fixer: fixer_id,
+      selected_date: {
+        $gte: actualDate,
+        $lte: finish_date
+      },
+      cancelled_fixer: true,
+    })
+
+    return appointments;
+
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 export {
   get_all_requester_schedules_by_fixer_month,
   get_requester_schedules_by_fixer_month,
@@ -400,5 +428,6 @@ export {
   get_requester_schedules_by_fixer_day,
   get_other_requester_schedules_by_fixer_day,
   get_appointment_by_fixer_id_hour,
-  get_fixer_availability
+  get_fixer_availability,
+
 };

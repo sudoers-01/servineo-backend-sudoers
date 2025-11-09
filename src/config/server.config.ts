@@ -22,7 +22,7 @@ const app = express();
 // 1. Define tu lista de orígenes permitidos
 const allowedOrigins = [
   'http://localhost:3000',                   // Tu frontend de desarrollo
-  'https://servineo-frontend-7tgywkfhh-diego-revollos-projects.vercel.app'    // <-- ¡TU URL DE VERCEL! (Reemplaza si es diferente)
+  'https://servineo-frontend-blush.vercel.app/'    // <-- ¡TU URL DE VERCEL! (Reemplaza si es diferente)
 ];
 
 app.use(

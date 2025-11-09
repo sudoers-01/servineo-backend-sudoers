@@ -10,6 +10,8 @@ import authRouter from "./modules/controlC/HU4/auth/auth.routes";
 import modificarDatosRouter from './modules/controlC/HU5/modificarDatos/routes';
 import nominatimRouter from './modules/controlC/HU5/sugerencias/routes'; // si lo separaste
 import githubAuthRouter from "./modules/controlC/HU7/routes";
+import discordRoutes from "./modules/controlC/HU7/Discord/routes";
+
 
 
 const app = express();
@@ -25,5 +27,6 @@ app.use('/api/controlC/registro', registrarDatosRouter);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
 app.use('/api/controlC/sugerencias', nominatimRouter);
 app.use("/auth", githubAuthRouter);
+app.use("/auth", discordRoutes);
 
 app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));

@@ -43,6 +43,22 @@ export const getOffers = async (req: Request, res: Response) => {
       record,
     } = req.query;
 
+    // ==================== ACCIÓN: GET PRICE RANGES ====================
+    if (action === 'getPriceRanges') {
+      const buckets = typeof req.query.buckets === 'string' ? parseInt(req.query.buckets, 10) : 4;
+      const includeExtremes = req.query.includeExtremes !== 'false';
+      try {
+        const result = await getPriceRanges(buckets, includeExtremes);
+        return res.status(200).json({ success: true, ...result });
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: 'Error obteniendo rangos de precio',
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
     // ==================== ACCIONES DE HISTORIAL ====================
     if (action && typeof action === 'string') {
       const act = action.toString();
@@ -131,22 +147,6 @@ export const getOffers = async (req: Request, res: Response) => {
     }
 
     // ==================== BÚSQUEDA DE OFERTAS ====================
-
-    // Acción especial: devolver rangos de precio
-    if (action === 'getPriceRanges') {
-      const buckets = typeof req.query.buckets === 'string' ? parseInt(req.query.buckets, 10) : 4;
-      const includeExtremes = req.query.includeExtremes !== 'false';
-      try {
-        const result = await getPriceRanges(buckets, includeExtremes);
-        return res.status(200).json({ success: true, ...result });
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: 'Error obteniendo rangos de precio',
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
 
     // Si no hay query params relevantes, retornar todas
     if (

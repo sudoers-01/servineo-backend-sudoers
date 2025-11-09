@@ -24,7 +24,8 @@ const allowedOrigins = [
   'http://localhost:3000',                   // Tu frontend de desarrollo
   'https://servineo-frontend-blush.vercel.app',    // <-- ¡TU URL DE VERCEL! (Reemplaza si es diferente)
   'https://servineo-frontend-git-dev-diego-revollos-projects.vercel.app',
-  'https://servineo-frontend-git-centropagos-diego-revollos.vercel.app'
+  'https://servineo-frontend-git-centropagos-diego-revollos.vercel.app',
+  'https://servineo-frontend-azbznu1q9-diego-revollos-projects.vercel.app'
 ];
 
 app.use(

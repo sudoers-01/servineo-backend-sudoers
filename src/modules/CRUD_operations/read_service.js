@@ -148,6 +148,7 @@ async function get_modal_form_appointment(fixer_id, requester_id, appointment_da
     return {
       _id: appointment._id,
       id_fixer: appointment.id_fixer,
+      id_requester: appointment.id_requester,
       current_requester_name: appointment.current_requester_name,
       appointment_type: appointment.appointment_type,
       appointment_description: appointment.appointment_description,
@@ -429,6 +430,5 @@ export {
   get_requester_schedules_by_fixer_day,
   get_other_requester_schedules_by_fixer_day,
   get_appointment_by_fixer_id_hour,
-  get_fixer_availability,
-
+  get_fixer_availability
 };

@@ -115,7 +115,6 @@ async function get_appointments_by_fixer_day(fixer_id, requested_date) {
     const founded_appointments = await Appointment.find({
       id_fixer: fixer_id,
       selected_date: requested_date,
-      cancelled_fixer: { $ne: true }
     });
     if (!founded_appointments) {
       throw new Error("Not appointments founded");
@@ -409,7 +408,6 @@ export async function get_six_months_appointments(fixer_id, date) {
         $gte: actualDate,
         $lte: finish_date
       },
-      cancelled_fixer: true,
     })
 
     return appointments;

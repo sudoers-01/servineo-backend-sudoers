@@ -362,7 +362,10 @@ export async function get_cancelled_schedules_by_fixer_day(fixer_id, requester_i
           $gte: start_date,
           $lte: finish_date
         },
-        cancelled_fixer: true
+        cancelled_fixer: true,
+        schedule_state: {
+          $ne: 'cancelled'
+        }
       },
       {
         starting_time: 1,

@@ -85,10 +85,7 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
  * Devuelve un array de rangos con labels y valores { min, max } donde null indica -inf/+inf.
  * Por defecto crea 4 buckets internos y añade opciones "Menos de" y "Más de" (por lo que se devuelven 6 items si includeExtremes=true).
  */
-export const getPriceRanges = async (
-  buckets = 4,
-  includeExtremes = true,
-) => {
+export const getPriceRanges = async (buckets = 4, includeExtremes = true) => {
   // Agregación para obtener min y max
   const agg = await Offer.aggregate([
     {

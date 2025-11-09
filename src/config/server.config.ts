@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import AppRoutes from '../config/server.routes'; // importa tus rutas globales
 import paymentsRouter from '../Innosys/routes/payments.qr';
+import 'dotenv/config';
 
 const app = express();
 

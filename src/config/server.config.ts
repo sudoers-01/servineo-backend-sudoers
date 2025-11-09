@@ -1,6 +1,3 @@
-// src/config/server.config.ts
-// ESTE ES AHORA EL ARCHIVO DE ARRANQUE PRINCIPAL
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -17,13 +14,35 @@ dotenv.config();
 const app = express();
 
 // --- MIDDLEWARES ---
+
+// ===================================================
+// [CAMBIO PARA DESPLIEGUE EN VERCEL]
+// ===================================================
+
+// 1. Define tu lista de orígenes permitidos
+const allowedOrigins = [
+  'http://localhost:3000',                   // Tu frontend de desarrollo
+  'https://servineo-frontend-7tgywkfhh-diego-revollos-projects.vercel.app'    // <-- ¡TU URL DE VERCEL! (Reemplaza si es diferente)
+];
+
 app.use(
-    cors({
-        origin: ['http://localhost:3000'], 
-        methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-        credentials: true,
-    })
+  cors({
+    // 2. Usa una función para 'origin' que revise la lista
+    origin: function (origin, callback) {
+      // Permite peticiones si el origen está en la lista, o si no hay origen (ej. Postman)
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Origen no permitido por la política de CORS.'));
+      }
+    },
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  })
 );
+// ===================================================
+// [FIN DEL CAMBIO]
+// ===================================================
 
 app.use(express.json());
 
@@ -32,10 +51,6 @@ app.use(express.json());
 
 app.use('/api/payments', paymentsRouter); 
 
-// ===================================================
-// [SOLUCIÓN AL ERROR 404]
-// La ruta de facturación debe registrarse con el prefijo /api/v1
-// ===================================================
 app.use('/api/v1/invoices', invoiceRoutes);
 
 // Rutas generales

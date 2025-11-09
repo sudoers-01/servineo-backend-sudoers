@@ -113,6 +113,7 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
 };
 
 /**
+ * codigo solucionado para obtener rangos de precios dinámicos
  * Calcula rangos de precio dinámicos basados en el mínimo y máximo de la colección `offers`.
  * Devuelve un array de rangos con labels y valores { min, max } donde null indica -inf/+inf.
  * Por defecto crea 4 buckets internos y añade opciones "Menos de" y "Más de" (por lo que se devuelven 6 items si includeExtremes=true).

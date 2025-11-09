@@ -10,6 +10,7 @@ import authRouter from "./modules/controlC/HU4/auth/auth.routes";
 import modificarDatosRouter from './modules/controlC/HU5/modificarDatos/routes';
 import nominatimRouter from './modules/controlC/HU5/sugerencias/routes'; // si lo separaste
 import cambiarContrasenaRouter from './modules/controlC/HU8/editarContraseña/routes';
+import cerrarSesionesRouter from './modules/controlC/HU8/cerrarSesiones/routes';
 
 ///////////////////
 import obtenerContrasenaRouter from './modules/controlC/HU8/obtener/routes';
@@ -27,6 +28,7 @@ app.use('/api/controlC/registro', registrarDatosRouter);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
 app.use('/api/controlC/sugerencias', nominatimRouter);
 app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);
+app.use('/api/controlC/cerrar-sesiones', cerrarSesionesRouter);
 
 ////////////////////
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);

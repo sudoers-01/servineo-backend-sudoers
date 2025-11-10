@@ -9,7 +9,7 @@ type TagOpts = {
 };
 
 function buildTagsPipeline(opts: TagOpts): PipelineStage[] {
-  const { search, categories, recent, inspectLimit = 10, topLimit = 20 } = opts;
+  const { search, categories, inspectLimit = 10, topLimit = 20 } = opts;
   const pipeline: PipelineStage[] = [];
 
   const hasSearch = typeof search === 'string' && search.trim().length > 0;
@@ -64,5 +64,18 @@ export async function getTagsForOffers(search?: string, categories?: string[], l
   });
 
   const agg = await Offer.aggregate(pipeline).exec();
+  // Si no se encontraron etiquetas para la búsqueda/categoría solicitada,
+  // devolvemos el conjunto por defecto (últimas ofertas con tags) en lugar de []
+  const hasFilter =
+    (typeof search === 'string' && search.trim().length > 0) ||
+    (Array.isArray(categories) && categories.length > 0);
+
+  if (hasFilter && Array.isArray(agg) && agg.length === 0) {
+    // fallback: ejecutar la pipeline por defecto (sin search ni categories)
+    const fallbackPipeline = buildTagsPipeline({ inspectLimit: limit, topLimit: limit } as any);
+    const fallbackAgg = await Offer.aggregate(fallbackPipeline).exec();
+    return fallbackAgg.map((r: any) => (r && r.tag ? String(r.tag) : '')).filter(Boolean);
+  }
+
   return agg.map((r: any) => (r && r.tag ? String(r.tag) : '')).filter(Boolean);
 }

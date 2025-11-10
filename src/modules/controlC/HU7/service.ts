@@ -10,6 +10,7 @@ interface GitHubUser {
 }
 
 interface User extends GitHubUser {
+  authProviders: any;
   _id: ObjectId;
   role: string;
   url_photo: string;
@@ -57,6 +58,7 @@ export async function createUser(user: GitHubUser): Promise<User> {
     telefono: "",
     certificacion: "",
     language: "es",
+    authProviders: [{ provider: "github", email: user.email, githubId: user.githubId }],
     createdAt: new Date(),
   };
 
@@ -67,5 +69,5 @@ export async function createUser(user: GitHubUser): Promise<User> {
     _id: result.insertedId,
     ...user,
     ...newUserDocument,
-  } as User;
+  } as unknown as User;
 }

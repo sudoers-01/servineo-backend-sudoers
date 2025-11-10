@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 import { MongoClient, MongoClientOptions } from "mongodb";
 
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env" });
 
 const uri = process.env.MONGODB_URI;
-if (!uri) throw new Error("⚠️ Debes definir MONGODB_URI en tu archivo .env.local");
+if (!uri) throw new Error("⚠️ Debes definir MONGODB_URI en tu archivo .env");
 
 const options: MongoClientOptions = {};
 let client: MongoClient;

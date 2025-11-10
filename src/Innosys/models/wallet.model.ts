@@ -1,8 +1,7 @@
 import mongoose, { Schema, Document, model, models } from 'mongoose';
 
-// Interfaz de TypeScript para tu documento de wallet
 export interface IWallet extends Document {
-  users_id: mongoose.Schema.Types.ObjectId; // ID del Fixer
+  users_id: mongoose.Types.ObjectId;
   balance: number;
   currency: string;
   status: 'active' | 'inactive' | 'suspended';
@@ -13,19 +12,18 @@ export interface IWallet extends Document {
   updatedAt: Date;
 }
 
-// Esquema de Mongoose
 const walletSchema = new Schema<IWallet>(
   {
     users_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Profile', // O 'User', lo que estés usando como referencia
+      ref: 'User',
       required: true,
-      unique: true, // Cada usuario solo debe tener una wallet
+      unique: true,
     },
     balance: {
       type: Number,
       required: true,
-      default: 0, // Un nuevo wallet empieza con 0
+      default: 0,
     },
     currency: {
       type: String,
@@ -51,11 +49,9 @@ const walletSchema = new Schema<IWallet>(
     },
   },
   {
-    timestamps: true, // Añade createdAt y updatedAt
+    timestamps: true, // Crea createdAt y updatedAt automáticamente
   }
 );
 
-// Creación del Modelo
-const Wallet = models.Wallet || model<IWallet>('Wallet', walletSchema);
-
-export default Wallet;
+// Usa la colección 'wallets'
+export const Wallet = models.Wallet || model<IWallet>('Wallet', walletSchema, 'wallets');

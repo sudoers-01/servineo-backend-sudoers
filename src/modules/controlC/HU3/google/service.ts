@@ -35,7 +35,10 @@ export async function verifyGoogleToken(token: string): Promise<GoogleUser | nul
 export async function findUserByEmail(email: string): Promise<User | null> {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
-  const user = await db.collection("users").findOne<User>({ email });
+  const user = await db.collection("users").findOne<User>({
+  "authProviders.provider": "google",
+  "authProviders.email": email
+});
   return user;
 }
 
@@ -50,7 +53,7 @@ export async function createUser(user: GoogleUser): Promise<User> {
 
   const newUserDocument = {
     name: user.name,
-    email: user.email,
+    email: user.email, 
     url_photo: user.picture || "",
     role: "requester",
     especialidad: "",
@@ -58,14 +61,19 @@ export async function createUser(user: GoogleUser): Promise<User> {
     certificacion: "",
     language: "es",
     createdAt: new Date(),
+    authProviders: [
+      {
+        provider: "google",
+        email: user.email,
+      },
+    ],
   };
 
   const result = await db.collection("users").insertOne(newUserDocument);
-  console.log("Usuario insertado en MongoDB:", user.email);
+  console.log("Usuario insertado en MongoDB con authProviders:", user.email);
 
   return {
     _id: result.insertedId,
-    ...user,
     ...newUserDocument,
   } as User;
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { verifyGoogleToken, findUserByEmail, createUser } from "./service";
+import { generarToken } from "../../utils/generadorToken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "super_secret_key";
 
@@ -17,7 +18,7 @@ export async function googleAuth(req: Request, res: Response) {
     }
 
     let dbUser = await findUserByEmail(googleUser.email);
-    const exists = !!dbUser;
+const exists = !!dbUser;
 
     if (!exists) {
       dbUser = await createUser(googleUser);
@@ -27,14 +28,10 @@ export async function googleAuth(req: Request, res: Response) {
       return res.status(500).json({ status: "error", message: "Error interno al obtener el usuario" });
     }
 
-    const sessionToken = jwt.sign(
-      {
-        id: dbUser._id.toHexString(), 
-        email: dbUser.email,
-        name: dbUser.name,
-      },
-      JWT_SECRET,
-      { expiresIn: "7d" }
+    const sessionToken = generarToken(
+      dbUser._id.toHexString(),
+      dbUser.name,
+      googleUser.email
     );
 
     return res.json({

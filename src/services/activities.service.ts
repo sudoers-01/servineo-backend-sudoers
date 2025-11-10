@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { Activity, ActivityDoc } from './activities.model';
+import { Activity, ActivityDoc } from '../models/activities.model';
 
 function getAdjustedDate(date?: Date): Date {
   const now = date || new Date();

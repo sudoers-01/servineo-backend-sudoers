@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as activityService from './activities.service';
+import * as activityService from '../../services/activities.service';
 
 export async function createActivityController(req: Request, res: Response) {
   try {

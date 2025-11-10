@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
-import activityRoutes from './activities/activities.routes';
+import activityRoutes from './api/routes/activities.routes';
 
 const app = express();
 

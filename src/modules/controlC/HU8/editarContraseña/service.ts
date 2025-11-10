@@ -35,6 +35,7 @@ export const cambiarContrasenaService = async (token: string, datos: ChangePassw
         $set: {
           password: hashedNewPassword,
           updatedAt: new Date(),
+          lastPasswordChange: new Date(),
         },
       }
     );
@@ -75,6 +76,7 @@ export const cambiarContrasenaService = async (token: string, datos: ChangePassw
       $set: {
         password: hashedNewPassword,
         updatedAt: new Date(),
+        lastPasswordChange: new Date(),
       },
     }
   );

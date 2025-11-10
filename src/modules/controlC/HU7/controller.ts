@@ -94,7 +94,7 @@ export async function githubAuth(req: Request, res: Response) {
           window.opener.postMessage({
             type: 'GITHUB_LINK_SUCCESS',
             message: 'Cuenta GitHub vinculada correctamente'
-          }, 'http://localhost:3000');
+          }, 'https://frontdos.vercel.app');
           window.close();
         </script>
       `);
@@ -121,7 +121,7 @@ export async function githubAuth(req: Request, res: Response) {
           type: 'GITHUB_AUTH_SUCCESS',
           token: '${sessionToken}',
           isFirstTime: ${isFirstTime}
-        }, 'http://localhost:3000');
+        }, 'https://frontdos.vercel.app');
         window.close();
       </script>
     `);
@@ -132,7 +132,7 @@ export async function githubAuth(req: Request, res: Response) {
         window.opener.postMessage({
           type: '${String(state || "").includes("link") ? "GITHUB_LINK_ERROR" : "GITHUB_AUTH_ERROR"}',
           message: '${err.message || "Error al procesar"}'
-        }, 'http://localhost:3000');
+        }, 'https://frontdos.vercel.app');
         window.close();
       </script>
     `);

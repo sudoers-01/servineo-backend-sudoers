@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { discordAuth } from "./controller"; // 👈 esta es la ruta relativa correcta
+import { discordAuth } from "./controller";
 
 const router = Router();
 

@@ -226,7 +226,6 @@ async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id
       schedule_state: 1,
     }, { new: true });
 
-  console.log(daily_appointments);
   const formated_appointments = [];
   for (let appointment of daily_appointments) {
     const start_hour = appointment.starting_time.getUTCHours();

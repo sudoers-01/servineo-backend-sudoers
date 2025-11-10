@@ -10,8 +10,10 @@ import RatingsDetailsRoutes from '../modules/ratings-details/routes';
 import JobInfoRoutes from '../modules/job-info/routes';
 import JobRequestRoutes from '../modules/job-request/job-request.routes';
 import AppointmentsRoutes from '../modules/appointments/appointments.routes';
+import JobRatingDetailsRoutes from '../modules/job-rating-details/job-rating-details.routes';
 
 const router = Router();
+
 router.use('/api/job-info', JobInfoRoutes);
 router.use('/api/ratings.details', RatingsDetailsRoutes);
 router.use('/api/health', HealthRoutes);
@@ -23,6 +25,7 @@ router.use('/api', FixersRoutes);
 router.use('/api/ratings', RatingsRoutes);
 router.use('/api/jobrequests', JobRequestRoutes);
 router.use('/api/appointments', AppointmentsRoutes);
+router.use('/api', JobRatingDetailsRoutes);
 
 router.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

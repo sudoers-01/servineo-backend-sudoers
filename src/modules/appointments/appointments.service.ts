@@ -24,10 +24,11 @@ export interface Appointment {
 }
 
 export async function getAppointmentsByFixerId(db: Db, fixerId: string) {
-  return db.collection<Appointment>('appointments')
-    .find({ 
+  return db
+    .collection<Appointment>('appointments')
+    .find({
       id_fixer: fixerId,
-      schedule_state: 'booked'
+      schedule_state: 'booked',
     })
     .sort({ starting_time: 1 })
     .toArray();

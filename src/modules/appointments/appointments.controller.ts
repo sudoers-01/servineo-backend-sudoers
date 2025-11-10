@@ -15,7 +15,7 @@ export async function getAppointmentsByFixerId(req: Request, res: Response) {
     }
 
     const appointments = await appointmentsService.getAppointmentsByFixerId(req.db, fixerId);
-    
+
     return res.json(appointments);
   } catch (error) {
     console.error('Error fetching appointments:', error);

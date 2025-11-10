@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
+import activityRoutes from './activities/activities.routes';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
+app.use('/api', activityRoutes);
 
 // 404 handler
 app.use((req, res) => {

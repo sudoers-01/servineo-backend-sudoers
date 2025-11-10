@@ -16,7 +16,7 @@ export async function getJobRatingDetails(
     _id: jobId,
     fixerId,
     rating: { $exists: true },
-    status: { $regex: /^Pagado$/i },
+    status: { $regex: /^Payed$/i },
   });
 
   if (!job) return null;

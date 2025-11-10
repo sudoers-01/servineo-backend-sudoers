@@ -9,10 +9,9 @@ import CashPayRoutes from '../Innosys/routes/lab/cashpay.routes';
 import BankAccountRoutes from '../Innosys/routes/BankAccount.routes';
 import paymentsRouter from "../Innosys/routes/payments.qr";
 import PaymentCenterRoutes from '../Innosys/routes/paymentCenter.routes'; 
-
-// 🟢 [TU VERSIÓN INTEGRADA] Importación de TU router de facturas (el que contiene getInvoiceDetail)
-// Esto reemplaza al router de lista que tenía el equipo.
+import jobsRoutes from '../Innosys/routes/jobs.routes'; 
 import invoiceDetailRouter from '../Innosys/routes/invoiceRoutes'; 
+
 
 // Las importaciones de feature flags del equipo
 import { FEATURE_DEV_WALLET } from './featureFlags';
@@ -46,7 +45,8 @@ router.use('/api', UsersRoutes);
 router.use('/api', PaymentRoutes);
 router.use('/api', BankAccountRoutes); 
 router.use('/api/lab', CashPayRoutes);
-
+//ruta para traer trabajos
+router.use('/api', jobsRoutes); 
 
 // 🟢 [MONTAJE CRÍTICO FUSIONADO] Usamos TU router (invoiceDetailRouter)
 // Montamos TU router de detalle bajo el prefijo exacto: /api/v1/invoices

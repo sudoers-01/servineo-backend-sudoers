@@ -2,9 +2,10 @@ import { Router } from "express";
 import { connectDB } from "../../config/db.config";
 import { getPaymentSummaryByIdLab } from "../../controllers/lab/get-by-id-summary.controller";
 import { getPaymentSummaryByJobIdLab } from "../../controllers/lab/get-by-job-summary.controller";
+import { getPaymentSummaryByFixerIdLab } from "../../controllers/lab/get-by-fixer-summary.controller";
 import { confirmPaymentLab } from "../../controllers/lab/confirm-payment.controller";
-import { createPaymentLab } from "../../controllers/lab/cashpay.controller";
-import { regeneratePaymentCode } from "../../controllers/lab/cashpay.controller";
+import { createPaymentLab, regeneratePaymentCode } from "../../controllers/lab/cashpay.controller";
+
 
 const labRouter = Router();
 
@@ -31,22 +32,13 @@ labRouter.get("/health", (_req, res) => res.json({ ok: true, where: "lab" }));
 /** 
  * ENDPOINTS reales
  */
-
-// Pago en efectivo
 labRouter.post("/cashpay", createPaymentLab); // -> POST /api/lab/cashpay
-
-// Obtener resumen por ID
 labRouter.get("/payments/:id/summary", getPaymentSummaryByIdLab);
-
-// Crear pago (otra vía, si la usas)
 labRouter.post("/payments", createPaymentLab);
-
-// Obtener resumen por jobId
 labRouter.get("/payments/by-job/:jobId/summary", getPaymentSummaryByJobIdLab);
+labRouter.get("/payments/by-fixer/:fixerId/summary", getPaymentSummaryByFixerIdLab);
 
-// Confirmar pago
 labRouter.patch("/payments/:id/confirm", confirmPaymentLab);
-
 labRouter.post("/payments/:id/regenerate-code", regeneratePaymentCode);
 
 // Exporta el router correcto ✅

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const walletSchema = new mongoose.Schema(
   {
     users_id: {
@@ -7,6 +8,7 @@ const walletSchema = new mongoose.Schema(
       ref: "userpay", // o "User", según tu referencia
       required: true,
       unique: true, // cada usuario solo puede tener una wallet
+
     },
     balance: { type: Number, default: 0 },
     currency: { type: String, default: "BOB" },
@@ -19,8 +21,10 @@ const walletSchema = new mongoose.Schema(
     lowBalanceThreshold: { type: Number, default: 50 },
     lastLowBalanceNotification: { type: Date },
   },
+
   { timestamps: true } // agrega createdAt y updatedAt
 );
 
 // ⚙️ Usa exactamente la colección 'wallet'
 export default mongoose.model("wallets", walletSchema, "wallets");
+

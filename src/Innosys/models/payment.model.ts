@@ -14,7 +14,7 @@ const paymentSchema = new mongoose.Schema({
 
 
 
-export type PaymentMethod = "QR" | "card" | "cash";
+export type PaymentMethod = "qr" | "card" | "cash";
 export type PaymentStatus  = "paid" | "pending" | "failed";
 
 interface Amount {
@@ -28,6 +28,7 @@ interface Amount {
 export interface PaymentDoc extends mongoose.Document {
   jobId: Types.ObjectId;
   payerId: Types.ObjectId;
+  fixerId: Types.ObjectId;
   paymentMethods: PaymentMethod;
   status: PaymentStatus;
   paymentDate: Date;
@@ -69,7 +70,8 @@ const PaymentSchema = new Schema<PaymentDoc>(
   {
     jobId:            { type: Schema.Types.ObjectId, ref: "Job", required: true, index: true },
     payerId:          { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    paymentMethods:   { type: String, enum: ["QR", "card", "cash"], required: true },
+    fixerId:         { type: Schema.Types.ObjectId, ref: "User", required: true },
+    paymentMethods:   { type: String, enum: ["qr", "card", "cash"], required: true },
     status:           { type: String, enum: ["paid", "pending", "failed"], required: true, index: true },
     paymentDate:      { type: Date, required: true, default: () => new Date(), index: true },
     commissionRate:   { type: Number, required: true, min: 0, max: 1 },
@@ -130,10 +132,12 @@ PaymentSchema.pre("validate", async function (next) {
   next();
 });
 
-// índices
+// Índices recomendados
 PaymentSchema.index({ code: 1 }, { unique: true });
 PaymentSchema.index({ payerId: 1, paymentDate: -1 });
 PaymentSchema.index({ jobId: 1, status: 1 });
+
+
 
 export const Payment =
   mongoose.models.Payment || mongoose.model<PaymentDoc>("Payment", PaymentSchema);

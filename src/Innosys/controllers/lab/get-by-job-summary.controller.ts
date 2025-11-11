@@ -34,8 +34,11 @@ export async function getPaymentSummaryByJobIdLab(req: Request, res: Response) {
         jobId: String(doc.jobId),
         total: doc.amount.total,
         status: doc.status,
-        expiresAt: doc.codeExpiresAt ?? null,
         currency: doc.amount.currency ?? "BOB",
+        // Nuevo nombre solicitado
+        codeExpiresAt: doc.codeExpiresAt ?? null,
+        // Compatibilidad previa
+        expiresAt: doc.codeExpiresAt ?? null,
       },
     });
   } catch (e: any) {

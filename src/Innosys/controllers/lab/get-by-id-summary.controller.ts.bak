@@ -59,17 +59,7 @@ export async function getPaymentSummaryByIdLab(req: Request, res: Response) {
 
     console.log("📤 Respuesta enviada:", JSON.stringify(responseData, null, 2)); // LOG
 
-    return res.json({
-      data: {
-        id: String((doc as any)?._id ?? id),
-        total: (doc as any).amount.total,
-        currency: (doc as any).amount.currency ?? "BOB",
-        status: (doc as any).status,
-        codeExpiresAt: (doc as any).codeExpiresAt ?? null,
-        code: (doc as any).code,
-        codeExpired,
-      },
-    });
+    return res.json(responseData);
   } catch (e: any) {
     console.error("❌ Error obteniendo resumen:", e);
     return res.status(400).json({ error: e.message || "Error buscando resumen por id (lab)" });

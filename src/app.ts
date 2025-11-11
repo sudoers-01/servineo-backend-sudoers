@@ -4,6 +4,7 @@ import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
+import activityRoutes from './api/routes/activities.routes';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
+app.use('/api', activityRoutes);
 
 // 404 handler
 app.use((req, res) => {

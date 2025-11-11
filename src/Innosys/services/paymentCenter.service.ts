@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Job from '../models/job.model'; 
-import Wallet from '../models/wallet.model'; 
+import { Wallet } from '../models/wallet.model';
 
 /**
  * Obtiene las estadísticas de trabajos "Pagado" para un Fixer.

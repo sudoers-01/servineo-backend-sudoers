@@ -5,6 +5,7 @@ import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
 import activityRoutes from './api/routes/activities.routes';
+import jobsRoutes from './api/routes/jobs.routes';
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
 app.use('/api', activityRoutes);
+app.use('/api', jobsRoutes);
 
 // 404 handler
 app.use((req, res) => {

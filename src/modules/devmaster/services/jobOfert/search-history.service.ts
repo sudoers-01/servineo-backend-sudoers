@@ -1,7 +1,7 @@
 // services/jobOfert/search-history.service.ts
 import { SearchHistory } from '../../models/search-history.model';
 import { normalizeForHistory } from '../../utils/search.normalizer';
-import { validateAndCleanSearchTerm, filterSpecialCharacters  } from '../../utils/searchTermValidator';
+import { validateAndCleanSearchTerm } from '../../utils/searchTermValidator';
 
 /**
  * Guarda una búsqueda en el historial
@@ -20,11 +20,6 @@ export async function saveSearchToHistory(
       return null;
     }
 
-    const filteredTerm = filterSpecialCharacters(cleanedTerm);
-    
-    if (!filteredTerm) {
-      return null;
-    }
     const normalizedTerm = normalizeForHistory(cleanedTerm);
 
     const identifier = userId || sessionId;
@@ -41,7 +36,7 @@ export async function saveSearchToHistory(
 
     if (existing) {
       existing.searchedAt = new Date();
-      existing.searchTerm = filteredTerm;
+      existing.searchTerm = cleanedTerm;
       return await existing.save();
     }
 
@@ -49,7 +44,7 @@ export async function saveSearchToHistory(
     const newSearch = new SearchHistory({
       sessionId: userId ? undefined : sessionId,
       userId,
-      searchTerm: filteredTerm,
+      searchTerm: cleanedTerm,
       normalizedTerm,
       searchedAt: new Date(),
       isArchived: false,

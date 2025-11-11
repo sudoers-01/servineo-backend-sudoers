@@ -12,11 +12,16 @@ import modificarDatosRouter from './modules/controlC/HU5/modificarDatos/routes';
 import nominatimRouter from './modules/controlC/HU5/sugerencias/routes'; 
 import deviceRouter from './modules/controlC/HU6/device.routes';
 import cambiarContrasenaRouter from './modules/controlC/HU8/editarContraseña/routes';
+import cerrarSesionesRouter from './modules/controlC/HU8/cerrarSesiones/routes';
+import ultimoCambioRouter from './modules/controlC/HU8/ultimoCambio/routes';
+
 import githubAuthRouter from './modules/controlC/HU7/routes';
 import discordRoutes from './modules/controlC/HU7/Discord/routes';
 import clienteRouter from './modules/controlC/cliente/routes';
-import obtenerContrasenaRouter from './modules/controlC/HU8/obtener/routes';
 
+///////////////////
+import obtenerContrasenaRouter from './modules/controlC/HU8/obtener/routes';
+///////////////////
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
@@ -29,6 +34,10 @@ app.use('/api/controlC/registro', registrarDatosRouter);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
 app.use('/api/controlC/sugerencias', nominatimRouter);
 app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);
+app.use('/api/controlC/cerrar-sesiones', cerrarSesionesRouter);
+app.use('/api/controlC/ultimo-cambio', ultimoCambioRouter);
+
+////////////////////
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);

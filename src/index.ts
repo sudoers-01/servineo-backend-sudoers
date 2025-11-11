@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: ".env" });
 
 import registrarDatosRouter from './modules/controlC/HU1/registrarDatos/routes';
+import fotoPerfilRouter from './modules/controlC/HU1/fotoPerfil/routes';
 import googleRouter from "./modules/controlC/HU3/google/routes";
 import ubicacionRouter from "./modules/controlC/HU3/ubicacion/routes"; 
 import authRouter from "./modules/controlC/HU4/auth/auth.routes"; 
@@ -32,5 +33,7 @@ app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use("/auth", githubAuthRouter);
 app.use("/auth", discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
+app.use('/api/controlC/fotoPerfil', fotoPerfilRouter);
+
 
 app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));

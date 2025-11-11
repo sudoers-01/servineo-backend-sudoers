@@ -10,27 +10,28 @@ export async function githubAuth(req: Request, res: Response) {
 
   const CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
   const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
+  const FRONTEND_URL = process.env.FRONTEND_URL!;
 
-  console.log("==== 📡 GitHub OAuth iniciado ====");
-  console.log("➡️ Parámetros recibidos:", { code, state });
+  console.log("==== GitHub OAuth iniciado ====");
+  console.log("Parámetros recibidos:", { code, state });
 
   try {
     if (!code) return res.status(400).send("No code provided");
 
     let mode = "login";
     let token: string | null = null;
+
     if (state) {
       try {
         const parsed = JSON.parse(decodeURIComponent(String(state)));
         mode = parsed.mode || "login";
         token = parsed.token || null;
-        console.log("📦 State decodificado correctamente:", parsed);
+        console.log("State decodificado correctamente:", parsed);
       } catch (e) {
-        console.warn("⚠️ No se pudo parsear el parámetro 'state'");
+        console.warn("No se pudo parsear el parámetro 'state'");
       }
     }
 
-    // 1️⃣ Intercambiar el code por el access_token
     const params = new URLSearchParams();
     params.append("client_id", CLIENT_ID);
     params.append("client_secret", CLIENT_SECRET);
@@ -46,18 +47,17 @@ export async function githubAuth(req: Request, res: Response) {
     const accessToken = data.access_token;
     if (!accessToken) throw new Error("No se obtuvo access token");
 
-    // 2️⃣ Obtener datos del usuario GitHub
     const githubUser = await getGitHubUser(accessToken);
     if (!githubUser) throw new Error("No se pudo obtener usuario GitHub");
 
-    // 3️⃣ Vinculación de cuenta existente
+    // === 🔗 MODO VINCULACIÓN ===
     if (mode === "link" && token) {
       console.log("🔗 Modo vinculación detectado, validando token JWT...");
 
       let decoded: any;
       try {
         decoded = jwt.verify(token, process.env.JWT_SECRET!);
-        console.log("✅ Token válido:", decoded);
+        console.log("Token válido:", decoded);
       } catch (err: any) {
         throw new Error("Token inválido o expirado");
       }
@@ -88,19 +88,19 @@ export async function githubAuth(req: Request, res: Response) {
         } as any
       );
 
-      console.log("✅ Cuenta GitHub vinculada correctamente");
+      console.log("Cuenta GitHub vinculada correctamente");
       return res.send(`
         <script>
           window.opener.postMessage({
             type: 'GITHUB_LINK_SUCCESS',
             message: 'Cuenta GitHub vinculada correctamente'
-          }, 'https://frontdos.vercel.app');
+          }, '${FRONTEND_URL}');
           window.close();
         </script>
       `);
     }
 
-    // 4️⃣ Modo normal de login/registro
+    // === 🚀 LOGIN / REGISTRO NORMAL ===
     let dbUser = await findUserByEmail(githubUser.email);
     let isFirstTime = false;
 
@@ -121,22 +121,20 @@ export async function githubAuth(req: Request, res: Response) {
           type: 'GITHUB_AUTH_SUCCESS',
           token: '${sessionToken}',
           isFirstTime: ${isFirstTime}
-        }, 'https://frontdos.vercel.app');
+        }, '${FRONTEND_URL}');
         window.close();
       </script>
     `);
   } catch (err: any) {
-    console.error("💥 Error en GitHub OAuth:", err.message);
+    console.error("Error en GitHub OAuth:", err.message);
     res.send(`
       <script>
         window.opener.postMessage({
           type: '${String(state || "").includes("link") ? "GITHUB_LINK_ERROR" : "GITHUB_AUTH_ERROR"}',
           message: '${err.message || "Error al procesar"}'
-        }, 'https://frontdos.vercel.app');
+        }, '${FRONTEND_URL}');
         window.close();
       </script>
     `);
   }
 }
-
-

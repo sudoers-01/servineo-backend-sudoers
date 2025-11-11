@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Payment } from "../../models/payment.model";
-import User from "../../models/users.model";
+import Users from "../../models/users.model";
+import UserPay from "../../models/user.model";
 
 const CODE_EXPIRATION_MS = 48 * 60 * 60 * 1000;
 
@@ -49,11 +50,21 @@ export const createPaymentLab = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "fixerId requerido y válido" });
     }
 
-    // ===== VERIFICAR QUE LOS USUARIOS EXISTAN =====
-    const [requester, fixer] = await Promise.all([
-      User.findById(requesterId),
-      User.findById(fixerId),
+    // ===== VERIFICAR QUE LOS USUARIOS EXISTAN EN 'users' O 'userpay' =====
+    let [requester, fixer] = await Promise.all([
+      Users.findById(requesterId),
+      Users.findById(fixerId),
     ]);
+
+    if (!requester || !fixer) {
+      const [requesterAlt, fixerAlt] = await Promise.all([
+        UserPay.findById(requesterId),
+        UserPay.findById(fixerId),
+      ]);
+
+      requester = requester || (requesterAlt as any);
+      fixer = fixer || (fixerAlt as any);
+    }
 
     if (!requester) {
       return res.status(404).json({ error: "Requester no encontrado" });

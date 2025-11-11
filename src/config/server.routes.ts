@@ -10,6 +10,7 @@ import RatingsDetailsRoutes from '../modules/ratings-details/routes';
 import JobInfoRoutes from '../modules/job-info/routes';
 import JobRequestRoutes from '../modules/job-request/job-request.routes';
 import AppointmentsRoutes from '../modules/appointments/appointments.routes';
+import RatedJobsRoutes from '../modules/rated-jobs/routes';
 import JobRatingDetailsRoutes from '../modules/job-rating-details/job-rating-details.routes';
 
 const router = Router();
@@ -25,6 +26,7 @@ router.use('/api', FixersRoutes);
 router.use('/api/ratings', RatingsRoutes);
 router.use('/api/jobrequests', JobRequestRoutes);
 router.use('/api/appointments', AppointmentsRoutes);
+router.use('/api/rated-jobs', RatedJobsRoutes);
 router.use('/api', JobRatingDetailsRoutes);
 
 router.use((req, res) => {

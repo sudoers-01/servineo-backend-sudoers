@@ -423,41 +423,73 @@ export async function get_six_months_appointments(fixer_id, date) {
 
 export async function get_number_of_appointments(fixer_id, month, year) {
   try {
-    const startOfMonth = new Date(year, month - 1, 1);
-    const endOfMonth = new Date(year, month, 1);
-    const daysInMonth = new Date(year, month, 0).getDate();
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + 6);
+    console.log(startDate, endDate);
 
-    console.log(startOfMonth, endOfMonth);
+    console.log('Rango:', startDate, 'a', endDate);
+
     const result = await Appointment.aggregate([
       {
         $match: {
           id_fixer: fixer_id,
           selected_date: {
-            $gte: startOfMonth,
-            $lt: endOfMonth
+            $gte: startDate,
+            $lte: endDate
           },
           cancelled_fixer: false
         }
       },
       {
         $group: {
-          _id: { $dayOfMonth: "$selected_date" },
+          _id: {
+            year: { $year: "$selected_date" },
+            month: { $month: "$selected_date" },
+            day: { $dayOfMonth: "$selected_date" }
+          },
           count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1,
+          "_id.day": 1
         }
       }
     ]);
+    const appointmentsByMonth = {};
 
-    const countMap = new Map();
     result.forEach(item => {
-      countMap.set(item._id, item.count);
+      const yearMonth = `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`;
+
+      if (!appointmentsByMonth[yearMonth]) {
+        appointmentsByMonth[yearMonth] = {};
+      }
+
+      appointmentsByMonth[yearMonth][item._id.day] = item.count;
     });
 
-    const appointmentsByDay = {};
-    for (let day = 1; day <= daysInMonth; day++) {
-      appointmentsByDay[day] = countMap.get(day) || 0;
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+      const day = currentDate.getDate();
+      const yearMonth = `${month.toString().padStart(2, '0')}-${year}`;
+
+      if (!appointmentsByMonth[yearMonth]) {
+        appointmentsByMonth[yearMonth] = {};
+      }
+
+      if (!appointmentsByMonth[yearMonth][day]) {
+        appointmentsByMonth[yearMonth][day] = 0;
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    return appointmentsByDay;
+    return appointmentsByMonth;
   } catch (error) {
     throw new Error(error.message);
   }

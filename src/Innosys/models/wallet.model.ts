@@ -1,61 +1,26 @@
-import mongoose, { Schema, Document, model, models } from 'mongoose';
+import mongoose from "mongoose";
 
-// Interfaz de TypeScript para tu documento de wallet
-export interface IWallet extends Document {
-  users_id: mongoose.Schema.Types.ObjectId; // ID del Fixer
-  balance: number;
-  currency: string;
-  status: 'active' | 'inactive' | 'suspended';
-  minimumBalance: number;
-  lowBalanceThreshold: number;
-  lastLowBalanceNotification?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Esquema de Mongoose
-const walletSchema = new Schema<IWallet>(
+const walletSchema = new mongoose.Schema(
   {
     users_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Profile', // O 'User', lo que estés usando como referencia
+      ref: "userpay", // o "User", según tu referencia
       required: true,
-      unique: true, // Cada usuario solo debe tener una wallet
+      unique: true, // cada usuario solo puede tener una wallet
     },
-    balance: {
-      type: Number,
-      required: true,
-      default: 0, // Un nuevo wallet empieza con 0
-    },
-    currency: {
-      type: String,
-      required: true,
-      default: 'BOB',
-    },
+    balance: { type: Number, default: 0 },
+    currency: { type: String, default: "BOB" },
     status: {
       type: String,
-      enum: ['active', 'inactive', 'suspended'],
-      default: 'active',
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
     },
-    minimumBalance: {
-      type: Number,
-      default: 0,
-    },
-    lowBalanceThreshold: {
-      type: Number,
-      default: 50,
-    },
-    lastLowBalanceNotification: {
-      type: Date,
-      required: false,
-    },
+    minimumBalance: { type: Number, default: 0 },
+    lowBalanceThreshold: { type: Number, default: 50 },
+    lastLowBalanceNotification: { type: Date },
   },
-  {
-    timestamps: true, // Añade createdAt y updatedAt
-  }
+  { timestamps: true } // agrega createdAt y updatedAt
 );
 
-// Creación del Modelo
-const Wallet = models.Wallet || model<IWallet>('Wallet', walletSchema);
-
-export default Wallet;
+// ⚙️ Usa exactamente la colección 'wallet'
+export default mongoose.model("wallets", walletSchema, "wallets");

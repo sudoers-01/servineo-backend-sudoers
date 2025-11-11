@@ -11,14 +11,17 @@ import paymentsRouter from "../Innosys/routes/payments.qr";
 import PaymentCenterRoutes from '../Innosys/routes/paymentCenter.routes'; 
 import jobsRoutes from '../Innosys/routes/jobs.routes'; 
 import invoiceDetailRouter from '../Innosys/routes/invoiceRoutes'; 
-
-
+import bankTransferRoutes from '../Innosys/routes/bankTransferRoute'; //pasar
+import  rechargeWallet  from '../Innosys/routes/wallet.routes';
 // Las importaciones de feature flags del equipo
 import { FEATURE_DEV_WALLET } from './featureFlags';
 import { devWalletRouter } from '../routes/dev-wallet';
 import { FEATURE_SIM_PAYMENTS } from './featureFlags';
 import { simPaymentsRouter } from '../routes/sim-payments';
 import { FEATURE_NOTIFICATIONS } from './featureFlags';
+
+
+
 console.log('FEATURE_NOTIFICATIONS =', FEATURE_NOTIFICATIONS);
 
 const router = Router();
@@ -45,9 +48,12 @@ router.use('/api', UsersRoutes);
 router.use('/api', PaymentRoutes);
 router.use('/api', BankAccountRoutes); 
 router.use('/api/lab', CashPayRoutes);
+//fixerwallet
+router.use("/api", rechargeWallet);
 //ruta para traer trabajos
 router.use('/api', jobsRoutes); 
-
+//rutas para tranfeenrecnias
+router.use('/api/transferencia-bancaria', bankTransferRoutes); //transferencia bancaria ..pasar
 // 🟢 [MONTAJE CRÍTICO FUSIONADO] Usamos TU router (invoiceDetailRouter)
 // Montamos TU router de detalle bajo el prefijo exacto: /api/v1/invoices
 router.use('/api/v1/invoices', invoiceDetailRouter); 

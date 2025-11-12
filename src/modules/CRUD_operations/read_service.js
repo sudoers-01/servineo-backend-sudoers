@@ -462,7 +462,7 @@ export async function get_number_of_appointments(fixer_id, month, year) {
     const appointmentsByMonth = {};
 
     result.forEach(item => {
-      const yearMonth = `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`;
+      const yearMonth = `${item._id.month.toString().padStart(2, '0')}-${item._id.year}`;
 
       if (!appointmentsByMonth[yearMonth]) {
         appointmentsByMonth[yearMonth] = {};

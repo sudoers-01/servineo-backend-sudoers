@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { collectJobsStatus } from '../services/jobs-status-collector.service';
+import { collectJobsStatus } from './jobs-status-collector.service';
 
 export function startJobsStatusCollectorCron(): void {
   cron.schedule('*/1 * * * *', async () => {

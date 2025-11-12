@@ -1,7 +1,7 @@
 import app from './app';
 import { SERVER_PORT } from './config/env.config';
 import { connectDatabase } from './config/db.config';
-import { startJobsStatusCollectorCron } from './cron/jobs-status-collector.cron';
+import { startJobsStatusCollectorCron } from './services/jobs-status-collector.cron';
 
 async function startServer() {
   try {

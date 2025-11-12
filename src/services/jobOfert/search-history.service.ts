@@ -44,7 +44,7 @@ export async function saveSearchToHistory(
 
     if (existing) {
       existing.searchedAt = new Date();
-      existing.searchTerm = filteredTerm;
+      existing.searchTerm = cleanedTerm;
       return await existing.save();
     }
 
@@ -52,7 +52,7 @@ export async function saveSearchToHistory(
     const newSearch = new SearchHistory({
       sessionId: userId ? undefined : sessionId,
       userId,
-      searchTerm: filteredTerm,
+      searchTerm: cleanedTerm,
       normalizedTerm,
       searchedAt: new Date(),
       isArchived: false,

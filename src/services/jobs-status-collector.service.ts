@@ -22,10 +22,9 @@ function formatDateDDMMAAAA(date: Date): string {
 
 function getStartOfDayBolivia(date: Date): Date {
   const boliviaDate = getBoliviaDate(date);
-  const year = boliviaDate.getUTCFullYear();
-  const month = boliviaDate.getUTCMonth();
-  const day = boliviaDate.getUTCDate();
-  return new Date(Date.UTC(year, month, day, 4, 0, 0, 0));
+  const startOfDay = new Date(boliviaDate);
+  startOfDay.setUTCHours(0, 0, 0, 0);
+  return startOfDay;
 }
 
 function getEndOfDayBolivia(date: Date): Date {

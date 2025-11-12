@@ -2,14 +2,7 @@ import cron from 'node-cron';
 import { collectJobsStatus } from '../services/jobs-status-collector.service';
 
 export function startJobsStatusCollectorCron(): void {
-  // Cambiar el intervalo aquí: '*/10 * * * *' = cada 10 minutos
-  // Formato cron: minuto hora día mes día-semana
-  // Ejemplos:
-  // '*/10 * * * *' = cada 10 minutos
-  // '*/5 * * * *' = cada 5 minutos
-  // '0 * * * *' = cada hora
-  // '0 0 * * *' = cada día a medianoche
-  cron.schedule('*/10 * * * *', async () => {
+  cron.schedule('*/1 * * * *', async () => {
     try {
       console.log('🔄 Ejecutando recolección de estado de jobs...');
       await collectJobsStatus();

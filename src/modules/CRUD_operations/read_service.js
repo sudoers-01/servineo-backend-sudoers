@@ -425,7 +425,8 @@ export async function get_number_of_appointments(fixer_id, month, year) {
   try {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + 6);
+    endDate.setMonth(endDate.getMonth() + 7);
+    endDate.setDate(endDate.getDate() - 1);
     console.log(startDate, endDate);
 
     console.log('Rango:', startDate, 'a', endDate);

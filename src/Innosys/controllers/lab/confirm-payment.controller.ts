@@ -156,6 +156,42 @@ export async function confirmPaymentLab(req: Request, res: Response) {
     }
 
     // ============================================
+    // 🎯 NUEVO: ACTUALIZAR STATUS DEL JOB A "PAGADO"
+    // ============================================
+    let jobActualizado = false;
+    
+    if (confirmed.jobId) {
+      try {
+        console.log(`🔄 Actualizando status del job ${confirmed.jobId} a "Pagado"`);
+        
+        const jobUpdated = await jobsPays.findByIdAndUpdate(
+          confirmed.jobId,
+          { 
+            $set: { 
+              status: "Pagado" 
+            } 
+          },
+          { 
+            new: true,
+            session 
+          }
+        );
+
+        if (jobUpdated) {
+          console.log(`✅ Job ${confirmed.jobId} actualizado a status "Pagado"`);
+          jobActualizado = true;
+        } else {
+          console.warn(`⚠️ No se encontró el job ${confirmed.jobId}`);
+        }
+      } catch (jobError: any) {
+        console.error(`❌ Error actualizando job ${confirmed.jobId}:`, jobError);
+        // No abortamos la transacción, el pago ya se confirmó
+      }
+    } else {
+      console.warn(`⚠️ El pago ${id} no tiene jobId asociado`);
+    }
+
+    // ============================================
     // 🔥 TRIGGER: ENRIQUECER PAGO CON DATOS DE FACTURA (CORREGIDO)
     // ============================================
     console.log(`🧾 Añadiendo datos de factura al pago ${id}`);
@@ -290,7 +326,15 @@ export async function confirmPaymentLab(req: Request, res: Response) {
 
     return res.json({
       message: "pago confirmado exitosamente",
-      data: finalPaymentDoc 
+      data: {
+        id: String(confirmed._id),
+        total: confirmed.amount.total,
+        status: confirmed.status,
+        paidAt: confirmed.paymentDate,
+        comisionProcesada: true,
+        jobActualizado: jobActualizado, // ← NUEVO: Indicar si se actualizó el job
+        jobId: confirmed.jobId || null
+      }
     });
 
   } catch (e: any) {

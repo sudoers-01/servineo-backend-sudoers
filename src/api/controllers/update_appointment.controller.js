@@ -1,9 +1,5 @@
 import 'express';
-import {
-    update_appointment_by_id,
-    update_fixer_availability,
-    fixer_cancell_appointment_by_id
-} from '../../services/appointment/update_appointment.service.js';
+import * as UpdateAppointmentService from '../../services/appointment/update_appointment.service.js';
 
 // * Fixed Endpoint Pichon: Refactorizar y probar en Postman.
 // * El endpoint estaba actualizando mas slots de los que deberia, ahora con el nuevo esquema actualiza lo solicitado.
@@ -20,7 +16,7 @@ export async function updateAppointmentById(req, res) {
             Object.entries(attributes).filter((v) => v !== undefined && v !== null)
         );
 
-        const modified = await update_appointment_by_id(id, updateAttributes);
+        const modified = await UpdateAppointmentService.update_appointment_by_id(id, updateAttributes);
 
         return res.status(200).json({ message: 'Updated succesfully', modified });
     } catch (err) {
@@ -35,7 +31,7 @@ export async function updateFixerAvailability(req, res) {
         if (!fixer_id || !availability) {
             return res.status(400).json({ message: 'Missing parameters: required fixer_id and availability.' });
         }
-        await update_fixer_availability(fixer_id, availability);
+        await UpdateAppointmentService.update_fixer_availability(fixer_id, availability);
         return res.status(200).json({ message: 'Fixer availability updated successfully.', updated: true });
     } catch (err) {
         return res.status(500).json({ message: 'Error al actualizar disponibilidad: ' + err.message, updated: false });
@@ -51,7 +47,7 @@ export async function fixerCancellAppointment(req, res) {
                 message: "Missing query parameter"
             });
         }
-        const modified = await fixer_cancell_appointment_by_id(appointment_id);
+        const modified = await UpdateAppointmentService.fixer_cancell_appointment_by_id(appointment_id);
         res.status(200).json({
             succeed: true,
             message: `Appointment with id: ${appointment_id} cancelled`,
@@ -65,7 +61,3 @@ export async function fixerCancellAppointment(req, res) {
         });
     }
 }
-
-export default {
-    updateAppointmentById
-};

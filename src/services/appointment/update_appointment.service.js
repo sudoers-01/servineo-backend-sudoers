@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-
 import mongoose from 'mongoose';
 import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js';
@@ -17,7 +16,7 @@ async function set_db_connection() {
 
 // * Fixed Endpoint Pichon: Refactorizar y probar en Postman.
 // * El endpoint estaba actualizando mas slots de los que deberia, ahora con el nuevo esquema actualiza lo solicitado.
-async function update_appointment_by_id(id, attributes) {
+export async function update_appointment_by_id(id, attributes) {
     try {
         await set_db_connection();
 
@@ -40,7 +39,7 @@ async function update_appointment_by_id(id, attributes) {
     }
 }
 
-async function fixer_cancell_appointment_by_id(appointment_id) {
+export async function fixer_cancell_appointment_by_id(appointment_id) {
     try {
         await set_db_connection();
         const result = await Appointment.findByIdAndUpdate(appointment_id, {
@@ -57,7 +56,7 @@ async function fixer_cancell_appointment_by_id(appointment_id) {
     }
 }
 
-async function update_fixer_availability(fixer_id, availability) {
+export async function update_fixer_availability(fixer_id, availability) {
     try {
         const db = mongoose.connection.db;
         const result = await db.collection('users').updateOne(
@@ -69,9 +68,3 @@ async function update_fixer_availability(fixer_id, availability) {
         throw new Error(err.message);
     }
 }
-
-export {
-    update_appointment_by_id,
-    update_fixer_availability,
-    fixer_cancell_appointment_by_id
-};

@@ -1,7 +1,5 @@
 import 'express';
-import {
-    create_appointment
-} from '../../services/appointment/create_appointment.service.js';
+import * as CreateAppointmentService from '../../services/appointment/create_appointment.service.js';
 
 // * Fixed: fix, controladores deben devolver siempre status codes, dataExists no debe existir
 // *Fixed: no esta devolviendo status code con json de respuesta, revisar dataExists
@@ -20,7 +18,7 @@ export async function createAppointment(req, res) {
             return res.status(400).json({ success: false, message: 'Parametros insuficientes en el body.' });
         }
 
-        const { result, message_state } = await create_appointment(appointmentData);
+        const { result, message_state } = await CreateAppointmentService.create_appointment(appointmentData);
 
         console.log(result);
         console.log(message_state);

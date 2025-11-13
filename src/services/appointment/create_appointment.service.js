@@ -19,7 +19,7 @@ async function set_db_connection() {
 // * Existian incompatibilidades con el esquema modificado
 // ? Asuntos modificados: Ya no se actualizan appointments existentes.
 // ? Si ya existe un appointment con el mismo fixer, fecha y hora, se rechaza la creacion.
-async function create_appointment(current_appointment) {
+export async function create_appointment(current_appointment) {
     try {
         await set_db_connection();
         const requester_id = current_appointment.id_requester;
@@ -74,7 +74,3 @@ async function create_appointment(current_appointment) {
         throw new Error('Error creating appointment: ' + err.message);
     }
 }
-
-export {
-    create_appointment,
-};

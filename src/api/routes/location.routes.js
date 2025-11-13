@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { getLocation, getAddress } from '../controllers/location.controller.js';
+import * as LocationController from '../controllers/location.controller.js';
 
 const router = Router();
 
-router.get('/search', getLocation);
-router.get('/reverse', getAddress);
+router.get('/search', LocationController.getLocation);
+router.get('/reverse', LocationController.getAddress);
 
 export default router;

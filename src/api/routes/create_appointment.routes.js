@@ -1,7 +1,5 @@
 import { Router } from 'express';
-import {
-    createAppointment
-} from '../controllers/create_appointment.controller.js';
+import * as CreateAppointmentController from '../controllers/create_appointment.controller.js';
 
 const router = Router();
 
@@ -10,6 +8,6 @@ const router = Router();
 // * Existian incompatibilidades con el esquema modificado
 // ? Asuntos modificados: Ya no se actualizan appointments existentes.
 // ? Si ya existe un appointment con el mismo fixer, fecha y hora, se rechaza la creacion.
-router.post('/appointments/create', createAppointment);
+router.post('/appointments/create', CreateAppointmentController.createAppointment);
 
 export default router;

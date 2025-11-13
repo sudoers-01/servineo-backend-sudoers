@@ -1,13 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { connectDB } from '../Innosys/config/database.config';
+import { connectDB } from './database.config';
 import { SERVER_PORT } from './env.config'; 
 
 // Importaciones de Rutas
-import AppRoutes from '../config/server.routes'; 
-import paymentsRouter from '../Innosys/routes/payments.qr';
-import invoiceRoutes from '../Innosys/routes/invoice.routes'; // LA IMPORTACIÓN CLAVE
+import AppRoutes from './server.routes'; 
+import paymentsRouter from '../api/routes/payments.qr';
+import invoiceRoutes from '../api/routes/invoice.routes'; // LA IMPORTACIÓN CLAVE
 
 dotenv.config();
 

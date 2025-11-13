@@ -1,24 +1,23 @@
 import { Router } from 'express';
 
 // Importaciones de otros módulos
-import HealthRoutes from '../modules/health/health.routes';
-import CardsRoutes from "../Innosys/routes/card.routes";
-import UsersRoutes from "../Innosys/routes/user.routes";
-import PaymentRoutes from "../Innosys/routes/payment.routes";
-import CashPayRoutes from '../Innosys/routes/lab/cashpay.routes';
-import BankAccountRoutes from '../Innosys/routes/BankAccount.routes';
-import paymentsRouter from "../Innosys/routes/payments.qr";
-import PaymentCenterRoutes from '../Innosys/routes/paymentCenter.routes'; 
-import jobsRoutes from '../Innosys/routes/jobs.routes'; 
-import invoiceDetailRouter from '../Innosys/routes/invoice.routes'; 
-import bankTransferRoutes from '../Innosys/routes/bankTransferRoute'; //pasar
-import  rechargeWallet  from '../Innosys/routes/wallet.routes';
-// Las importaciones de feature flags del equipo
-import { FEATURE_DEV_WALLET } from './featureFlags';
-import { devWalletRouter } from '../routes/dev-wallet';
-import { FEATURE_SIM_PAYMENTS } from './featureFlags';
-import { simPaymentsRouter } from '../routes/sim-payments';
-import { FEATURE_NOTIFICATIONS } from './featureFlags';
+import HealthRoutes from '../models/health/health.routes';
+import CardsRoutes from "../api/routes/card.routes";
+import UsersRoutes from "../api/routes/user.routes";
+import PaymentRoutes from "../api/routes/payment.routes";
+import CashPayRoutes from '../api/routes/cashpay.routes';
+import BankAccountRoutes from '../api/routes/BankAccount.routes';
+import paymentsRouter from "../api/routes/payments.qr";
+import PaymentCenterRoutes from '../api/routes/paymentCenter.routes'; 
+import jobsRoutes from '../api/routes/jobs.routes'; 
+import invoiceDetailRouter from '../api/routes/invoice.routes'; 
+import bankTransferRoutes from '../api/routes/bankTransferRoute';
+import  rechargeWallet  from '../api/routes/wallet.routes';
+import { FEATURE_DEV_WALLET } from '../models/featureFlags';
+import { devWalletRouter } from '../api/routes/dev-wallet';
+import { FEATURE_SIM_PAYMENTS } from '../models/featureFlags';
+import { simPaymentsRouter } from '../api/routes/sim-payments';
+import { FEATURE_NOTIFICATIONS } from '../models/featureFlags';
 
 
 

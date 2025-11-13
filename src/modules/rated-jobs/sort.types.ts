@@ -1,6 +1,6 @@
 export enum SortCriteria {
   DATE_RECENT = 'recent',
-  DATE_OLDEST = "oldest",
+  DATE_OLDEST = 'oldest',
   RATING_ASC = 'rating_asc',
   RATING_DESC = 'rating_desc',
 }

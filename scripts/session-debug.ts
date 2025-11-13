@@ -7,7 +7,9 @@ import { SearchHistory } from '../src/modules/devmaster/models/search-history.mo
 async function main() {
   const args = process.argv.slice(2);
   if (args.length < 2) {
-    console.log('Usage: ts-node scripts/session-debug.ts <fromSessionId> <toSessionId> [--migrate]');
+    console.log(
+      'Usage: ts-node scripts/session-debug.ts <fromSessionId> <toSessionId> [--migrate]',
+    );
     process.exit(1);
   }
 

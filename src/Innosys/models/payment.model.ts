@@ -13,7 +13,6 @@ const paymentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-
 export type PaymentMethod = "qr" | "card" | "cash";
 export type PaymentStatus  = "paid" | "pending" | "failed";
 
@@ -42,6 +41,16 @@ export interface PaymentDoc extends mongoose.Document {
 
   createdAt: Date;
   updatedAt: Date;
+
+  // --- CAMPOS DE FACTURA AÑADIDOS ---
+  companyName?: string;
+  taxId?: string;
+  requesterName?: string;
+  jobType?: string;
+  jobDescription?: string;
+  transactionId?: string;
+  commission?: number; // Monto de la comisión
+  iva?: number; // Monto del IVA
 }
 
 const AmountSchema = new Schema<Amount>(
@@ -68,21 +77,31 @@ const AmountSchema = new Schema<Amount>(
 
 const PaymentSchema = new Schema<PaymentDoc>(
   {
-    jobId:            { type: Schema.Types.ObjectId, ref: "Job", required: true, index: true },
-    payerId:          { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    jobId:           { type: Schema.Types.ObjectId, ref: "Job", required: true, index: true },
+    payerId:         { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     fixerId:         { type: Schema.Types.ObjectId, ref: "User", required: true },
-    paymentMethods:   { type: String, enum: ["qr", "card", "cash"], required: true },
-    status:           { type: String, enum: ["paid", "pending", "failed"], required: true, index: true },
-    paymentDate:      { type: Date, required: true, default: () => new Date(), index: true },
-    commissionRate:   { type: Number, required: true, min: 0, max: 1 },
+    paymentMethods:  { type: String, enum: ["qr", "card", "cash"], required: true },
+    status:          { type: String, enum: ["paid", "pending", "failed"], required: true, index: true },
+    paymentDate:     { type: Date, required: true, default: () => new Date(), index: true },
+    commissionRate:  { type: Number, required: true, min: 0, max: 1 },
 
-    amount:           { type: AmountSchema, required: true },
+    amount:          { type: AmountSchema, required: true },
 
-    code:             { type: String, required: true, unique: true, uppercase: true },
-    codeExpiresAt:    { type: Date },
+    code:            { type: String, required: true, unique: true, uppercase: true },
+    codeExpiresAt:   { type: Date },
 
-    failedAttempts:   { type: Number, default: 0 },
-    lockUntil:        { type: Date },
+    failedAttempts:  { type: Number, default: 0 },
+    lockUntil:       { type: Date },
+
+    // --- CAMPOS DE FACTURA AÑADIDOS AL ESQUEMA ---
+    companyName: { type: String, required: false },
+    taxId: { type: String, required: false },
+    requesterName: { type: String, required: false },
+    jobType: { type: String, required: false },
+    jobDescription: { type: String, required: false },
+    transactionId: { type: String, required: false },
+    commission: { type: Number, required: false }, // Monto
+    iva: { type: Number, required: false }, // Monto
   },
   { timestamps: true, versionKey: false }
 );
@@ -137,9 +156,8 @@ PaymentSchema.index({ code: 1 }, { unique: true });
 PaymentSchema.index({ payerId: 1, paymentDate: -1 });
 PaymentSchema.index({ jobId: 1, status: 1 });
 
-
-
 export const Payment =
   mongoose.models.Payment || mongoose.model<PaymentDoc>("Payment", PaymentSchema);
+
 
 export default mongoose.model('payments', paymentSchema);

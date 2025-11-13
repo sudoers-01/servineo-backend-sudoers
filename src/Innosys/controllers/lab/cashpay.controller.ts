@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Payment } from "../../models/payment.model";
-import Users from "../../models/users.model";
-import UserPay from "../../models/user.model";
+import User from "../../models/user.model";
+
 
 const CODE_EXPIRATION_MS = 48 * 60 * 60 * 1000;
 
@@ -34,7 +34,7 @@ export const createPaymentLab = async (req: Request, res: Response) => {
       service_fee = 0,
       discount = 0,
       currency = "BOB",
-      commissionRate = 0.1,
+      commissionRate = 0.05,
     } = req.body ?? {};
 
     // ===== VALIDACIONES BÁSICAS =====
@@ -52,14 +52,14 @@ export const createPaymentLab = async (req: Request, res: Response) => {
 
     // ===== VERIFICAR QUE LOS USUARIOS EXISTAN EN 'users' O 'userpay' =====
     let [requester, fixer] = await Promise.all([
-      Users.findById(requesterId),
-      Users.findById(fixerId),
+      User.findById(requesterId),
+      User.findById(fixerId),
     ]);
 
     if (!requester || !fixer) {
       const [requesterAlt, fixerAlt] = await Promise.all([
-        UserPay.findById(requesterId),
-        UserPay.findById(fixerId),
+        User.findById(requesterId),
+        User.findById(fixerId),
       ]);
 
       requester = requester || (requesterAlt as any);

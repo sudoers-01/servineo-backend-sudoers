@@ -1,13 +1,21 @@
 import { Request, Response } from 'express';
 import { getDB } from '../../config/db/mongoClient'; // importante: usa la ruta correcta
+import { getSortConfig } from './sort.service';
 
 export const getRatedJobs = async (req: Request, res: Response) => {
   try {
     const db = getDB();
     const jobsCollection = db.collection('jobs');
 
+    // Obtener parámetros de ordenamiento
+    const { sortBy } = req.query;
+    const sortConfig = getSortConfig(sortBy as string);
+
     // Trae todos los jobs que tienen rating
-    const ratedJobs = await jobsCollection.find({ rating: { $exists: true } }).toArray();
+    const ratedJobs = await jobsCollection
+      .find({ rating: { $exists: true } })
+      .sort(sortConfig)
+      .toArray();
 
     // Filtrar solo los campos relevantes
     const data = ratedJobs.map((job) => ({

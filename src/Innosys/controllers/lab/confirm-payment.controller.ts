@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { Payment } from "../../models/payment.model";
 import { Comision } from "../../models/historycomission.model";
 import { Wallet } from "../../models/wallet.model";
+import jobsPays from "../../models/jobs.model";
 
 const MAX_ATTEMPTS = 3;
 const LOCK_MINUTES = 10;
@@ -151,6 +152,42 @@ export async function confirmPaymentLab(req: Request, res: Response) {
     }
 
     // ============================================
+    // 🎯 NUEVO: ACTUALIZAR STATUS DEL JOB A "PAGADO"
+    // ============================================
+    let jobActualizado = false;
+    
+    if (confirmed.jobId) {
+      try {
+        console.log(`🔄 Actualizando status del job ${confirmed.jobId} a "Pagado"`);
+        
+        const jobUpdated = await jobsPays.findByIdAndUpdate(
+          confirmed.jobId,
+          { 
+            $set: { 
+              status: "Pagado" 
+            } 
+          },
+          { 
+            new: true,
+            session 
+          }
+        );
+
+        if (jobUpdated) {
+          console.log(`✅ Job ${confirmed.jobId} actualizado a status "Pagado"`);
+          jobActualizado = true;
+        } else {
+          console.warn(`⚠️ No se encontró el job ${confirmed.jobId}`);
+        }
+      } catch (jobError: any) {
+        console.error(`❌ Error actualizando job ${confirmed.jobId}:`, jobError);
+        // No abortamos la transacción, el pago ya se confirmó
+      }
+    } else {
+      console.warn(`⚠️ El pago ${id} no tiene jobId asociado`);
+    }
+
+    // ============================================
     // 🔥 TRIGGER: CREAR COMISIÓN AUTOMÁTICAMENTE
     // ============================================
     console.log(`💰 Activando trigger de comisión para pago ${id}`);
@@ -215,7 +252,7 @@ export async function confirmPaymentLab(req: Request, res: Response) {
 
     await session.commitTransaction();
 
-    console.info(`Payment ${id}: confirmado exitosamente + trigger comisión ejecutado`);
+    console.info(`Payment ${id}: confirmado exitosamente + trigger comisión ejecutado + job actualizado`);
 
     return res.json({
       message: "pago confirmado exitosamente",
@@ -224,7 +261,9 @@ export async function confirmPaymentLab(req: Request, res: Response) {
         total: confirmed.amount.total,
         status: confirmed.status,
         paidAt: confirmed.paymentDate,
-        comisionProcesada: true // ← Indicar que se ejecutó el trigger
+        comisionProcesada: true,
+        jobActualizado: jobActualizado, // ← NUEVO: Indicar si se actualizó el job
+        jobId: confirmed.jobId || null
       }
     });
 

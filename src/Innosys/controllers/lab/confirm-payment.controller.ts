@@ -166,8 +166,8 @@ export async function confirmPaymentLab(req: Request, res: Response) {
         // Continuamos igual, pero la comisión quedará como fallida
       }
 
-      // Calcular comisión (10% por defecto)
-      const comisionRate = confirmed.commissionRate || 0.1;
+      // Calcular comisión (5% por defecto)
+      const comisionRate = confirmed.commissionRate || 0.05;
       const montoServicio = confirmed.amount?.total || confirmed.amount;
       const comisionMonto = montoServicio * comisionRate;
 

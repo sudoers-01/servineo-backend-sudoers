@@ -131,7 +131,47 @@ export const createPaymentLab = async (req: Request, res: Response) => {
       });
     }
 
-    // ===== GENERAR CÓDIGO Y EXPIRACIÓN =====
+    // ==========================================================
+    // --- LÓGICA DE CONTROL DE DUPLICADOS ---
+    // ==========================================================
+    
+    // Solo aplicamos esta lógica si el método es "cash"
+    if (method === "cash") {
+      console.log(`[createPaymentLab] Buscando pago en efectivo PENDIENTE para jobId: ${jobId}`);
+      
+      const existingPendingPayment = await Payment.findOne({
+        jobId: new mongoose.Types.ObjectId(jobId),
+        paymentMethods: "cash",
+        status: "pending"
+      });
+
+      // SI SE ENCUENTRA un pago pendiente:
+      if (existingPendingPayment) {
+        console.log(`[createPaymentLab] ✅ Pago PENDIENTE encontrado. Devolviendo pago existente: ${existingPendingPayment._id}`);
+        
+        // Devolvemos el pago existente con un status 200 OK
+        return res.status(200).json({ 
+          message: "Pago pendiente existente recuperado.",
+          data: {
+            id: existingPendingPayment._id,
+            code: existingPendingPayment.code,
+            total: existingPendingPayment.amount.total,
+            currency: existingPendingPayment.amount.currency,
+            status: existingPendingPayment.status,
+            expiresAt: existingPendingPayment.codeExpiresAt,
+            paymentMethod: existingPendingPayment.paymentMethods,
+          }
+        });
+      }
+      
+      console.log(`[createPaymentLab] No se encontraron pagos pendientes. Creando uno nuevo...`);
+    }
+    // ==========================================================
+    // --- FIN DE LA LÓGICA DE CONTROL DE DUPLICADOS ---
+    // ==========================================================
+
+
+    // ===== GENERAR CÓDIGO Y EXPIRACIÓN (Solo si no se encontró uno) =====
     const code = generateRandomCode(6);
     const codeExpiresAt = new Date(Date.now() + CODE_EXPIRATION_MS);
 
@@ -158,6 +198,7 @@ export const createPaymentLab = async (req: Request, res: Response) => {
 
     console.log(`✅ Pago creado exitosamente con código: ${code}`);
 
+    // Devuelve un 201 Created (para un pago NUEVO)
     return res.status(201).json({ 
       message: "Pago creado exitosamente", 
       data: {

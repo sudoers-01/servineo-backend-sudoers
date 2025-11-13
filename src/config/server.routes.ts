@@ -66,11 +66,11 @@ router.use('/api/fixer/payment-center', PaymentCenterRoutes);
 router.use("/payments", paymentsRouter);
 
 console.log('FEATURE_DEV_WALLET =', FEATURE_DEV_WALLET);
-
 if (FEATURE_DEV_WALLET) {
-    // Quedará accesible como /api/dev/...
-    router.use('/api/dev', devWalletRouter);
+  console.log('MOUNT /api/dev ✅');
+  router.use('/api/dev', devWalletRouter);
 }
+
 //flags real 
 if (FEATURE_SIM_PAYMENTS) {
     router.use('/api/sim', simPaymentsRouter); // => /api/sim/payments/...

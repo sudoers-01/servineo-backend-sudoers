@@ -5,7 +5,8 @@ import { getPaymentSummaryByJobIdLab } from "../../controllers/lab/get-by-job-su
 import { getPaymentSummaryByFixerIdLab } from "../../controllers/lab/get-by-fixer-summary.controller";
 import { confirmPaymentLab } from "../../controllers/lab/confirm-payment.controller";
 import { createPaymentLab, regeneratePaymentCode } from "../../controllers/lab/cashpay.controller";
-
+import { regeneratePaymentCodeByJob } from "../../controllers/lab/regeneratecode";
+import { checkCodeStatusByJob } from "../../controllers/lab/regeneratecode";
 
 const labRouter = Router();
 
@@ -37,7 +38,9 @@ labRouter.get("/payments/:id/summary", getPaymentSummaryByIdLab);
 labRouter.post("/payments", createPaymentLab);
 labRouter.get("/payments/by-job/:jobId/summary", getPaymentSummaryByJobIdLab);
 labRouter.get("/payments/by-fixer/:fixerId/summary", getPaymentSummaryByFixerIdLab);
-
+// Rutas actualizadas
+labRouter.patch('/payments/regenerate-code/:jobId', regeneratePaymentCodeByJob);
+labRouter.get('/payments/code-status/:jobId', checkCodeStatusByJob);
 labRouter.patch("/payments/:id/confirm", confirmPaymentLab);
 labRouter.post("/payments/:id/regenerate-code", regeneratePaymentCode);
 

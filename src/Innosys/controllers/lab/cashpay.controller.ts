@@ -4,7 +4,7 @@ import { Payment } from "../../models/payment.model";
 import Users from "../../models/users.model";
 import UserPay from "../../models/user.model";
 
-const CODE_EXPIRATION_MS = 48 * 60 * 60 * 1000;
+const CODE_EXPIRATION_MS = 1 * 60 * 60 * 1000;
 
 // ============================================
 // HELPER: Generar código aleatorio

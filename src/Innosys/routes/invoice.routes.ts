@@ -1,12 +1,13 @@
-// src/Innosys/routes/invoice.routes.ts (VERIFICADO)
-
+// src/Innosys/routes/invoice.routes.ts
 import { Router } from 'express';
-// La ruta interna es correcta porque ya estamos dentro de Innosys
-import { getInvoiceDetail } from '../controllers/invoice.controller'; 
+import { getInvoices, getInvoiceDetail } from '../controllers/invoice.controller';
 
-const router: Router = Router();
+const router = Router();
 
-// Define la ruta: GET /invoices/:id
-router.get('/invoices/:id', getInvoiceDetail);
+// /api/invoices
+router.get('/', getInvoices);
+
+// /api/invoices/:invoiceId
+router.get('/:invoiceId', getInvoiceDetail);
 
 export default router;

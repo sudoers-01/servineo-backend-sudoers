@@ -1,3 +1,4 @@
+//src/Innosys/config/db.config.ts
 import mongoose from "mongoose";
 import 'dotenv/config'; //nuevo
 

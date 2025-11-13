@@ -10,7 +10,7 @@ import BankAccountRoutes from '../Innosys/routes/BankAccount.routes';
 import paymentsRouter from "../Innosys/routes/payments.qr";
 import PaymentCenterRoutes from '../Innosys/routes/paymentCenter.routes'; 
 import jobsRoutes from '../Innosys/routes/jobs.routes'; 
-import invoiceDetailRouter from '../Innosys/routes/invoiceRoutes'; 
+import invoiceDetailRouter from '../Innosys/routes/invoice.routes'; 
 import bankTransferRoutes from '../Innosys/routes/bankTransferRoute'; //pasar
 import  rechargeWallet  from '../Innosys/routes/wallet.routes';
 // Las importaciones de feature flags del equipo

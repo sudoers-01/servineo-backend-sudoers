@@ -10,9 +10,14 @@ export async function discordAuth(req: Request, res: Response) {
   try {
     const CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
     const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
-    const REDIRECT_URI = `${process.env.BASE_URL}/auth/discord/callback`;
+    const NODE_ENV = process.env.NODE_ENV || "development";
+    const FRONTEND_URL = process.env.FRONTEND_URL!;
 
-    // ✅ 1) Obtener accessToken desde Discord
+    const redirect_uri =
+      NODE_ENV === "production"
+        ? "https://backdos.vercel.app/auth/discord/callback"
+        : "http://localhost:8000/auth/discord/callback";
+
     const tokenResp = await fetch("https://discord.com/api/oauth2/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -21,29 +26,24 @@ export async function discordAuth(req: Request, res: Response) {
         client_secret: CLIENT_SECRET,
         code: code.toString(),
         grant_type: "authorization_code",
-        redirect_uri: REDIRECT_URI,
+        redirect_uri,
       }),
     });
 
     const tokenData = await tokenResp.json();
     const accessToken = tokenData.access_token;
+    if (!accessToken) throw new Error("No se pudo obtener access token");
 
-    if (!accessToken) throw new Error("No se pudo obtener access token de Discord");
-
-    // ✅ 2) Obtener usuario
     const discordUser = await getDiscordUser(accessToken);
-    if (!discordUser) throw new Error("No se pudo obtener info del usuario de Discord");
+    if (!discordUser) throw new Error("No se pudo obtener info del usuario");
 
-    // ✅ 3) Buscar o crear
     let dbUser = await findUserByEmail(discordUser.email);
-    const exists = !!dbUser;
-
-    if (!exists) {
+    let isFirstTime = false;
+    if (!dbUser) {
       dbUser = await createUserDiscord(discordUser);
+      isFirstTime = true;
     }
-    if (!dbUser) throw new Error("No se pudo crear o encontrar usuario");
 
-    // ✅ 4) Token
     const sessionToken = generarToken(
       dbUser._id.toHexString(),
       dbUser.name,
@@ -51,11 +51,26 @@ export async function discordAuth(req: Request, res: Response) {
       dbUser.url_photo
     );
 
-    // ✅ 5) Redirigir a frontend
-    const FRONTEND_URL = process.env.FRONTEND_URL!;
-    res.redirect(`${FRONTEND_URL}/auth/successDiscord?token=${sessionToken}&firstTime=${!exists}`);
+    res.send(`
+      <script>
+        window.opener.postMessage({
+          type: 'DISCORD_AUTH_SUCCESS',
+          token: '${sessionToken}',
+          isFirstTime: ${isFirstTime}
+        }, '${FRONTEND_URL}');
+        window.close();
+      </script>
+    `);
   } catch (err) {
-    console.error(err);
-    res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
+    console.error("Error en Discord OAuth:", err);
+    res.send(`
+      <script>
+        window.opener.postMessage({
+          type: 'DISCORD_AUTH_ERROR',
+          message: 'Error al autenticar con Discord'
+        }, '${process.env.FRONTEND_URL}');
+        window.close();
+      </script>
+    `);
   }
 }

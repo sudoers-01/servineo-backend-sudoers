@@ -15,7 +15,7 @@ async function set_db_connection() {
 }
 
 // *: Fixed Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
-export async function get_meeting_status(requester_id, fixer_id, current_date, start_hour) {
+export async function get_meeting_status(requester_id: string, fixer_id: string, current_date: string, start_hour: string) {
     try {
         await set_db_connection();
         const adjusted_date = new Date(current_date);
@@ -40,14 +40,14 @@ export async function get_meeting_status(requester_id, fixer_id, current_date, s
             return { name: appointment.current_requester_name, status: appointment.schedule_state };
         }
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 }
 
 // * Fixed Endpoint Arrick: Devolvia mucho 404.
 // * Anteriores 2 endpoints unificados: se obtienen todas las citas de un dia 
 // ? Incluye a todas las citas de todos los requesters en el dia
-export async function get_appointments_by_fixer_day(fixer_id, requested_date) {
+export async function get_appointments_by_fixer_day(fixer_id: string, requested_date: string) {
     try {
         await set_db_connection();
         const founded_appointments = await Appointment.find({
@@ -59,20 +59,22 @@ export async function get_appointments_by_fixer_day(fixer_id, requested_date) {
         }
         return { appointments: founded_appointments };
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 }
 
 // * Fixear Endpoint Pichon: -
-export async function get_modal_form_appointment(fixer_id, requester_id, appointment_date, start_hour) {
+export async function get_modal_form_appointment(fixer_id: string, requester_id: string, appointment_date: string, start_hour: string) {
     try {
         await set_db_connection();
 
-        const current_year = appointment_date.getUTCFullYear();
-        const current_month = appointment_date.getUTCMonth();
-        const current_day = appointment_date.getUTCDate();
+        const current_date = new Date(appointment_date);
+        const current_year = current_date.getUTCFullYear();
+        const current_month = current_date.getUTCMonth();
+        const current_day = current_date.getUTCDate();
 
-        const exact_start_date = new Date(Date.UTC(current_year, current_month, current_day, start_hour, 0, 0));
+        const start_hour_int = parseInt(start_hour);
+        const exact_start_date = new Date(Date.UTC(current_year, current_month, current_day, start_hour_int, 0, 0));
         const appointment = await Appointment.findOne({
             id_fixer: fixer_id,
             id_requester: requester_id,
@@ -97,28 +99,28 @@ export async function get_modal_form_appointment(fixer_id, requester_id, appoint
             longitude: appointment.lon,
         };
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 }
 
-export async function get_appointment_by_fixer_id_hour(fixer_id, date, hour) {
+export async function get_appointment_by_fixer_id_hour(fixer_id: string, date: string, hour: string) {
     try {
         await set_db_connection();
         const hourInt = parseInt(hour);
-        hour = hourInt < 10 ? ('0' + hourInt) : '' + hourInt;
-        const appointmentDate = new Date(`${date}T${hour}:00:00.000Z`);
+        const hourStr = hourInt < 10 ? ('0' + hourInt) : '' + hourInt;
+        const appointmentDate = new Date(`${date}T${hourStr}:00:00.000Z`);
         const appointment = await Appointment.find({
             id_fixer: fixer_id,
             starting_time: appointmentDate,
         });
         return appointment;
     } catch (error) {
-        throw new Error(error.message);
+        throw new Error((error as Error).message);
     }
 }
 
-export async function get_fixer_availability(fixer_id) {
-    const db = mongoose.connection.db;
+export async function get_fixer_availability(fixer_id: string) {
+    const db = mongoose.connection.db!;
     const fixer = await db.collection('users').findOne(
         { _id: new mongoose.Types.ObjectId(fixer_id) },
         { projection: { availability: 1, _id: 0 } }
@@ -144,7 +146,7 @@ export async function get_fixer_availability(fixer_id) {
     return availability;
 }
 
-export async function get_appointments_by_fixer_id_date(fixer_id, date) {
+export async function get_appointments_by_fixer_id_date(fixer_id: string, date: string) {
     try {
         const [year, month] = date.split('-').map(Number);
         const startOfMonth = new Date(Date.UTC(year, month - 1, 1));
@@ -159,11 +161,11 @@ export async function get_appointments_by_fixer_id_date(fixer_id, date) {
         }).sort({ selected_date: 1, starting_time: 1 });
         return appointments;
     } catch (error) {
-        throw new Error(error.message);
+        throw new Error((error as Error).message);
     }
 }
 
-export async function get_six_months_appointments(fixer_id, date) {
+export async function get_six_months_appointments(fixer_id: string, date: string) {
     try {
         await set_db_connection();
         const actualDate = new Date(date);
@@ -175,24 +177,26 @@ export async function get_six_months_appointments(fixer_id, date) {
         const finish_date = new Date(Date.UTC(year, lastMonth, lastDay, 23, 59, 59, 999));
 
         console.log(finish_date);
-        const appointments = Appointment.find({
+        const appointments = await Appointment.find({
             id_fixer: fixer_id,
             selected_date: {
                 $gte: actualDate,
                 $lte: finish_date
             },
-        })
+        });
 
         return appointments;
 
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 }
 
-export async function get_number_of_appointments(fixer_id, month, year) {
+export async function get_number_of_appointments(fixer_id: string, month: string, year: string) {
     try {
-        const startDate = new Date(year, month - 1, 1);
+        const year_int = parseInt(year)
+        const month_int = parseInt(month);
+        const startDate = new Date(year_int, month_int - 1, 1);
         const endDate = new Date(startDate);
         endDate.setMonth(endDate.getMonth() + 7);
         endDate.setDate(endDate.getDate() - 1);
@@ -229,7 +233,7 @@ export async function get_number_of_appointments(fixer_id, month, year) {
                 }
             }
         ]);
-        const appointmentsByMonth = {};
+        const appointmentsByMonth: Record<string, Record<number, number>> = {};
 
         result.forEach(item => {
             const yearMonth = `${item._id.month.toString().padStart(2, '0')}-${item._id.year}`;
@@ -241,7 +245,7 @@ export async function get_number_of_appointments(fixer_id, month, year) {
             appointmentsByMonth[yearMonth][item._id.day] = item.count;
         });
 
-        let currentDate = new Date(startDate);
+        const currentDate = new Date(startDate);
         while (currentDate <= endDate) {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth() + 1;
@@ -261,6 +265,6 @@ export async function get_number_of_appointments(fixer_id, month, year) {
 
         return appointmentsByMonth;
     } catch (error) {
-        throw new Error(error.message);
+        throw new Error((error as Error).message);
     }
 }

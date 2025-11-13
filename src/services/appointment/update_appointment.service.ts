@@ -16,7 +16,7 @@ async function set_db_connection() {
 
 // * Fixed Endpoint Pichon: Refactorizar y probar en Postman.
 // * El endpoint estaba actualizando mas slots de los que deberia, ahora con el nuevo esquema actualiza lo solicitado.
-export async function update_appointment_by_id(id, attributes) {
+export async function update_appointment_by_id(id: string, attributes: Record<string, unknown>) {
     try {
         await set_db_connection();
 
@@ -35,11 +35,11 @@ export async function update_appointment_by_id(id, attributes) {
             return false;
         }
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 }
 
-export async function fixer_cancell_appointment_by_id(appointment_id) {
+export async function fixer_cancell_appointment_by_id(appointment_id: string) {
     try {
         await set_db_connection();
         const result = await Appointment.findByIdAndUpdate(appointment_id, {
@@ -52,19 +52,29 @@ export async function fixer_cancell_appointment_by_id(appointment_id) {
         }
         return result;
     } catch (error) {
-        throw new Error(error.message);
+        throw new Error((error as Error).message);
     }
 }
 
-export async function update_fixer_availability(fixer_id, availability) {
+interface Availability {
+    lunes: number[];
+    martes: number[];
+    miercoles: number[];
+    jueves: number[];
+    viernes: number[];
+    sabado: number[];
+    domingo: number[];
+}
+
+export async function update_fixer_availability(fixer_id: string, availability: Availability) {
     try {
-        const db = mongoose.connection.db;
+        const db = mongoose.connection.db!;
         const result = await db.collection('users').updateOne(
             { _id: new mongoose.Types.ObjectId(fixer_id) },
             { $set: { availability: availability } }
         );
         return result;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 }

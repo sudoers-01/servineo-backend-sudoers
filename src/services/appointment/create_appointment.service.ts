@@ -14,12 +14,31 @@ async function set_db_connection() {
     }
 }
 
+interface AppointmentParameter {
+    id_fixer: string;
+    id_requester: string;
+    selected_date: Date;
+    current_requester_name: string;
+    appointment_type: 'virtual' | 'presential';
+    appointment_description?: string;
+    link_id?: string;
+    current_requester_phone: string;
+    starting_time: Date;
+    finishing_time?: Date;
+    schedule_state?: 'cancelled' | 'booked';
+    display_location_name?: string;
+    lat?: string;
+    lon?: string;
+    cancelled_fixer?: boolean;
+    reprogram_reason?: string;
+}
+
 //Citas
 // * Mantener endpoint Vale (revisar si existen fallas con el nuevo esquema de la db).
 // * Existian incompatibilidades con el esquema modificado
 // ? Asuntos modificados: Ya no se actualizan appointments existentes.
 // ? Si ya existe un appointment con el mismo fixer, fecha y hora, se rechaza la creacion.
-export async function create_appointment(current_appointment) {
+export async function create_appointment(current_appointment: AppointmentParameter) {
     try {
         await set_db_connection();
         const requester_id = current_appointment.id_requester;
@@ -27,7 +46,7 @@ export async function create_appointment(current_appointment) {
         const date_selected = current_appointment.selected_date;
         const time_starting = current_appointment.starting_time;
 
-        const db = mongoose.connection.db
+        const db = mongoose.connection.db!;
         const formated_id_fixer = new mongoose.Types.ObjectId(fixer_id);
         const formated_id_requester = new mongoose.Types.ObjectId(requester_id);
 
@@ -71,6 +90,6 @@ export async function create_appointment(current_appointment) {
             return { result: true, message_state: 'No se puede crear la cita, la cita ya existe.' };
         }
     } catch (err) {
-        throw new Error('Error creating appointment: ' + err.message);
+        throw new Error('Error creating appointment: ' + (err as Error).message);
     }
 }

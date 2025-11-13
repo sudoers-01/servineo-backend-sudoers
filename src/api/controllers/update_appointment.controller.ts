@@ -1,14 +1,15 @@
 import 'express';
+import { Request, Response } from 'express';
 import * as UpdateAppointmentService from '../../services/appointment/update_appointment.service.js';
 
 // * Fixed Endpoint Pichon: Refactorizar y probar en Postman.
 // * El endpoint estaba actualizando mas slots de los que deberia, ahora con el nuevo esquema actualiza lo solicitado.
-export async function updateAppointmentById(req, res) {
+export async function updateAppointmentById(req: Request, res: Response) {
     try {
         const id = req.query.id;
         const attributes = req.body;
 
-        if (!id || !attributes) {
+        if (!id || !attributes || typeof id !== 'string') {
             return res.status(400).json({ message: 'Missing parameters: required id and attributes.' });
         }
 
@@ -21,11 +22,11 @@ export async function updateAppointmentById(req, res) {
         return res.status(200).json({ message: 'Updated succesfully', modified });
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ message: 'Error updating appointment data.', modified: false, error: err.message });
+        return res.status(500).json({ message: 'Error updating appointment data.', modified: false, error: (err as Error).message });
     }
 }
 
-export async function updateFixerAvailability(req, res) {
+export async function updateFixerAvailability(req: Request, res: Response) {
     try {
         const { fixer_id, availability } = req.body;
         if (!fixer_id || !availability) {
@@ -34,14 +35,14 @@ export async function updateFixerAvailability(req, res) {
         await UpdateAppointmentService.update_fixer_availability(fixer_id, availability);
         return res.status(200).json({ message: 'Fixer availability updated successfully.', updated: true });
     } catch (err) {
-        return res.status(500).json({ message: 'Error al actualizar disponibilidad: ' + err.message, updated: false });
+        return res.status(500).json({ message: 'Error al actualizar disponibilidad: ' + (err as Error).message, updated: false });
     }
 }
 
-export async function fixerCancellAppointment(req, res) {
+export async function fixerCancellAppointment(req: Request, res: Response) {
     try {
         const { appointment_id } = req.query;
-        if (!appointment_id) {
+        if (!appointment_id || typeof appointment_id !== 'string') {
             return res.status(400).json({
                 succedd: false,
                 message: "Missing query parameter"
@@ -57,7 +58,7 @@ export async function fixerCancellAppointment(req, res) {
         res.status(500).json({
             succeed: false,
             message: "Error cancelling appointment",
-            error: error.message
+            error: (error as Error).message
         });
     }
 }

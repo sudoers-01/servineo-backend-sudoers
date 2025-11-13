@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 
 const uri = process.env.MONGO_URI;
 if (!uri) {
@@ -6,9 +6,9 @@ if (!uri) {
 }
 const client = new MongoClient(uri);
 
-let db;
+let db: Db | undefined;
 
-export async function connectDB() {
+export async function connectDB(): Promise<Db> {
   if (!db) {
     try {
       await client.connect();

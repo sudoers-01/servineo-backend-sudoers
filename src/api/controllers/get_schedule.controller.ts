@@ -1,21 +1,22 @@
 import 'express';
+import { Request, Response } from 'express';
 import * as GetScheduleService from '../../services/schedule/get_schedule.service.js';
 
 // Obtener horarios de un requester en un mes específico
 // TODO: fix, controladores deben devolver siempre status codes, dataExists no debe existir
 // * FIXED Endpoint Chamo: -
-export async function getRequesterSchedulesByFixerMonth(req, res) {
+export async function getRequesterSchedulesByFixerMonth(req: Request, res: Response) {
     try {
         const { fixer_id, requester_id, month } = req.query;
-        if (!fixer_id) {
+        if (!fixer_id || typeof fixer_id !== 'string') {
             res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
             return;
         }
-        if (!requester_id) {
+        if (!requester_id || typeof requester_id !== 'string') {
             res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
             return;
         }
-        if (!month) {
+        if (!month || typeof month !== 'string') {
             res.status(400).json({ message: 'Missing required query parameters: month.' });
             return;
         }
@@ -28,18 +29,18 @@ export async function getRequesterSchedulesByFixerMonth(req, res) {
 }
 
 // TODO: fix, controladores deben devolver siempre status codes, dataExists no debe existir
-export async function getAllRequesterSchedulesByFixerMonth(req, res) {
+export async function getAllRequesterSchedulesByFixerMonth(req: Request, res: Response) {
     try {
         const { fixer_id, requester_id, month } = req.query;
-        if (!fixer_id) {
+        if (!fixer_id || typeof fixer_id !== 'string') {
             res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
             return;
         }
-        if (!requester_id) {
+        if (!requester_id || typeof requester_id !== 'string') {
             res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
             return;
         }
-        if (!month) {
+        if (!month || typeof month !== 'string') {
             res.status(400).json({ message: 'Missing required query parameters: month.' });
             return;
         }
@@ -52,17 +53,17 @@ export async function getAllRequesterSchedulesByFixerMonth(req, res) {
 }
 
 //TODO: Fixear Endpoint Arrick: Unificar con el endpoint de arriba.
-export async function getAllRequesterSchedulesByFixerDay(req, res) {
+export async function getAllRequesterSchedulesByFixerDay(req: Request, res: Response) {
     try {
         const { fixer_id, requester_id, searched_date } = req.query;
 
-        if (!fixer_id) {
+        if (!fixer_id || typeof fixer_id !== 'string') {
             return res.status(400).json({ message: 'Missing required query parameters: fixer_id.' });
         }
-        if (!requester_id) {
+        if (!requester_id || typeof requester_id !== 'string') {
             return res.status(400).json({ message: 'Missing required query parameters: requester_id.' });
         }
-        if (!searched_date) {
+        if (!searched_date || typeof searched_date !== 'string') {
             return res.status(400).json({ message: 'Missing required query parameters: searched_date.' });
         }
 
@@ -77,11 +78,14 @@ export async function getAllRequesterSchedulesByFixerDay(req, res) {
 }
 
 // * Endpoints de rati ratone que no dice nada de lo que necesita...
-export async function getRequesterSchedulesByFixerDay(req, res) {
+export async function getRequesterSchedulesByFixerDay(req: Request, res: Response) {
     try {
         const { fixer_id, requester_id, searched_date } = req.query;
         if (!fixer_id || !requester_id || !searched_date) {
             return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+        }
+        if(typeof fixer_id !== 'string' || typeof requester_id !== 'string' || typeof searched_date !== 'string'){
+            return res.status(400).json({ message: 'Type error definition in some parameter.' });
         }
         const data = await GetScheduleService.get_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date);
         return res.status(200).json(data);
@@ -92,11 +96,14 @@ export async function getRequesterSchedulesByFixerDay(req, res) {
 }
 
 // * Endpoints de rati ratone que no dice nada de lo que necesita...
-export async function getOtherRequesterSchedulesByFixerDay(req, res) {
+export async function getOtherRequesterSchedulesByFixerDay(req: Request, res: Response) {
     try {
         const { fixer_id, requester_id, searched_date } = req.query;
         if (!fixer_id || !requester_id || !searched_date) {
             return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+        }
+        if(typeof fixer_id !== 'string' || typeof requester_id !== 'string' || typeof searched_date !== 'string'){
+            return res.status(400).json({ message: 'Type error definition in some parameter.' });
         }
         const data = await GetScheduleService.get_other_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date);
         return res.status(200).json(data);
@@ -107,11 +114,14 @@ export async function getOtherRequesterSchedulesByFixerDay(req, res) {
 }
 
 // TODO: Endpoint que devuelve las citas canceladas por el propio requester que ve el calendario de un determinadon fixer en una fecha determinada.
-export async function getCancelledSchedulesByRequesterDay(req, res) {
+export async function getCancelledSchedulesByRequesterDay(req: Request, res: Response) {
     try {
         const { fixer_id, requester_id, searched_date } = req.query;
         if (!fixer_id || !requester_id || !searched_date) {
             return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+        }
+        if(typeof fixer_id !== 'string' || typeof requester_id !== 'string' || typeof searched_date !== 'string'){
+            return res.status(400).json({ message: 'Type error definition in some parameter.' });
         }
         const data = await GetScheduleService.get_cancelled_schedules_by_requester_day(fixer_id, requester_id, searched_date);
         if (!data) {
@@ -131,11 +141,14 @@ export async function getCancelledSchedulesByRequesterDay(req, res) {
 }
 
 // TODO: Endpoint que devuelve las citas canceladas por el fixer respecto a un determinado requester en una determinada fecha.
-export async function getCancelledSchedulesByFixerDay(req, res) {
+export async function getCancelledSchedulesByFixerDay(req: Request, res: Response) {
     try {
         const { fixer_id, requester_id, searched_date } = req.query;
         if (!fixer_id || !requester_id || !searched_date) {
             return res.status(400).json({ message: 'Missing required query parameters: fixer_id, requester_id or searched_date.' });
+        }
+        if(typeof fixer_id !== 'string' || typeof requester_id !== 'string' || typeof searched_date !== 'string'){
+            return res.status(400).json({ message: 'Type error definition in some parameter.' });
         }
         const data = await GetScheduleService.get_cancelled_schedules_by_fixer_day(fixer_id, requester_id, searched_date);
         if (!data) {

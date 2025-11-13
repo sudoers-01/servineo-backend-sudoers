@@ -1,4 +1,5 @@
 import 'express';
+import { Request, Response } from 'express';
 import * as CreateAppointmentService from '../../services/appointment/create_appointment.service.js';
 
 // * Fixed: fix, controladores deben devolver siempre status codes, dataExists no debe existir
@@ -10,7 +11,7 @@ import * as CreateAppointmentService from '../../services/appointment/create_app
 // * Existian incompatibilidades con el esquema modificado
 // ? Asuntos modificados: Ya no se actualizan appointments existentes.
 // ? Si ya existe un appointment con el mismo fixer, fecha y hora, se rechaza la creacion.
-export async function createAppointment(req, res) {
+export async function createAppointment(req: Request, res: Response) {
     try {
         const appointmentData = req.body;
 
@@ -51,6 +52,6 @@ export async function createAppointment(req, res) {
         console.error('Error en el controlador:', err);
         return res
             .status(500)
-            .json({ success: false, message: 'Error de servidor.', error: err.message });
+            .json({ success: false, message: 'Error de servidor.', error: (err as Error).message });
     }
 }

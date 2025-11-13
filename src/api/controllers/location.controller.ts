@@ -1,10 +1,11 @@
 import 'express';
+import { Request, Response } from 'express';
 import * as LocationService from '../../services/location/location.service.js';
 
-export async function getLocation(req, res) {
+export async function getLocation(req: Request, res: Response) {
   try {
     const { q } = req.query;
-    if (!q) {
+    if (!q || typeof q !== 'string') {
       return res.status(400).json({ message: 'Missing query parameter: q' });
     }
     const data = await LocationService.searchLocation(q);
@@ -15,10 +16,10 @@ export async function getLocation(req, res) {
   }
 }
 
-export async function getAddress(req, res) {
+export async function getAddress(req: Request, res: Response) {
   try {
     const { lat, lon } = req.query;
-    if (!lat || !lon) {
+    if (!lat || !lon || typeof lat !== 'string' || typeof lon !== 'string') {
       return res.status(400).json({ message: 'Missing query parameters: lat and log' });
     }
     const data = await LocationService.reverseLocation(lat, lon);

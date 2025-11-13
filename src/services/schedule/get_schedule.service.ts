@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
-import db_connection from '../../database.js';
-import Appointment from '../../models/Appointment.js';
+import db_connection from '../../database';
+import Appointment from '../../models/Appointment';
 
 dotenv.config();
 
@@ -14,7 +14,7 @@ async function set_db_connection() {
 }
 
 // TODO: CHAMO LOCURAS (Todos los occupied de un fixer_id, que NO vayan con el requester_id)
-export async function get_all_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
+export async function get_all_requester_schedules_by_fixer_month(fixer_id: string, requester_id: string, month: string) {
     await set_db_connection();
     const current_date = new Date();
     const current_year = current_date.getUTCFullYear();
@@ -45,7 +45,7 @@ export async function get_all_requester_schedules_by_fixer_month(fixer_id, reque
 }
 
 // *: Fixed endpoint Chamo
-export async function get_requester_schedules_by_fixer_month(fixer_id, requester_id, month) {
+export async function get_requester_schedules_by_fixer_month(fixer_id: string, requester_id: string, month: string) {
     await set_db_connection();
     const current_date = new Date();
     const current_year = current_date.getUTCFullYear();
@@ -76,7 +76,7 @@ export async function get_requester_schedules_by_fixer_month(fixer_id, requester
 }
 
 // * Endpoints de rati ratone que no dice nada de lo que necesita...
-export async function get_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
+export async function get_requester_schedules_by_fixer_day(fixer_id: string, requester_id: string, searched_date: string) {
     await set_db_connection();
     const current_date = new Date(searched_date);
     const current_year = current_date.getUTCFullYear();
@@ -101,7 +101,8 @@ export async function get_requester_schedules_by_fixer_day(fixer_id, requester_i
         }, { new: true });
 
     const formated_appointments = [];
-    for (let appointment of daily_appointments) {
+    for (const appointment of daily_appointments) {
+        if(!appointment.starting_time || !appointment.finishing_time) continue;
         const start_hour = appointment.starting_time.getUTCHours();
         const finish_hour = appointment.finishing_time.getUTCHours();
         formated_appointments.push({
@@ -114,7 +115,7 @@ export async function get_requester_schedules_by_fixer_day(fixer_id, requester_i
 }
 
 // * Endpoints de rati ratone que no dice nada de lo que necesita...
-export async function get_other_requester_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
+export async function get_other_requester_schedules_by_fixer_day(fixer_id: string, requester_id: string, searched_date: string) {
     await set_db_connection();
     const current_date = new Date(searched_date);
     const current_year = current_date.getUTCFullYear();
@@ -139,7 +140,8 @@ export async function get_other_requester_schedules_by_fixer_day(fixer_id, reque
         }, { new: true });
 
     const formated_appointments = [];
-    for (let appointment of daily_appointments) {
+    for (const appointment of daily_appointments) {
+        if(!appointment.starting_time || !appointment.finishing_time) continue;
         const start_hour = appointment.starting_time.getUTCHours();
         const finish_hour = appointment.finishing_time.getUTCHours();
         const current_appointment_state = appointment.schedule_state;
@@ -153,7 +155,7 @@ export async function get_other_requester_schedules_by_fixer_day(fixer_id, reque
 }
 
 // TODO: Endpoint que devuelve las citas canceladas por el propio requester que ve el calendario de un determinadon fixer en una fecha determinada.
-export async function get_cancelled_schedules_by_requester_day(fixer_id, requester_id, searched_date) {
+export async function get_cancelled_schedules_by_requester_day(fixer_id: string, requester_id: string, searched_date: string) {
     try {
         await set_db_connection();
         const current_date = new Date(searched_date);
@@ -180,7 +182,8 @@ export async function get_cancelled_schedules_by_requester_day(fixer_id, request
             }, { new: true });
 
         const formated_appointments = [];
-        for (let cancelled_appointment of cancelled_appointments_requester) {
+        for (const cancelled_appointment of cancelled_appointments_requester) {
+            if(!cancelled_appointment.starting_time || !cancelled_appointment.finishing_time) continue;
             const start_hour = cancelled_appointment.starting_time.getUTCHours();
             const finish_hour = cancelled_appointment.finishing_time.getUTCHours();
             const current_appointment_state = cancelled_appointment.schedule_state;
@@ -192,12 +195,12 @@ export async function get_cancelled_schedules_by_requester_day(fixer_id, request
         }
         return formated_appointments;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 }
 
 // TODO: Endpoint que devuelve las citas canceladas por el fixer respecto a un determinado requester en una determinada fecha.
-export async function get_cancelled_schedules_by_fixer_day(fixer_id, requester_id, searched_date) {
+export async function get_cancelled_schedules_by_fixer_day(fixer_id: string, requester_id: string, searched_date: string) {
     try {
         await set_db_connection();
         const current_date = new Date(searched_date);
@@ -227,7 +230,8 @@ export async function get_cancelled_schedules_by_fixer_day(fixer_id, requester_i
             }, { new: true });
 
         const formated_appointments = []
-        for (let cancelled_appointment of cancelled_appointments_fixer) {
+        for (const cancelled_appointment of cancelled_appointments_fixer) {
+            if(!cancelled_appointment.starting_time || !cancelled_appointment.finishing_time) continue;
             const start_hour = cancelled_appointment.starting_time.getUTCHours();
             const finish_hour = cancelled_appointment.finishing_time.getUTCHours();
             const wasCanceelledByFixer = cancelled_appointment.cancelled_fixer;
@@ -241,6 +245,6 @@ export async function get_cancelled_schedules_by_fixer_day(fixer_id, requester_i
         }
         return formated_appointments;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 }

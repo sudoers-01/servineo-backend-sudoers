@@ -1,20 +1,20 @@
 import { Router } from 'express';
 import {
-  getRequesterSchedulesByFixerMonth,
-  getAllRequesterSchedulesByFixerMonth,
-  getAppointmentsByDate,
-  getModalFormAppointment,
-  getMeetingStatus,
-  getRequesterSchedulesByFixerDay,
-  getOtherRequesterSchedulesByFixerDay,
-  getAppointmentByFixerIdHour,
-  getFixerAvailability,
-  getAppointmentsByFixerIdAndDate,
-  getCancelledSchedulesByRequesterDay,
-  getCancelledSchedulesByFixerDay,
-  getSixMonthsAppointments,
-  getNumberOfAppointments
-} from './read_controller.js';
+    getRequesterSchedulesByFixerMonth,
+    getAllRequesterSchedulesByFixerMonth,
+    getAppointmentsByDate,
+    getModalFormAppointment,
+    getMeetingStatus,
+    getRequesterSchedulesByFixerDay,
+    getOtherRequesterSchedulesByFixerDay,
+    getAppointmentByFixerIdHour,
+    getFixerAvailability,
+    getAppointmentsByFixerIdAndDate,
+    getCancelledSchedulesByRequesterDay,
+    getCancelledSchedulesByFixerDay,
+    getSixMonthsAppointments,
+    getNumberOfAppointments
+} from '../controllers/read_appointment.controller.js';
 
 const router = Router();
 

@@ -19,9 +19,9 @@
     "src/config/env.config.js",
     "src/config/server.config.js",
     "src/config/server.routes.js",
-    "src/modules/location/location.controller.js",
-    "src/modules/location/location.routes.js",
-    "src/modules/location/location.service.js",
+    "src/api/controllers/location.controller.js",
+    "src/api/routes/location.routes.js",
+    "src/services/location/location.service.js",
     "src/database.d.js",
     "src/index.js"
   ],

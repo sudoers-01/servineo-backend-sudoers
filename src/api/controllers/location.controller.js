@@ -1,4 +1,4 @@
-import { searchLocation, reverseLocation } from './location.service.js';
+import { searchLocation, reverseLocation } from '../../services/location/location.service.js';
 
 export async function getLocation(req, res) {
   try {

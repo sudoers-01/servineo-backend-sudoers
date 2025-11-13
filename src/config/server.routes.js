@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import LocationRoutes from '../modules/location/location.routes.js';
-import CreateRoutes from '../modules/CRUD_operations/create_routes.js';
-import ReadRoutes from '../modules/CRUD_operations/read_routes.js';
-import UpdateRoutes from '../modules/CRUD_operations/update_routes.js';
+import LocationRoutes from '../api/routes/location.routes.js';
+import CreateRoutes from '../api/routes/create_appointment.routes.js';
+import ReadRoutes from '../api/routes/read_appointment.routes.js';
+import UpdateRoutes from '../api/routes/update_appointment.routes.js';
 // import HealthRoutes from '../modules/health/health.routes';
 
 const router = Router();

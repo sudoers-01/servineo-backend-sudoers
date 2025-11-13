@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import * as UpdateModule from './update_controller.js';
+import * as UpdateModule from '../controllers/update_appointment.controller.js';
 
 const router = Router();
 

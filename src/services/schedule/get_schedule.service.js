@@ -142,10 +142,11 @@ export async function get_other_requester_schedules_by_fixer_day(fixer_id, reque
     for (let appointment of daily_appointments) {
         const start_hour = appointment.starting_time.getUTCHours();
         const finish_hour = appointment.finishing_time.getUTCHours();
+        const current_appointment_state = appointment.schedule_state;
         formated_appointments.push({
             starting_hour: start_hour,
             finishing_hour: finish_hour,
-            schedule_state: 'occupied'
+            schedule_state: current_appointment_state
         });
     }
     return formated_appointments;

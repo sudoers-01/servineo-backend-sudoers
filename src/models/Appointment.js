@@ -53,10 +53,10 @@ const appointment_schema = new mongoose.Schema(
     finishing_time: { type: Date },
     schedule_state: {
       type: String,
-      enum: ['occupied', 'cancelled', 'booked'],
+      enum: ['cancelled', 'booked'],
       required: true,
       unique: false,
-      default: 'occupied'
+      default: 'booked'
     },
     display_name_location: {
       type: String,

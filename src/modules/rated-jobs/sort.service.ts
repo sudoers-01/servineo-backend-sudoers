@@ -1,6 +1,6 @@
 import { SortCriteria, DEFAULT_SORT_CONFIG } from './sort.types';
 
-export function getSortConfig(sortBy?: string | SortCriteria): any {
+export function getSortConfig(sortBy?: string | SortCriteria): Record<string, unknown> {
   const criteria = sortBy || DEFAULT_SORT_CONFIG;
 
   switch (criteria) {

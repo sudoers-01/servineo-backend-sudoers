@@ -1,6 +1,9 @@
 import { SortCriteria, DEFAULT_SORT_CONFIG } from './sort.types';
 
-export function getSortConfig(sortBy?: string | SortCriteria): any {
+export function getSortConfig(sortBy?: string | SortCriteria): {
+  createdAt?: number;
+  rating?: number;
+} {
   const criteria = sortBy || DEFAULT_SORT_CONFIG;
 
   switch (criteria) {

@@ -18,3 +18,5 @@ router.get('/schedules/get_by_fixer_other_requesters_day', GetScheduleController
 router.get('/schedules/get_cancelled_appointments_by_requester_date', GetScheduleController.getCancelledSchedulesByRequesterDay);
 // TODO: Endpoint que devuelve las citas canceladas por el fixer respecto a un determinado requester en una determinada fecha.
 router.get('/schedules/get_cancelled_appointments_by_fixer_date', GetScheduleController.getCancelledSchedulesByFixerDay);
+
+export default router;

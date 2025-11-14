@@ -24,8 +24,6 @@ export class SearchService {
   ): any {
     if (!searchText?.trim()) return {};
 
-    const normalized = normalizer(searchText.trim());
-
     // Generar variaciones de plural/singular
     const variations = generatePluralVariations(searchText.trim());
 
@@ -34,7 +32,6 @@ export class SearchService {
 
     // Crear un regex que coincida con cualquiera de las variaciones
     const pattern = normalizedVariations.join('|');
-    const regex = new RegExp(pattern, 'i');
 
     return {
       $or: fields.map((field) => ({ [field]: regex })),
@@ -60,20 +57,12 @@ export class SearchService {
       const variations = generatePluralVariations(tokens[0]);
       const normalizedVariations = variations.map((v) => (normalizer ? normalizer(v) : v));
       const pattern = normalizedVariations.join('|');
-      const regex = new RegExp(pattern, 'i');
       return {
-        $or: fields.map((field) => ({ [field]: new RegExp(bounded, 'i') })),
+        $or: fields.map((field) => ({ [field]: new RegExp(pattern, 'i') })),
       };
     }
 
     // Múltiples tokens: cada campo debe contener TODOS los tokens (con sus variaciones)
-    const tokenRegexes = tokens.map((token) => {
-      const variations = generatePluralVariations(token);
-      const normalizedVariations = variations.map((v) => (normalizer ? normalizer(v) : v));
-      const pattern = normalizedVariations.join('|');
-      return new RegExp(pattern, 'i');
-    });
-
     return {
       $or: fields.map((field) => ({
         $and: tokens.map((token) => {
@@ -105,10 +94,9 @@ export class SearchService {
 
     // Crear un regex que coincida con cualquiera de las variaciones
     const pattern = normalizedVariations.join('|');
-    const regex = new RegExp(pattern, 'i');
 
     return {
-      $or: fields.map((field) => ({ [field]: new RegExp(bounded, 'i') })),
+      $or: fields.map((field) => ({ [field]: new RegExp(pattern, 'i') })),
     };
   }
 

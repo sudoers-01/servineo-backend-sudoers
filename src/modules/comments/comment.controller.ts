@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { decideCommentSentiment } from './comment.service';
 import { getCommentsByFixer as getCommentsByFixerService } from './comment.service';
 export const getCommentsByFixer = async (req: Request, res: Response) => {
   const fixerId = req.params.fixerId;
@@ -55,11 +54,7 @@ export const getPositiveCommentsByFixer = async (req: Request, res: Response) =>
     const threeStarComments = comments.filter((comment) => comment.rating === 3);
     const twoStarComments = comments.filter((comment) => comment.rating === 2);
 
-    const randomTwoStarComments = twoStarComments.filter((comment) =>
-      decideCommentSentiment(comment.comment),
-    );
-
-    const positiveComments = [...threeStarComments, ...randomTwoStarComments];
+    const positiveComments = [...threeStarComments, ...twoStarComments];
 
     res.status(200).json(positiveComments);
   } catch (error) {
@@ -89,13 +84,9 @@ export const getNegativeCommentsByFixer = async (req: Request, res: Response) =>
       }
     });
     const oneStarComments = comments.filter((comment) => comment.rating === 1);
-    const twoStarComments = comments.filter((comment) => comment.rating === 2);
+    const zeroStarComments = comments.filter((comment) => comment.rating === 0);
 
-    const randomTwoStarComments = twoStarComments.filter((comment) =>
-      decideCommentSentiment(comment.comment),
-    );
-
-    const negativeComments = [...oneStarComments, ...randomTwoStarComments];
+    const negativeComments = [...oneStarComments, ...zeroStarComments];
 
     res.status(200).json(negativeComments);
   } catch (error) {

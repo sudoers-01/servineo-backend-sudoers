@@ -18,16 +18,50 @@ export interface JobRequest {
   rating?: number;
   comment?: string;
   type?: string;
+  appointmentId?: ObjectId;
+  offerId?: ObjectId;
+}
+
+interface UserLocationData {
+  _id: ObjectId;
+  ubicacion?: {
+    lat: number;
+    lng: number;
+    direccion?: string;
+    departamento?: string;
+    pais?: string;
+  };
 }
 
 export async function getAllJobRequests(db: Db) {
   return db.collection<JobRequest>('jobs').find().toArray();
 }
 
-export async function getJobRequestById(db: Db, id: string) {
-  return db.collection<JobRequest>('jobs').findOne({
-    _id: new ObjectId(id),
-  });
+export async function getLocationById(db: Db, id: string): Promise<{ lat: string; lng: string }> {
+  try {
+    const user = await db
+      .collection<UserLocationData>('users')
+      .findOne({ _id: new ObjectId(id) }, { projection: { ubicacion: 1 } });
+
+    if (!user || !user.ubicacion) {
+      console.warn('Usuario no tiene ubicación, usando valores por defecto');
+      return {
+        lat: '-16.5000',
+        lng: '-68.1500',
+      };
+    }
+
+    return {
+      lat: user.ubicacion.lat?.toString() || '-16.5000',
+      lng: user.ubicacion.lng?.toString() || '-68.1500',
+    };
+  } catch (error) {
+    console.error('Error in getLocationById service:', error);
+    return {
+      lat: '-16.5000',
+      lng: '-68.1500',
+    };
+  }
 }
 
 export async function createJobRequest(
@@ -35,6 +69,8 @@ export async function createJobRequest(
   jobRequest: Omit<JobRequest, '_id' | 'requesterId' | 'fixerId' | 'status' | 'createdAt'> & {
     fixerId: string;
     price: string | number;
+    appointmentId?: string;
+    offerId?: string;
   },
   requesterId: string,
 ) {
@@ -49,6 +85,8 @@ export async function createJobRequest(
     fixerId: new ObjectId(jobRequest.fixerId),
     status: 'pending',
     createdAt: new Date(),
+    appointmentId: jobRequest.appointmentId ? new ObjectId(jobRequest.appointmentId) : undefined,
+    offerId: jobRequest.offerId ? new ObjectId(jobRequest.offerId) : undefined,
   };
 
   const result = await db.collection<JobRequest>('jobs').insertOne(jobRequestToInsert);

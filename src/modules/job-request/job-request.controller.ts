@@ -12,16 +12,19 @@ export async function getAllJobRequests(req: Request, res: Response) {
   }
 }
 
-export async function getJobRequestById(req: Request, res: Response) {
+export async function getLocationById(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const job = await jobRequestService.getJobRequestById(req.db, id);
 
-    if (!job) return res.status(404).json({ message: 'Job request not found' });
-    res.json(job);
+    if (!id) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    const userLocation = await jobRequestService.getLocationById(req.db, id);
+    res.json(userLocation);
   } catch (error) {
-    console.error('Error fetching job request:', error);
-    res.status(500).json({ message: 'Error fetching job request' });
+    console.error('Error fetching user location:', error);
+    return res.status(500).json({ message: 'Error fetching user location' });
   }
 }
 

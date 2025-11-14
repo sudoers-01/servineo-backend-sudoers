@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered, getPriceRanges } from '../services/jobOfert.service';
 import { SortCriteria } from '../types/sort.types';
 import { Offer } from '../models/offer.model';
+import { getTagsForOffers } from '../services/resultsAdvSearch/tags.service';
 
 import {
   saveSearchToHistory,
@@ -41,6 +42,22 @@ export const getOffers = async (req: Request, res: Response) => {
       searchTerm,
       record,
     } = req.query;
+
+    // ==================== ACCIÓN: GET PRICE RANGES ====================
+    if (action === 'getPriceRanges') {
+      const buckets = typeof req.query.buckets === 'string' ? parseInt(req.query.buckets, 10) : 4;
+      const includeExtremes = req.query.includeExtremes !== 'false';
+      try {
+        const result = await getPriceRanges(buckets, includeExtremes);
+        return res.status(200).json({ success: true, ...result });
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: 'Error obteniendo rangos de precio',
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
 
     // ==================== ACCIONES DE HISTORIAL ====================
     if (action && typeof action === 'string') {
@@ -130,22 +147,6 @@ export const getOffers = async (req: Request, res: Response) => {
     }
 
     // ==================== BÚSQUEDA DE OFERTAS ====================
-
-    // Acción especial: devolver rangos de precio
-    if (action === 'getPriceRanges') {
-      const buckets = typeof req.query.buckets === 'string' ? parseInt(req.query.buckets, 10) : 4;
-      const includeExtremes = req.query.includeExtremes !== 'false';
-      try {
-        const result = await getPriceRanges(buckets, includeExtremes);
-        return res.status(200).json({ success: true, ...result });
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: 'Error obteniendo rangos de precio',
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
 
     // Si no hay query params relevantes, retornar todas
     if (
@@ -309,8 +310,16 @@ export const getOffers = async (req: Request, res: Response) => {
 
 export const getUniqueTags = async (req: Request, res: Response) => {
   try {
-    const tags = await Offer.distinct('tags').exec();
-    return res.status(200).json({ success: true, count: tags.length, data: tags });
+    const { search, category, recent, limit } = req.query;
+    const categories =
+      typeof category === 'string' && category.length ? category.split(',') : undefined;
+    const tags = await getTagsForOffers(
+      typeof search === 'string' ? search : undefined,
+      categories,
+      typeof limit === 'string' && !isNaN(Number(limit)) ? Number(limit) : 10,
+    );
+
+    return res.status(200).json({ success: true, tags });
   } catch (error) {
     return res.status(500).json({
       success: false,

@@ -48,7 +48,9 @@ const WEIGHTED_FIELDS_CONFIG = [
  * Permite aplicar ponderaciones al configurar el índice en la DB
  */
 export function searchOffersWeighted(searchText?: string): any {
-  return SearchService.buildWeightedSearch(searchText, WEIGHTED_FIELDS_CONFIG);
+  // fields config removed from call because SearchService.buildWeightedSearch
+  // no longer accepts it (implementation ignores weights and uses $text).
+  return SearchService.buildWeightedSearch(searchText);
 }
 
 /**

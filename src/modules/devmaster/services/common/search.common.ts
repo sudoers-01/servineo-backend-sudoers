@@ -67,7 +67,7 @@ export class SearchService {
       const pattern = normalizedVariations.join('|');
       const regex = new RegExp(pattern, 'i');
       return {
-        $or: fields.map((field) => ({ [field]: regex })),
+        $or: fields.map((field) => ({ [field]: new RegExp(bounded, 'i') })),
       };
     }
 
@@ -81,7 +81,11 @@ export class SearchService {
 
     return {
       $or: fields.map((field) => ({
-        $and: tokenRegexes.map((regex) => ({ [field]: regex })),
+        $and: tokens.map((token) => {
+          const part = normalizer ? normalizer(token) : token;
+          const pattern = `\\b${part}\\b`;
+          return { [field]: new RegExp(pattern, 'i') };
+        }),
       })),
     };
   }
@@ -113,21 +117,15 @@ export class SearchService {
     const regex = new RegExp(pattern, 'i');
 
     return {
-      $or: fields.map((field) => ({ [field]: regex })),
+      $or: fields.map((field) => ({ [field]: new RegExp(bounded, 'i') })),
     };
   }
 
-  /**
-   * Búsqueda con pesos (prioriza ciertos campos)
-   * MongoDB no soporta esto nativamente, pero puedes usar $text index
-   */
-  static buildWeightedSearch(
-    searchText: string | undefined,
-    fieldsConfig: Array<{ field: string; weight: number }>,
-  ): any {
+  static buildWeightedSearch(searchText: string | undefined): Record<string, unknown> {
     if (!searchText?.trim()) return {};
 
-    // Para usar con MongoDB text index
+    // Para usar con MongoDB text index. _fieldsConfig is ignored here but kept
+    // for callers that pass a config (compatibility).
     return {
       $text: { $search: searchText.trim() },
     };

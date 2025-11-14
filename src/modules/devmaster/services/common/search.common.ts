@@ -32,6 +32,7 @@ export class SearchService {
 
     // Crear un regex que coincida con cualquiera de las variaciones
     const pattern = normalizedVariations.join('|');
+    const regex = new RegExp(pattern, 'i');
 
     return {
       $or: fields.map((field) => ({ [field]: regex })),
@@ -62,15 +63,23 @@ export class SearchService {
       };
     }
 
-    // Múltiples tokens: cada campo debe contener TODOS los tokens (con sus variaciones)
+    // Múltiples tokens: buscar documentos que contengan TODOS los tokens
+    // Los tokens pueden estar en cualquier campo, pero TODOS deben estar presentes en el documento
+    const tokenConditions = tokens.map((token) => {
+      const variations = generatePluralVariations(token);
+      const normalizedVariations = variations.map((v) => (normalizer ? normalizer(v) : v));
+      const pattern = normalizedVariations.join('|');
+      const regex = new RegExp(pattern, 'i');
+
+      // Cada token debe coincidir con al menos un campo
+      return {
+        $or: fields.map((field) => ({ [field]: regex })),
+      };
+    });
+
+    // Todos los tokens deben estar presentes (AND de ORs)
     return {
-      $or: fields.map((field) => ({
-        $and: tokens.map((token) => {
-          const part = normalizer ? normalizer(token) : token;
-          const pattern = `\\b${part}\\b`;
-          return { [field]: new RegExp(pattern, 'i') };
-        }),
-      })),
+      $and: tokenConditions,
     };
   }
 

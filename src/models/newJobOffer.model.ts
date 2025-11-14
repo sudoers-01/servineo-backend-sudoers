@@ -38,4 +38,4 @@ const JobOfferSchema = new Schema<IJobOffer>(
   { collection: 'offers' }
 );
 
-export const JobOfferModel = mongoose.model<IJobOffer>('JobOffer', JobOfferSchema);
+export const JobOfferModel = mongoose.models.IJobOffer || mongoose.model("JobOffer", JobOfferSchema);

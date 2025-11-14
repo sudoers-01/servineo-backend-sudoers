@@ -41,11 +41,6 @@ export class SearchService {
     };
   }
 
-  /**
-   * Búsqueda por tokens (palabras separadas)
-   * Busca documentos que contengan TODOS los tokens
-   * Ahora con soporte para variaciones de plural/singular
-   */
   static buildTokenSearch(
     searchText: string | undefined,
     fields: string[],
@@ -90,10 +85,6 @@ export class SearchService {
     };
   }
 
-  /**
-   * Búsqueda inteligente: detecta si debe buscar por tokens o simple
-   * Ahora incluye búsqueda por variaciones de plural/singular
-   */
   static buildSmartSearch(
     searchText: string | undefined,
     fields: string[],
@@ -124,8 +115,6 @@ export class SearchService {
   static buildWeightedSearch(searchText: string | undefined): Record<string, unknown> {
     if (!searchText?.trim()) return {};
 
-    // Para usar con MongoDB text index. _fieldsConfig is ignored here but kept
-    // for callers that pass a config (compatibility).
     return {
       $text: { $search: searchText.trim() },
     };

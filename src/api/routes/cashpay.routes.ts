@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { connectDB } from "../../config/db.config";
 import { getPaymentSummaryByIdLab } from "../controllers/get-by-id-summary.controller";
 import { getPaymentSummaryByJobIdLab } from "../controllers/get-by-job-summary.controller";
 import { getPaymentSummaryByFixerIdLab } from "../controllers/get-by-fixer-summary.controller";
@@ -17,12 +16,6 @@ labRouter.use((req, _res, next) => {
   console.log("[LAB]", req.method, req.originalUrl);
   next();
 });
-
-const boot = connectDB().catch(err => {
-  console.error("[LAB DB] error:", err?.message);
-  process.exit(1);
-});
-labRouter.use(async (_req, _res, next) => { await boot; next(); });
 
 /** 
  * Healthcheck para probar el router

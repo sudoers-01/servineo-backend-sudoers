@@ -158,6 +158,3 @@ PaymentSchema.index({ jobId: 1, status: 1 });
 
 export const Payment =
   mongoose.models.Payment || mongoose.model<PaymentDoc>("Payment", PaymentSchema);
-
-
-export default mongoose.model('payments', paymentSchema);

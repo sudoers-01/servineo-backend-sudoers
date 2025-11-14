@@ -54,4 +54,4 @@ const walletSchema = new Schema<IWallet>(
 );
 
 // Usa la colección 'wallets'
-export const Wallet = models.Wallet || model<IWallet>('Wallet', walletSchema, 'wallets');
+export const Wallet = mongoose.models.Wallet || mongoose.model('Wallet', walletSchema, 'wallets');

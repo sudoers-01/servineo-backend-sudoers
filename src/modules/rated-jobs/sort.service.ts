@@ -1,9 +1,7 @@
 import { SortCriteria, DEFAULT_SORT_CONFIG } from './sort.types';
+import type { Sort } from 'mongodb';
 
-export function getSortConfig(sortBy?: string | SortCriteria): {
-  createdAt?: number;
-  rating?: number;
-} {
+export function getSortConfig(sortBy?: string | SortCriteria): Sort {
   const criteria = sortBy || DEFAULT_SORT_CONFIG;
 
   switch (criteria) {

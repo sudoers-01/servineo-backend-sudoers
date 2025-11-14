@@ -1,4 +1,4 @@
-import User from "../../models/user.model";
+import User from "../../models/userPayment.model";
 
 
 // Listar todos los usuarios

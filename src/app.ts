@@ -1,23 +1,22 @@
 import { Router } from 'express';
 
-// Importaciones de otros módulos
-import HealthRoutes from '../models/health/health.routes';
-import CardsRoutes from "../api/routes/card.routes";
-import UsersRoutes from "../api/routes/user.routes";
-import PaymentRoutes from "../api/routes/payment.routes";
-import CashPayRoutes from '../api/routes/cashpay.routes';
-import BankAccountRoutes from '../api/routes/BankAccount.routes';
-import paymentsRouter from "../api/routes/payments.qr";
-import PaymentCenterRoutes from '../api/routes/paymentCenter.routes'; 
-import jobsRoutes from '../api/routes/jobs.routes'; 
-import invoiceDetailRouter from '../api/routes/invoice.routes'; 
-import bankTransferRoutes from '../api/routes/bankTransferRoute';
-import  rechargeWallet  from '../api/routes/wallet.routes';
-import { FEATURE_DEV_WALLET } from '../models/featureFlags';
-import { devWalletRouter } from '../api/routes/dev-wallet';
-import { FEATURE_SIM_PAYMENTS } from '../models/featureFlags';
-import { simPaymentsRouter } from '../api/routes/sim-payments';
-import { FEATURE_NOTIFICATIONS } from '../models/featureFlags';
+
+import CardsRoutes from "./api/routes/card.routes";
+import UsersRoutes from "./api/routes/user.routes";
+import PaymentRoutes from "./api/routes/payment.routes";
+import CashPayRoutes from './api/routes/cashpay.routes';
+import BankAccountRoutes from './api/routes/bankAccount.routes';
+import paymentsRouter from "./api/routes/paymentsQR.routes";
+import PaymentCenterRoutes from './api/routes/paymentCenter.routes'; 
+import jobsRoutes from './api/routes/jobsPayment.routes'; 
+import invoiceDetailRouter from './api/routes/invoice.routes'; 
+import bankTransferRoutes from './api/routes/bankTransfer.routes';
+import  rechargeWallet  from './api/routes/wallet.routes';
+import { FEATURE_DEV_WALLET } from './models/featureFlags.model';
+import { devWalletRouter } from './api/routes/dev-wallet.routes';
+import { FEATURE_SIM_PAYMENTS } from './models/featureFlags.model';
+import { simPaymentsRouter } from './api/routes/sim-payments.routes';
+import { FEATURE_NOTIFICATIONS } from './models/featureFlags.model';
 
 
 

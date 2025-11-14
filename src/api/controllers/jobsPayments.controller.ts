@@ -1,5 +1,5 @@
-import Job from "../../models/jobs.model";
-import User from "../../models/user.model";
+import Job from "../../models/jobsPayment.model";
+import User from "../../models/userPayment.model";
 
 // =========================
 // Listar trabajos de usuario (solo requester)

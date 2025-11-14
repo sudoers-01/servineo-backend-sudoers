@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
-import { Payment } from "../../../models/payment.model";
-import Users from "../../../models/users.model";
-import UserPay from "../../../models/user.model";
+import { Payment } from "../../models/payment.model";
+import Users from "../../models/usersPayment.model";
+import UserPay from "../../models/userPayment.model";
 
 type FixerSummaryDoc = {
   _id: mongoose.Types.ObjectId;

@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { Wallet } from '../../models/wallet.model';
-import User from '../../models/user.model';
-import Recharge from '../../models/walletRecharge';
+import User from '../../models/userPayment.model';
+import Recharge from '../../models/walletRecharge.model';
 
 import 'dotenv/config';
 

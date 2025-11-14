@@ -1,7 +1,7 @@
 // src/server.ts
 import express from 'express';
 // Importaciones de servicios
-import AppRoutes from './config/server.routes'; 
+import AppRoutes from './app'; 
 
 // [CORRECCIÓN] No importamos connectDB ni env.config porque no existen.
 // Definimos el puerto aquí como una constante simple para que Express arranque:

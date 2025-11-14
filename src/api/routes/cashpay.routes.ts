@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { connectDB } from "../../config/db.config";
-import { getPaymentSummaryByIdLab } from "../controllers/lab/get-by-id-summary.controller";
-import { getPaymentSummaryByJobIdLab } from "../controllers/lab/get-by-job-summary.controller";
-import { getPaymentSummaryByFixerIdLab } from "../controllers/lab/get-by-fixer-summary.controller";
-import { confirmPaymentLab } from "../controllers/lab/confirm-payment.controller";
-import { createPaymentLab, regeneratePaymentCode } from "../controllers/lab/cashpay.controller";
-import { regeneratePaymentCodeByJob } from "../controllers/lab/regeneratecode";
-import { checkCodeStatusByJob } from "../controllers/lab/regeneratecode";
+import { getPaymentSummaryByIdLab } from "../controllers/get-by-id-summary.controller";
+import { getPaymentSummaryByJobIdLab } from "../controllers/get-by-job-summary.controller";
+import { getPaymentSummaryByFixerIdLab } from "../controllers/get-by-fixer-summary.controller";
+import { confirmPaymentLab } from "../controllers/confirm-payment.controller";
+import { createPaymentLab, regeneratePaymentCode } from "../controllers/cashpay.controller";
+import { regeneratePaymentCodeByJob } from "../controllers/regeneratecode.controller";
+import { checkCodeStatusByJob } from "../controllers/regeneratecode.controller";
 
 const labRouter = Router();
 

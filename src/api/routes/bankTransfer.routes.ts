@@ -1,8 +1,8 @@
 //pasar
 import express from 'express';
-import { createOrReuseIntent } from '../controllers/bankTransfer';
-import PaymentIntent from '../../models/PaymentIntent';
-import ProviderPaymentMethod from '../../models/ProviderPaymentMethod';
+import { createOrReuseIntent } from '../controllers/bankTransfer.controller';
+import PaymentIntent from '../../models/PaymentIntent.model';
+import ProviderPaymentMethod from '../../models/ProviderPaymentMethod.model';
 
 const SERVINEO_PROVIDER_ID = 'prov_123';
 

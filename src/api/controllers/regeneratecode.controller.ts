@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import { Payment } from "../../../models/payment.model";
+import { Payment } from "../../models/payment.model";
 import crypto from "crypto";
 
 const CODE_EXPIRATION_MS = 48 * 60 * 60 * 1000; // 48 horas

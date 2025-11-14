@@ -2,7 +2,7 @@
 // src/Innosys/controllers/invoice.controller.ts
 import { Request, Response, NextFunction } from 'express';
 import mongoose, { Document, Types } from 'mongoose';
-import InvoiceModel from '../../models/Invoice';
+import InvoiceModel from '../../models/Invoice.model';
 
 // =================================================================
 // INTERFAZ DEL DOCUMENTO DE FACTURA

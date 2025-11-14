@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { debitCommission, topUp } from '../../models/wallet/wallet.service';
-import { FEATURE_NOTIFICATIONS } from '../../models/featureFlags';
+import { debitCommission, topUp } from '../../services/wallet.service';
+import { FEATURE_NOTIFICATIONS } from '../../models/featureFlags.model';
 
 // si tienes el módulo de notifs sandbox:
 let notifyLowBalance: any;

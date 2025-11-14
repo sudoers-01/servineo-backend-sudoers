@@ -1,5 +1,5 @@
-import { walletAdapterReal } from './adapter.real';
-import { applyCommissionToWallet, applyTopUpToWallet } from './applyCommission';
+import { walletAdapterReal } from '../models/wallet/adapter.real';
+import { applyCommissionToWallet, applyTopUpToWallet } from '../models/wallet/applyCommission';
 
 export async function debitCommission(fixerId: string, commission: number) {
   return applyCommissionToWallet(walletAdapterReal, fixerId, commission);

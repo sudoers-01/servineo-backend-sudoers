@@ -1,6 +1,6 @@
 //pasar
-import PaymentIntent from '../../models/PaymentIntent';
-import ProviderPaymentMethod from '../../models/ProviderPaymentMethod';
+import PaymentIntent from '../../models/PaymentIntent.model';
+import ProviderPaymentMethod from '../../models/ProviderPaymentMethod.model';
 
 const SERVINEO_PROVIDER_ID = 'prov_123';
 

@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
-import { Payment } from "../../../models/payment.model";
+import { Payment } from "../../models/payment.model";
 
 type JobSummary = {
   _id: mongoose.Types.ObjectId;

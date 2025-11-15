@@ -6,49 +6,49 @@ import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
 import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
-
 import searchRoutes from './api/routes/search.routes';
+import CardsRoutes from "./api/routes/card.routes";
+import UsersRoutes from "./api/routes/user.routes"; 
+import PaymentRoutes from "./api/routes/payment.routes";
+import CashPayRoutes from './api/routes/cashpay.routes';
+import BankAccountRoutes from './api/routes/BankAccount.routes';
+import paymentsRouter from "./api/routes/paymentsQR.routes";
+import PaymentCenterRoutes from './api/routes/paymentCenter.routes'; 
+import myJobsPaymentRoutes from './api/routes/jobsPayment.routes';
+import invoiceDetailRouter from './api/routes/invoice.routes'; 
+import bankTransferRoutes from './api/routes/bankTransfer.routes';
+import rechargeWallet from './api/routes/wallet.routes';
+import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.model'; 
+import { devWalletRouter } from './api/routes/dev-wallet.routes';
+import { simPaymentsRouter } from './api/routes/sim-payments.routes';
+
 const app = express();
 
-// Lista de orígenes permitidos
+
 const allowedOrigins = [
+  'https://devmasters-servineo-frontend-zk3q.vercel.app',
+  'http://localhost:8080',
+  'http://localhost:8081',
   'http://localhost:3000',
-  'http://localhost:8082',
-  'http://localhost:8000',
-  process.env.FRONTEND_URL,
 ];
 
-// Configuración CORS mejorada
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Permite requests sin origin (Postman, Thunder Client, apps móviles)
-      if (!origin) return callback(null, true);
-      
-      // Verifica si el origin está en la lista permitida
-      if (allowedOrigins.indexOf(origin) !== -1) {
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        console.log('❌ CORS blocked origin:', origin);
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error('Origen no permitido por la política de CORS.'));
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   }),
 );
-
-// Middleware para logs (útil para debugging)
-app.use((req, res, next) => {
-  console.log(`📨 ${req.method} ${req.path} from ${req.headers.origin || 'no-origin'}`);
-  next();
-});
+// --- FIN DE CORS ---
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -56,6 +56,28 @@ app.use('/api/fixers', fixerRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', jobsRoutes);
 app.use('/api', searchRoutes);
+
+// --- TUS RUTAS (Añadidas) ---
+app.use('/api', CardsRoutes);
+app.use('/api', UsersRoutes);
+app.use('/api', PaymentRoutes);
+app.use('/api', BankAccountRoutes); 
+app.use('/api/lab', CashPayRoutes);
+app.use("/api", rechargeWallet); 
+app.use('/api', myJobsPaymentRoutes); 
+app.use('/api/transferencia-bancaria', bankTransferRoutes);
+app.use('/api/v1/invoices', invoiceDetailRouter); 
+app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
+app.use("/payments", paymentsRouter); 
+
+console.log('FEATURE_DEV_WALLET =', FEATURE_DEV_WALLET);
+if (FEATURE_DEV_WALLET) {
+  console.log('MOUNT /api/dev ✅');
+  app.use('/api/dev', devWalletRouter);
+}
+if (FEATURE_SIM_PAYMENTS) {
+  app.use('/api/sim', simPaymentsRouter);
+}
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

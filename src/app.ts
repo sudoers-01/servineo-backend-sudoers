@@ -25,17 +25,9 @@ import { simPaymentsRouter } from './api/routes/sim-payments.routes';
 const app = express();
 
 
+// Configuración de CORS - Permite todos los orígenes
 app.use(cors({
-  origin: [
-    'http://localhost:3000', // Desarrollo
-    'https://devmasters-servineo-frontend-zk3q.vercel.app', // Producción
-    'http://localhost:8080',
-    'http://localhost:8081',
-    'http://localhost:8082',
-    'http://localhost:8000',
-    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
-  ],
-  credentials: true,
+  origin: '*', // Permite todos los orígenes
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],

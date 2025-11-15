@@ -4,8 +4,7 @@ import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
-import userProfileRoutes from './routes/userProfile.routes';
-import jobRoutes from './routes/job.routes';
+import activityRoutes from './api/routes/activities.routes';
 
 const app = express();
 
@@ -14,8 +13,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:8082',
   'http://localhost:8000',
-  'https://front-is-al73.vercel.app',
-  process.env.FRONTEND_URL, // Toma la URL del .env
+  process.env.FRONTEND_URL,
 ];
 
 // Configuración CORS mejorada
@@ -53,12 +51,11 @@ app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
-app.use('/api/user-profiles', userProfileRoutes);
-app.use('/api/jobs', jobRoutes);
+app.use('/api', activityRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  console.log('❌ Not found:', req.method, req.originalUrl);
+  console.log('Not found:', req.method, req.originalUrl);
   res.status(404).send({
     message: 'route not found',
   });

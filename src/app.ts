@@ -8,12 +8,40 @@ import activityRoutes from './api/routes/activities.routes';
 
 const app = express();
 
+// Lista de orígenes permitidos
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:8082',
+  'http://localhost:8000',
+  process.env.FRONTEND_URL,
+];
+
+// Configuración CORS mejorada
 app.use(
   cors({
-    origin: ['https://devmasters-servineo-frontend-zk3q.vercel.app', 'http://localhost:8080'],
+    origin: (origin, callback) => {
+      // Permite requests sin origin (Postman, Thunder Client, apps móviles)
+      if (!origin) return callback(null, true);
+      
+      // Verifica si el origin está en la lista permitida
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.log('❌ CORS blocked origin:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   }),
 );
+
+// Middleware para logs (útil para debugging)
+app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.path} from ${req.headers.origin || 'no-origin'}`);
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

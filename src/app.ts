@@ -25,15 +25,29 @@ import { simPaymentsRouter } from './api/routes/sim-payments.routes';
 const app = express();
 
 
-// Configuración de CORS - Permite todos los orígenes
-app.use(cors({
-  origin: '*', // Permite todos los orígenes
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
+const allowedOrigins = [
+  'https://devmasters-servineo-frontend-zk3q.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://localhost:8082',
+  'http://localhost:8000',
+  process.env.FRONTEND_URL,
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Origen no permitido por la política de CORS.'));
+      }
+    },
+    credentials: true,
+  }),
+);
+// --- FIN DE CORS ---
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -148,22 +148,6 @@ export const getOffers = async (req: Request, res: Response) => {
 
     // ==================== BÚSQUEDA DE OFERTAS ====================
 
-    // Acción especial: devolver rangos de precio
-    if (action === 'getPriceRanges') {
-      const buckets = typeof req.query.buckets === 'string' ? parseInt(req.query.buckets, 10) : 4;
-      const includeExtremes = req.query.includeExtremes !== 'false';
-      try {
-        const result = await getPriceRanges(buckets, includeExtremes);
-        return res.status(200).json({ success: true, ...result });
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: 'Error obteniendo rangos de precio',
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
     // Si no hay query params relevantes, retornar todas
     if (
       !range &&
@@ -223,7 +207,7 @@ export const getOffers = async (req: Request, res: Response) => {
 
     if (req.query.rating) {
       const r = Number(req.query.rating);
-      if (!isNaN(r) && Number.isInteger(r) && r >= 1 && r <= 5) options.rating = r;
+      if (!isNaN(r) && r >= 1.0 && r <= 5.9) options.rating = r;
     }
 
     const itemsPerPage = limit && !isNaN(Number(limit)) ? Number(limit) : 10;

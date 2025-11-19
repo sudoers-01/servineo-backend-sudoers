@@ -96,11 +96,10 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
     }
   }
 
-  // Filtrado por rating: si se pasa rating (1..5) aplicamos >=n AND < n+1
+  // Filtrado por rating: comparación exacta con decimales (1.0..5.9)
   if (options && typeof options.rating === 'number' && !isNaN(options.rating)) {
-    const n = Math.floor(options.rating);
-    if (n >= 1 && n <= 5) {
-      filterQuery = FilterCommon.combine(filterQuery, { rating: { $gte: n, $lt: n + 1 } });
+    if (options.rating >= 1.0 && options.rating <= 5.9) {
+      filterQuery = FilterCommon.combine(filterQuery, { rating: options.rating });
     }
   }
 
@@ -113,6 +112,7 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
 };
 
 /**
+ * codigo solucionado para obtener rangos de precios dinámicos
  * Calcula rangos de precio dinámicos basados en el mínimo y máximo de la colección `offers`.
  * Devuelve un array de rangos con labels y valores { min, max } donde null indica -inf/+inf.
  * Por defecto crea 4 buckets internos y añade opciones "Menos de" y "Más de" (por lo que se devuelven 6 items si includeExtremes=true).

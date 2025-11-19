@@ -2,7 +2,7 @@
 import { normalizeSearchText } from '../../utils/search.normalizer';
 import { SearchService } from '../common/search.common';
 
-const SEARCH_FIELDS = ['fixerName', 'title', 'description', 'category', 'city'];
+const SEARCH_FIELDS = ['fixerName', 'title', 'description', 'category', 'city', 'tags'];
 
 /**
  * Búsqueda básica (sin normalizador de acentos, etc.)
@@ -35,10 +35,12 @@ export function searchOffersTokens(searchText?: string): any {
 
 // Define la configuración de los campos y sus pesos (necesario para la firma del método)
 const WEIGHTED_FIELDS_CONFIG = [
-  { field: 'title', weight: 10 }, // Título tiene mayor importancia
+  { field: 'title', weight: 10 },
+  { field: 'tags', weight: 8 },
   { field: 'description', weight: 5 },
+  //{ field: 'category', weight: 4 },
   { field: 'fixerName', weight: 3 },
-  // ... otros campos
+  //{ field: 'city', weight: 2 },
 ];
 
 /**
@@ -46,7 +48,9 @@ const WEIGHTED_FIELDS_CONFIG = [
  * Permite aplicar ponderaciones al configurar el índice en la DB
  */
 export function searchOffersWeighted(searchText?: string): any {
-  return SearchService.buildWeightedSearch(searchText, WEIGHTED_FIELDS_CONFIG);
+  // fields config removed from call because SearchService.buildWeightedSearch
+  // no longer accepts it (implementation ignores weights and uses $text).
+  return SearchService.buildWeightedSearch(searchText);
 }
 
 /**

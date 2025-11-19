@@ -96,7 +96,7 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
     }
   }
 
-  // Filtrado por rating: si se pasa rating (1.0..5.9) aplicamos coincidencia exacta
+  // Filtrado por rating: comparación exacta con decimales (1.0..5.9)
   if (options && typeof options.rating === 'number' && !isNaN(options.rating)) {
     if (options.rating >= 1.0 && options.rating <= 5.9) {
       filterQuery = FilterCommon.combine(filterQuery, { rating: options.rating });

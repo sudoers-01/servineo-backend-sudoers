@@ -2,12 +2,11 @@
 /dist
 /node_modules
 
+# Lock files
+package-lock.json
+
 #env 
 .env
-
-#user y password mongoDB Atlas
-MONGODB_URI=mongosh "mongodb+srv://cluster0.eiphfrv.mongodb.net/" --apiVersion 1 --username innosys --password qtfvCt0cCg5arojg
-MONGODB_DB=INNOSYS
 
 # Logs
 logs

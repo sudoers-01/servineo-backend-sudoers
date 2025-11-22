@@ -16,6 +16,7 @@ import { filterOffers as advancedFilterOffers } from './jobOfert/advancedFilter.
 export type OfferFilterOptions = {
   ranges?: string[];
   city?: string;
+  cities?: string[];
   categories?: string[];
   search?: string;
   sortBy?: string | SortCriteria;

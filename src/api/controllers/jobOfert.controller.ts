@@ -177,7 +177,15 @@ export const getOffers = async (req: Request, res: Response) => {
     // Preparar opciones para getOffersFiltered
     const options: any = {};
     if (range) options.ranges = Array.isArray(range) ? range.map(String) : [String(range)];
-    if (city && typeof city === 'string') options.city = city;
+    // Procesar ciudades: pueden venir como string separado por comas o como array
+    if (city) {
+      if (typeof city === 'string') {
+        // Dividir por comas si es un string
+        options.cities = city.split(',').map((c: string) => c.trim()).filter((c: string) => c.length > 0);
+      } else if (Array.isArray(city)) {
+        options.cities = city.map(String).filter((c: string) => c.length > 0);
+      }
+    }
     if (category)
       options.categories = Array.isArray(category) ? category.map(String) : [String(category)];
     if (search && typeof search === 'string') options.search = search.trim();

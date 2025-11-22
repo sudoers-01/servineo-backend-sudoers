@@ -6,6 +6,7 @@ import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
 import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
+//import photosRoutes from './api/routes/photos.routes';
 
 import searchRoutes from './api/routes/search.routes';
 const app = express();
@@ -17,6 +18,7 @@ const allowedOrigins = [
   'http://localhost:8000',
   'http://localhost:8081',
   process.env.FRONTEND_URL,
+  '*',
 ];
 
 // Configuración CORS mejorada
@@ -57,6 +59,7 @@ app.use('/api/fixers', fixerRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', jobsRoutes);
 app.use('/api', searchRoutes);
+//app.use('/api/photos', photosRoutes);
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -25,34 +24,35 @@
     "url": "https://github.com/Servineo/servineo-backend/issues"
   },
   "homepage": "https://github.com/Servineo/servineo-backend#readme",
-
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "mongoose": "^8.19.3",
-    "node-cron": "^4.2.1",
-    "typescript": "^5.9.3",
-
-    // Dependencias nuevas del PR
-    "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.2",
     "express-rate-limit": "^8.1.0",
     "google-auth-library": "^10.4.1",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",
+    "mongoose": "^8.19.3",
     "next-auth": "^4.24.11",
+    "node-cron": "^4.2.1",
     "node-fetch": "^2.7.0",
     "nodemailer": "^7.0.10"
   },
-
   "devDependencies": {
     "@eslint/css": "^0.11.1",
     "@eslint/js": "^9.36.0",
     "@eslint/markdown": "^7.3.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "@types/node": "^24.7.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^24.6.1",
+    "@types/node-fetch": "^2.6.13",
+    "@types/nodemailer": "^6.4.21",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
     "eslint": "^9.36.0",
@@ -60,16 +60,8 @@
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.4.0",
     "prettier": "^3.6.2",
-    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript-eslint": "^8.45.0",
-
-    // Types nuevos del PR
-    "@types/bcrypt": "^6.0.0",
-    "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node-fetch": "^2.6.13",
-    "@types/nodemailer": "^6.4.21"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.45.0"
   }
 }
-

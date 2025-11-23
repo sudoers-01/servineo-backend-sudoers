@@ -3,6 +3,7 @@ import { getAllOffers, getOffersFiltered, getPriceRanges } from '../../services/
 import { SortCriteria } from '../../types/sort.types';
 import { Offer } from '../../models/offer.model';
 import { getTagsForOffers } from '../../services/resultsAdvSearch/tags.service';
+import { FilterCountsService } from '../../services/jobOfert/filterCounts.service';
 
 import {
   saveSearchToHistory,
@@ -324,6 +325,81 @@ export const getUniqueTags = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: 'Error al obtener las etiquetas únicas',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getFilterCounts = async (req: Request, res: Response) => {
+  try {
+    const {
+      range,
+      city,
+      category,
+      search,
+      minRating,
+      maxRating,
+    } = req.query;
+
+    // Parsear rangos (mismo formato que getOffers)
+    const parsedRanges = range 
+      ? (Array.isArray(range) ? range.map(String) : [String(range)])
+      : undefined;
+    
+    // Parsear categorías (mismo formato que getOffers)
+    const parsedCategories = category
+      ? (Array.isArray(category) ? category.map(String) : [String(category)])
+      : undefined;
+
+    // Parsear ciudad
+    const parsedCity = city && typeof city === 'string' ? city : undefined;
+
+    // Parsear búsqueda
+    const parsedSearch = search && typeof search === 'string' ? search.trim() : undefined;
+
+    // Parsear ratings
+    const parsedMinRating = minRating && typeof minRating === 'string' 
+      ? parseFloat(minRating) 
+      : undefined;
+    
+    const parsedMaxRating = maxRating && typeof maxRating === 'string' 
+      ? parseFloat(maxRating) 
+      : undefined;
+
+    // Validar ratings si existen
+    if (parsedMinRating !== undefined && (isNaN(parsedMinRating) || parsedMinRating < 1.0 || parsedMinRating > 5.9)) {
+      return res.status(400).json({
+        success: false,
+        message: 'minRating debe estar entre 1.0 y 5.9',
+      });
+    }
+
+    if (parsedMaxRating !== undefined && (isNaN(parsedMaxRating) || parsedMaxRating < 1.0 || parsedMaxRating > 5.9)) {
+      return res.status(400).json({
+        success: false,
+        message: 'maxRating debe estar entre 1.0 y 5.9',
+      });
+    }
+
+    // Obtener conteos
+    const counts = await FilterCountsService.getCounts({
+      search: parsedSearch,
+      ranges: parsedRanges,
+      city: parsedCity,
+      categories: parsedCategories,
+      minRating: parsedMinRating,
+      maxRating: parsedMaxRating,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: counts,
+    });
+  } catch (error) {
+    console.error('Error en getFilterCounts:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener conteos de filtros',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }

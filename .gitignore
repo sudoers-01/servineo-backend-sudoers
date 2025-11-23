@@ -42,3 +42,6 @@ database-pg/*
 .env*
 !.env.example
 .vercel
+
+serviceAccountKey.json
+firebase-service-account.json

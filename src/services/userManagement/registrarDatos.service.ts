@@ -1,11 +1,11 @@
-import clientPromise from '../../config/db/mongodb';
-import { ObjectId } from 'mongodb';
+import clientPromise from "../../config/db/mongodb";
+import { ObjectId } from "mongodb";
 
 interface ManualUser {
   email: string;
   name: string;
   picture?: string;
-  password: string 
+  password: string;
 }
 
 interface InsertedUser {
@@ -13,55 +13,74 @@ interface InsertedUser {
   name: string;
 }
 
+
 export async function checkUserExists(email: string): Promise<boolean> {
   const mongoClient = await clientPromise;
-  const db = mongoClient.db('ServineoBD');
+  const db = mongoClient.db("ServineoBD");
 
-  const user = await db.collection('users').findOne({
-    providers: { $elemMatch: { email } }
+  const user = await db.collection("users").findOne({
+    "authProviders.provider": "email",
+    "authProviders.providerId": email,
   });
 
   return !!user;
 }
 
-export async function createManualUser(user: ManualUser): Promise<InsertedUser & { _id: string; picture?: string }> {
+export async function createManualUser(
+  user: ManualUser
+): Promise<InsertedUser & { _id: string; picture?: string }> {
   const mongoClient = await clientPromise;
-  const db = mongoClient.db('ServineoBD');
+  const db = mongoClient.db("ServineoBD");
 
-  const result = await db.collection('users').insertOne({
+  const newUser = {
     name: user.name,
     email: user.email,
-    url_photo: user.picture || 'no hay',
-    role: 'requester',
-    especialidad: '',
-    telefono: '',
-    certificacion: '',
-    language: 'es',
+    url_photo: user.picture || "",
+    role: "requester",
+    especialidad: "",
+    telefono: "",
+    certificacion: "",
+    language: "es",
     createdAt: new Date(),
+
     authProviders: [
       {
         provider: "email",
-        email: user.email,
-        passwordHash: user.password,
+        providerId: user.email,
+        password: user.password, 
         linkedAt: new Date(),
       },
     ],
-  });
 
-  console.log('Usuario manual insertado en MongoDB (con providers):', user.email);
+    servicios: [],
+    ubicacion: {},
+    ci: "",
+    vehiculo: {},
+    acceptTerms: false,
+    metodoPago: {},
+    experience: {},
+    workLocation: {},
+  };
+
+  const result = await db.collection("users").insertOne(newUser);
+
+  console.log("Usuario manual creado:", user.email);
 
   return {
     _id: result.insertedId.toHexString(),
     name: user.name,
     email: user.email,
-    picture: user.picture || 'no hay',
+    picture: user.picture || "",
   };
 }
 
 export async function getUserById(usuarioId: string): Promise<any | null> {
   const mongoClient = await clientPromise;
-  const db = mongoClient.db('ServineoBD');
+  const db = mongoClient.db("ServineoBD");
 
-  const user = await db.collection('users').findOne({ _id: new ObjectId(usuarioId) });
+  const user = await db
+    .collection("usuarios")
+    .findOne({ _id: new ObjectId(usuarioId) });
+
   return user;
 }

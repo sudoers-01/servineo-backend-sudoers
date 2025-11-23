@@ -4,7 +4,7 @@ const COLLECTION = 'ofertadetrabajo';
 
 export const addJobOfferPhoto = async (
   userId: string,
-  file: Express.Multer.File
+  file: Express.Multer.File // ahora sí lo reconoce
 ): Promise<string> => {
   // Contar fotos existentes
   const snapshot = await db

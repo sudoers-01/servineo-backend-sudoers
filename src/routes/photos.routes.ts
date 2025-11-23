@@ -6,7 +6,7 @@ import {
   uploadJobOfferPhoto,
   getMyJobOfferPhotos,
   removeJobOfferPhoto,
-} from '../controllers/photos.controller';
+} from '../controllers/photos.controller'; // ahora todo junto o separado, como prefieras
 
 const router = Router();
 

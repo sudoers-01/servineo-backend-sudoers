@@ -26,6 +26,7 @@ const app = express();
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'https://devmasters-servineo-frontend-zk3q.vercel.app',
+  'http://localhost:3001',
   'http://localhost:3000',
   'http://localhost:8080',
   'http://localhost:8081',

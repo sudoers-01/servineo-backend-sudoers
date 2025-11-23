@@ -1,4 +1,3 @@
-// services/jobOfert/filterCounts.service.ts
 import { Offer } from '../../models/offer.model';
 import { validateAndNormalizeCity } from '../../utils/cityHelper';
 import { validateAndNormalizeCategory } from '../../utils/categoryHelper';
@@ -17,7 +16,7 @@ export type FilterCountsOptions = {
 };
 
 export type FilterCounts = {
-  fixers: Record<string, number>;
+  ranges: Record<string, number>;
   cities: Record<string, number>;
   categories: Record<string, number>;
   ratings: Record<string, number>;
@@ -28,9 +27,9 @@ interface MongoQuery {
   $or?: Array<{
     title?: RegExp;
     description?: RegExp;
-    fixerName?: RegExp | { $in: RegExp[] };
+    fixerName?: RegExp;
   }>;
-  fixerName?: RegExp | { $in: RegExp[] };
+  fixerName?: RegExp;
   city?: string;
   category?: string | { $in: string[] };
   rating?: {
@@ -44,15 +43,14 @@ export class FilterCountsService {
   static async getCounts(options: FilterCountsOptions = {}): Promise<FilterCounts> {
     const startTime = Date.now();
 
-    // ⬅️ NUEVO: Verificar si ya fue cancelado
     if (options.signal?.aborted) {
       throw new Error('Request was aborted before starting');
     }
 
     const baseQuery: MongoQuery = this.buildBaseQuery(options);
 
-    const [fixerCounts, cityCounts, categoryCounts, ratingCounts, total] = await Promise.all([
-      this.getFixerCounts(baseQuery, options),
+    const [rangeCounts, cityCounts, categoryCounts, ratingCounts, total] = await Promise.all([
+      this.getRangeCounts(baseQuery, options),
       this.getCityCounts(baseQuery, options),
       this.getCategoryCounts(baseQuery, options),
       this.getRatingCounts(baseQuery, options),
@@ -75,7 +73,6 @@ export class FilterCountsService {
 
     const duration = Date.now() - startTime;
     
-    // ⬅️ NUEVO: Verificar si fue cancelado después
     if (options.signal?.aborted) {
       console.log('🚫 Request was aborted after completion');
       throw new Error('Request aborted');
@@ -83,28 +80,25 @@ export class FilterCountsService {
     
     console.log(`📊 Filter Counts completed in ${duration}ms`);
 
-    // VALIDACIÓN: Verificar que los datos sean válidos
     const validation = FilterCountValidator.validateCounts(
-      fixerCounts,
+      {},
       cityCounts,
       categoryCounts,
       ratingCounts,
       total
     );
 
-    // Loguear errores si existen
     if (!validation.isValid) {
       console.error('❌ Filter counts validation FAILED:', validation.errors);
       throw new Error(`Invalid filter counts: ${validation.errors.join(', ')}`);
     }
 
-    // Loguear advertencias si existen
     if (validation.warnings.length > 0) {
       console.warn('⚠️  Filter counts validation warnings:', validation.warnings);
     }
 
     return {
-      fixers: fixerCounts,
+      ranges: rangeCounts,
       cities: cityCounts,
       categories: categoryCounts,
       ratings: ratingCounts,
@@ -112,13 +106,78 @@ export class FilterCountsService {
     };
   }
 
-  /**
-   * Construye el query base con todos los filtros activos
-   */
+  private static async getRangeCounts(
+    baseQuery: MongoQuery,
+    options: FilterCountsOptions
+  ): Promise<Record<string, number>> {
+    const queryWithoutFixerFilter = { ...baseQuery };
+    delete queryWithoutFixerFilter.fixerName;
+
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
+    }
+
+    const ranges: Record<string, number> = {
+      'De (A-C)': 0,
+      'De (D-F)': 0,
+      'De (G-I)': 0,
+      'De (J-L)': 0,
+      'De (M-Ñ)': 0,
+      'De (O-Q)': 0,
+      'De (R-T)': 0,
+      'De (U-W)': 0,
+      'De (X-Z)': 0,
+    };
+
+    const getRangeKey = (firstLetter: string): string => {
+      const letter = firstLetter.toUpperCase();
+      
+      if (['A', 'B', 'C'].includes(letter)) return 'De (A-C)';
+      if (['D', 'E', 'F'].includes(letter)) return 'De (D-F)';
+      if (['G', 'H', 'I'].includes(letter)) return 'De (G-I)';
+      if (['J', 'K', 'L'].includes(letter)) return 'De (J-L)';
+      if (['M', 'N', 'Ñ'].includes(letter)) return 'De (M-Ñ)';
+      if (['O', 'P', 'Q'].includes(letter)) return 'De (O-Q)';
+      if (['R', 'S', 'T'].includes(letter)) return 'De (R-T)';
+      if (['U', 'V', 'W'].includes(letter)) return 'De (U-W)';
+      if (['X', 'Y', 'Z'].includes(letter)) return 'De (X-Z)';
+      
+      return 'De (X-Z)';
+    };
+
+    interface FixerResult {
+      _id: string;
+      count: number;
+    }
+
+    const fixers = await PerformanceCount.measure(
+      'Range Counts Aggregation',
+      queryWithoutFixerFilter,
+      () => Offer.aggregate<FixerResult>([
+        { $match: queryWithoutFixerFilter },
+        {
+          $group: {
+            _id: '$fixerName',
+            count: { $sum: 1 },
+          },
+        },
+      ]).exec()
+    );
+
+    fixers.forEach((fixer) => {
+      const firstLetter = fixer._id.trim().charAt(0);
+      if (firstLetter) {
+        const rangeKey = getRangeKey(firstLetter);
+        ranges[rangeKey] += fixer.count;
+      }
+    });
+
+    return ranges;
+  }
+
   private static buildBaseQuery(options: FilterCountsOptions): MongoQuery {
     const query: MongoQuery = {};
 
-    // Filtro de búsqueda (title o description)
     if (options.search) {
       const searchRegex = new RegExp(options.search, 'i');
       query.$or = [
@@ -128,20 +187,32 @@ export class FilterCountsService {
       ];
     }
 
-    // Filtro de rangos de nombres (A-D, E-H, etc.)
     if (options.ranges && options.ranges.length > 0) {
-      const regexes = options.ranges.map((r) => getRangeRegex(r)).filter(Boolean) as RegExp[];
+      const regexes = options.ranges
+        .map((r) => getRangeRegex(r))
+        .filter(Boolean) as RegExp[];
+      
       if (regexes.length > 0) {
-        query.fixerName = { $in: regexes };
+        if (regexes.length === 1) {
+          query.fixerName = regexes[0];
+        } else {
+          const allLetters = new Set<string>();
+          regexes.forEach(regex => {
+            const match = regex.source.match(/\[([^\]]+)\]/);
+            if (match) {
+              match[1].split('').forEach(letter => allLetters.add(letter));
+            }
+          });
+          const combinedPattern = `^[${Array.from(allLetters).join('')}]`;
+          query.fixerName = new RegExp(combinedPattern, 'i');
+        }
       }
     }
 
-    // Filtro de ciudad
     if (options.city) {
       query.city = validateAndNormalizeCity(options.city);
     }
 
-    // Filtro de categorías
     if (options.categories && options.categories.length > 0) {
       const normalizedCategories = options.categories
         .map((c) => validateAndNormalizeCategory(c))
@@ -151,7 +222,6 @@ export class FilterCountsService {
       }
     }
 
-    // Filtro de rating
     if (options.minRating !== undefined || options.maxRating !== undefined) {
       const ratingQuery: { $gte?: number; $lte?: number } = {};
       if (options.minRating !== undefined) {
@@ -166,61 +236,6 @@ export class FilterCountsService {
     return query;
   }
 
-  /**
-   * Obtiene conteo de ofertas por fixer (excluyendo el filtro de ranges si está activo)
-   */
-  private static async getFixerCounts(
-    baseQuery: MongoQuery,
-    options: FilterCountsOptions
-  ): Promise<Record<string, number>> {
-    const queryWithoutFixerFilter = { ...baseQuery };
-    delete queryWithoutFixerFilter.fixerName;
-
-    // ⬅️ NUEVO: Verificar cancelación
-    if (options.signal?.aborted) {
-      throw new Error('Request aborted');
-    }
-
-    interface AggregationResult {
-      _id: string;
-      count: number;
-    }
-
-    const counts = await PerformanceCount.measure(
-      'Fixer Counts Aggregation',
-      queryWithoutFixerFilter,
-      () => {
-        const aggregation = Offer.aggregate<AggregationResult>([
-          { $match: queryWithoutFixerFilter },
-          {
-            $group: {
-              _id: '$fixerName',
-              count: { $sum: 1 },
-            },
-          },
-          { $sort: { count: -1, _id: 1 } },
-          { $limit: 50 },
-        ]);
-
-        // OPTIMIZACIÓN: Solo usar hint si NO hay $or o RegEx complejos
-        const hasComplexQuery = queryWithoutFixerFilter.$or || 
-                                (queryWithoutFixerFilter.category && 
-                                 typeof queryWithoutFixerFilter.category === 'object');
-        
-        if (queryWithoutFixerFilter.city && !hasComplexQuery) {
-          aggregation.hint('fixerName_1_city_1');
-        }
-
-        return aggregation.exec();
-      }
-    );
-
-    return counts.reduce((acc, item) => {
-      acc[item._id] = item.count;
-      return acc;
-    }, {} as Record<string, number>);
-  }
-
   private static async getCityCounts(
     baseQuery: MongoQuery,
     options: FilterCountsOptions
@@ -228,7 +243,6 @@ export class FilterCountsService {
     const queryWithoutCityFilter = { ...baseQuery };
     delete queryWithoutCityFilter.city;
 
-    // ⬅️ NUEVO: Verificar cancelación
     if (options.signal?.aborted) {
       throw new Error('Request aborted');
     }
@@ -253,7 +267,6 @@ export class FilterCountsService {
           { $sort: { _id: 1 } },
         ]);
 
-        // OPTIMIZACIÓN: Solo usar hint si NO hay queries complejas
         const hasComplexQuery = queryWithoutCityFilter.$or || queryWithoutCityFilter.fixerName;
         
         if (!hasComplexQuery) {
@@ -281,7 +294,6 @@ export class FilterCountsService {
     const queryWithoutCategoryFilter = { ...baseQuery };
     delete queryWithoutCategoryFilter.category;
 
-    // ⬅️ NUEVO: Verificar cancelación
     if (options.signal?.aborted) {
       throw new Error('Request aborted');
     }
@@ -306,7 +318,6 @@ export class FilterCountsService {
           { $sort: { count: -1, _id: 1 } },
         ]);
 
-        // OPTIMIZACIÓN: Solo usar hint si NO hay queries complejas
         const hasComplexQuery = queryWithoutCategoryFilter.$or || queryWithoutCategoryFilter.fixerName;
         
         if (!hasComplexQuery) {
@@ -334,7 +345,6 @@ export class FilterCountsService {
     const queryWithoutRatingFilter = { ...baseQuery };
     delete queryWithoutRatingFilter.rating;
 
-    // ⬅️ NUEVO: Verificar cancelación
     if (options.signal?.aborted) {
       throw new Error('Request aborted');
     }

@@ -3,6 +3,7 @@ import { Offer } from '../../models/offer.model';
 import { validateAndNormalizeCity } from '../../utils/cityHelper';
 import { validateAndNormalizeCategory } from '../../utils/categoryHelper';
 import { getRangeRegex } from '../../utils/nameRangeHelper';
+import { PerformanceCount } from '../../utils/performanceCount';
 
 export type FilterCountsOptions = {
   search?: string;
@@ -37,21 +38,26 @@ interface MongoQuery {
 }
 
 export class FilterCountsService {
-  /**
-   * Obtiene conteos dinámicos de filtros según los filtros activos
-   */
+
   static async getCounts(options: FilterCountsOptions = {}): Promise<FilterCounts> {
-    // Construir query base con filtros activos
+    const startTime = Date.now();
+
     const baseQuery: MongoQuery = this.buildBaseQuery(options);
 
-    // Obtener conteos en paralelo para mejor performance
     const [fixerCounts, cityCounts, categoryCounts, ratingCounts, total] = await Promise.all([
       this.getFixerCounts(baseQuery, options),
       this.getCityCounts(baseQuery, options),
       this.getCategoryCounts(baseQuery, options),
       this.getRatingCounts(baseQuery, options),
-      Offer.countDocuments(baseQuery),
+      PerformanceCount.measure(
+        'Total Count',
+        baseQuery,
+        () => Offer.countDocuments(baseQuery)
+      ),
     ]);
+
+    const duration = Date.now() - startTime;
+    console.log(`📊 Filter Counts completed in ${duration}ms`);
 
     return {
       fixers: fixerCounts,
@@ -123,7 +129,6 @@ export class FilterCountsService {
     baseQuery: MongoQuery,
     options: FilterCountsOptions
   ): Promise<Record<string, number>> {
-    // Crear query sin el filtro de fixerName para mostrar todos los fixers disponibles
     const queryWithoutFixerFilter = { ...baseQuery };
     delete queryWithoutFixerFilter.fixerName;
 
@@ -132,17 +137,34 @@ export class FilterCountsService {
       count: number;
     }
 
-    const counts = await Offer.aggregate<AggregationResult>([
-      { $match: queryWithoutFixerFilter },
-      {
-        $group: {
-          _id: '$fixerName',
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { count: -1, _id: 1 } },
-      { $limit: 50 }, // Limitar a los 50 fixers con más ofertas
-    ]);
+    const counts = await PerformanceCount.measure(
+      'Fixer Counts Aggregation',
+      queryWithoutFixerFilter,
+      () => {
+        const aggregation = Offer.aggregate<AggregationResult>([
+          { $match: queryWithoutFixerFilter },
+          {
+            $group: {
+              _id: '$fixerName',
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { count: -1, _id: 1 } },
+          { $limit: 50 },
+        ]);
+
+        // OPTIMIZACIÓN: Solo usar hint si NO hay $or o RegEx complejos
+        const hasComplexQuery = queryWithoutFixerFilter.$or || 
+                                (queryWithoutFixerFilter.category && 
+                                 typeof queryWithoutFixerFilter.category === 'object');
+        
+        if (queryWithoutFixerFilter.city && !hasComplexQuery) {
+          aggregation.hint('fixerName_1_city_1');
+        }
+
+        return aggregation.exec();
+      }
+    );
 
     return counts.reduce((acc, item) => {
       acc[item._id] = item.count;
@@ -150,9 +172,6 @@ export class FilterCountsService {
     }, {} as Record<string, number>);
   }
 
-  /**
-   * Obtiene conteo de ofertas por ciudad (excluyendo el filtro de city si está activo)
-   */
   private static async getCityCounts(
     baseQuery: MongoQuery,
     options: FilterCountsOptions
@@ -165,16 +184,35 @@ export class FilterCountsService {
       count: number;
     }
 
-    const counts = await Offer.aggregate<AggregationResult>([
-      { $match: queryWithoutCityFilter },
-      {
-        $group: {
-          _id: '$city',
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ]);
+    const counts = await PerformanceCount.measure(
+      'City Counts Aggregation',
+      queryWithoutCityFilter,
+      () => {
+        const aggregation = Offer.aggregate<AggregationResult>([
+          { $match: queryWithoutCityFilter },
+          {
+            $group: {
+              _id: '$city',
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]);
+
+        // OPTIMIZACIÓN: Solo usar hint si NO hay queries complejas
+        const hasComplexQuery = queryWithoutCityFilter.$or || queryWithoutCityFilter.fixerName;
+        
+        if (!hasComplexQuery) {
+          if (queryWithoutCityFilter.category) {
+            aggregation.hint('city_1_category_1');
+          } else {
+            aggregation.hint('city_1');
+          }
+        }
+
+        return aggregation.exec();
+      }
+    );
 
     return counts.reduce((acc, item) => {
       acc[item._id] = item.count;
@@ -182,9 +220,6 @@ export class FilterCountsService {
     }, {} as Record<string, number>);
   }
 
-  /**
-   * Obtiene conteo de ofertas por categoría (excluyendo el filtro de category si está activo)
-   */
   private static async getCategoryCounts(
     baseQuery: MongoQuery,
     options: FilterCountsOptions
@@ -197,16 +232,35 @@ export class FilterCountsService {
       count: number;
     }
 
-    const counts = await Offer.aggregate<AggregationResult>([
-      { $match: queryWithoutCategoryFilter },
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { count: -1, _id: 1 } },
-    ]);
+    const counts = await PerformanceCount.measure(
+      'Category Counts Aggregation',
+      queryWithoutCategoryFilter,
+      () => {
+        const aggregation = Offer.aggregate<AggregationResult>([
+          { $match: queryWithoutCategoryFilter },
+          {
+            $group: {
+              _id: '$category',
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { count: -1, _id: 1 } },
+        ]);
+
+        // OPTIMIZACIÓN: Solo usar hint si NO hay queries complejas
+        const hasComplexQuery = queryWithoutCategoryFilter.$or || queryWithoutCategoryFilter.fixerName;
+        
+        if (!hasComplexQuery) {
+          if (queryWithoutCategoryFilter.city) {
+            aggregation.hint('city_1_category_1');
+          } else {
+            aggregation.hint('category_1');
+          }
+        }
+
+        return aggregation.exec();
+      }
+    );
 
     return counts.reduce((acc, item) => {
       acc[item._id] = item.count;
@@ -214,9 +268,6 @@ export class FilterCountsService {
     }, {} as Record<string, number>);
   }
 
-  /**
-   * Obtiene conteo de ofertas por rango de rating (excluyendo el filtro de rating si está activo)
-   */
   private static async getRatingCounts(
     baseQuery: MongoQuery,
     options: FilterCountsOptions
@@ -229,21 +280,24 @@ export class FilterCountsService {
       count: number;
     }
 
-    const counts = await Offer.aggregate<BucketResult>([
-      { $match: queryWithoutRatingFilter },
-      {
-        $bucket: {
-          groupBy: '$rating',
-          boundaries: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
-          default: 'other',
-          output: {
-            count: { $sum: 1 },
+    const counts = await PerformanceCount.measure(
+      'Rating Counts Aggregation',
+      queryWithoutRatingFilter,
+      () => Offer.aggregate<BucketResult>([
+        { $match: queryWithoutRatingFilter },
+        {
+          $bucket: {
+            groupBy: '$rating',
+            boundaries: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            default: 'other',
+            output: {
+              count: { $sum: 1 },
+            },
           },
         },
-      },
-    ]);
+      ]).exec()
+    );
 
-    // Convertir a formato más legible: "1-2", "2-3", etc.
     const ratingRanges: Record<string, number> = {};
     counts.forEach((item) => {
       if (item._id !== 'other' && typeof item._id === 'number') {

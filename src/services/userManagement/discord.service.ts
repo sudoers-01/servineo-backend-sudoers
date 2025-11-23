@@ -10,9 +10,8 @@ interface DiscordUser {
   discordId: string;
 }
 
-/**
- * Obtener datos del usuario desde Discord API
- */
+
+ //Obtener datos del usuario desde Discord API
 export async function getDiscordUser(accessToken: string): Promise<DiscordUser | null> {
   const resp = await fetch("https://discord.com/api/users/@me", {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -33,9 +32,9 @@ export async function getDiscordUser(accessToken: string): Promise<DiscordUser |
   };
 }
 
-/**
- * Buscar usuario exclusivamente por Discord ID
- */
+
+ //Buscar usuario 
+ 
 export async function findUserByDiscordId(discordId: string): Promise<IUser & { _id: ObjectId } | null> {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
@@ -49,9 +48,9 @@ export async function findUserByDiscordId(discordId: string): Promise<IUser & { 
   return { ...user, _id: user._id as ObjectId };
 }
 
-/**
- * Crear usuario nuevo usando Discord
- */
+
+ // Crear usuario
+ 
 export async function createUserDiscord(user: DiscordUser): Promise<IUser & { _id: ObjectId }> {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
@@ -65,7 +64,7 @@ export async function createUserDiscord(user: DiscordUser): Promise<IUser & { _i
     authProviders: [
       {
         provider: "discord",
-        providerId: user.discordId, // ✔ CORRECTO
+        providerId: user.discordId, 
         password: "",
       },
     ],
@@ -86,9 +85,9 @@ export async function createUserDiscord(user: DiscordUser): Promise<IUser & { _i
   return { ...newUser, _id: result.insertedId };
 }
 
-/**
- * Vincular Discord a una cuenta existente
- */
+
+ //Vincular
+
 export async function linkDiscordToUser(userId: ObjectId, discordUser: DiscordUser) {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
@@ -99,7 +98,7 @@ export async function linkDiscordToUser(userId: ObjectId, discordUser: DiscordUs
       $push: {
         authProviders: {
           provider: "discord",
-          providerId: discordUser.discordId, // ✔ CORRECTO
+          providerId: discordUser.discordId, 
           password: "",
         },
       },

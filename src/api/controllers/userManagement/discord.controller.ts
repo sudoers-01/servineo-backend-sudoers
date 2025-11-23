@@ -22,7 +22,7 @@ export async function discordAuth(req: Request, res: Response) {
   let mode = "login"; 
   let token: string | null = null;
 
-  // Usa decodeURIComponent como GitHub
+  // Usa decodeURIComponent
   if (state) {
     try {
       const parsed = JSON.parse(decodeURIComponent(String(state)));
@@ -59,7 +59,7 @@ export async function discordAuth(req: Request, res: Response) {
     const discordUser = await getDiscordUser(accessToken);
     if (!discordUser) throw new Error("No se pudo obtener información del usuario Discord");
 
-    // 🔗 MODO VINCULACIÓN
+    // VINCULACIÓN
     if (mode === "link" && token) {
       console.log("🔗 Modo vinculación detectado en Discord");
 
@@ -89,7 +89,7 @@ export async function discordAuth(req: Request, res: Response) {
       `);
     }
 
-    // LOGIN / REGISTRO NORMAL
+    // LOGIN
     let dbUser = await findUserByDiscordId(discordUser.discordId);
     let isFirstTime = false;
 

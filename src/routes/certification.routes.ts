@@ -1,21 +1,21 @@
 import { Router } from 'express';
-import * as experienceController from '../controllers/experience.controller';
+import * as certificationController from '../controllers/certification.controller';
 
 const router = Router();
 
 /**
  * @swagger
  * tags:
- *   name: Experience
- *   description: Gestión de experiencia laboral
+ *   name: Certification
+ *   description: Gestión de certificaciones
  */
 
 /**
  * @swagger
- * /experiences:
+ * /certifications:
  *   post:
- *     summary: Agregar experiencia laboral
- *     tags: [Experience]
+ *     summary: Agregar certificación
+ *     tags: [Certification]
  *     requestBody:
  *       required: true
  *       content:
@@ -25,29 +25,30 @@ const router = Router();
  *             properties:
  *               fixerId:
  *                 type: string
- *               jobTitle:
+ *               name:
  *                 type: string
- *               jobType:
+ *               institution:
  *                 type: string
- *               organization:
- *                 type: string
- *               isCurrent:
- *                 type: boolean
- *               startDate:
+ *               issueDate:
  *                 type: string
  *                 format: date
+ *               expiryDate:
+ *                 type: string
+ *                 format: date
+ *               credentialId:
+ *                 type: string
  *     responses:
  *       201:
- *         description: Experiencia creada
+ *         description: Certificación creada
  */
-router.post('/', experienceController.createExperience);
+router.post('/', certificationController.createCertification);
 
 /**
  * @swagger
- * /experiences/fixer/{fixerId}:
+ * /certifications/fixer/{fixerId}:
  *   get:
- *     summary: Obtener experiencia de un fixer
- *     tags: [Experience]
+ *     summary: Obtener certificaciones de un fixer
+ *     tags: [Certification]
  *     parameters:
  *       - in: path
  *         name: fixerId
@@ -56,16 +57,16 @@ router.post('/', experienceController.createExperience);
  *           type: string
  *     responses:
  *       200:
- *         description: Lista de experiencias
+ *         description: Lista de certificaciones
  */
-router.get('/fixer/:fixerId', experienceController.getExperienceByFixerId);
+router.get('/fixer/:fixerId', certificationController.getCertificationsByFixerId);
 
 /**
  * @swagger
- * /experiences/{id}:
+ * /certifications/{id}:
  *   put:
- *     summary: Actualizar experiencia
- *     tags: [Experience]
+ *     summary: Actualizar certificación
+ *     tags: [Certification]
  *     parameters:
  *       - in: path
  *         name: id
@@ -80,16 +81,16 @@ router.get('/fixer/:fixerId', experienceController.getExperienceByFixerId);
  *             type: object
  *     responses:
  *       200:
- *         description: Experiencia actualizada
+ *         description: Certificación actualizada
  */
-router.put('/:id', experienceController.updateExperience);
+router.put('/:id', certificationController.updateCertification);
 
 /**
  * @swagger
- * /experiences/{id}:
+ * /certifications/{id}:
  *   delete:
- *     summary: Eliminar experiencia
- *     tags: [Experience]
+ *     summary: Eliminar certificación
+ *     tags: [Certification]
  *     parameters:
  *       - in: path
  *         name: id
@@ -98,8 +99,8 @@ router.put('/:id', experienceController.updateExperience);
  *           type: string
  *     responses:
  *       200:
- *         description: Experiencia eliminada
+ *         description: Certificación eliminada
  */
-router.delete('/:id', experienceController.deleteExperience);
+router.delete('/:id', certificationController.deleteCertification);
 
 export default router;

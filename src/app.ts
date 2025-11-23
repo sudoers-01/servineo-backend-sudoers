@@ -6,9 +6,13 @@ import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
 import userProfileRoutes from './routes/userProfile.routes';
 import jobRoutes from './routes/job.routes';
+import jobOfferRoutes from './routes/job_offer.routes';
+import experienceRoutes from './routes/experience.routes';
+import certificationRoutes from './routes/certification.routes';
+import portfolioRoutes from './routes/portfolio.routes';
+import userUpgradeRoutes from './routes/user_upgrade.routes';
 
 import searchRoutes from './api/routes/search.routes';
-import userProfileRoutes from './routes/userProfile.routes';
 import photosRoutes from './routes/photos.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
@@ -26,6 +30,10 @@ import githubAuthRouter from '../src/api/routes/userManagement/github.routes';
 import discordRoutes from '../src/api/routes/userManagement/discord.routes';
 import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
+
+// Swagger
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.config';
 
 const app = express();
 
@@ -65,6 +73,19 @@ app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
 app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api/jobs', jobRoutes);
+
+// Fixer Profile Routes
+app.use('/api/job-offers', jobOfferRoutes);
+app.use('/api/experiences', experienceRoutes);
+app.use('/api/certifications', certificationRoutes);
+app.use('/api/portfolio', portfolioRoutes);
+
+// User Upgrade Route
+app.use('/api/users', userUpgradeRoutes);
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // 404 handler
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

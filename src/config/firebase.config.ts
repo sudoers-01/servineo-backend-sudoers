@@ -19,7 +19,7 @@ if (!admin.apps.length) {
     // OPCIÓN 2 (Solo desarrollo/local): usar las credenciales públicas
     // ──────────────────────────────────────────────────
     const firebaseConfig = {
-      
+        
     };
 
     admin.initializeApp({

@@ -29,7 +29,7 @@ export interface IUser extends Document {
     hasVehiculo?: boolean;
     tipoVehiculo?: string;
   };
-
+  fixerProfile?: string;
   acceptTerms?: boolean;
 
   metodoPago?: {
@@ -99,6 +99,8 @@ const userSchema = new Schema<IUser>(
     },
 
     acceptTerms: { type: Boolean, default: false },
+
+    fixerProfile: { type: String, required : false },
 
     metodoPago: {
       hasEfectivo: { type: Boolean, default: false },

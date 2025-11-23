@@ -331,6 +331,17 @@ export const getUniqueTags = async (req: Request, res: Response) => {
 };
 
 export const getFilterCounts = async (req: Request, res: Response) => {
+  // ⬅️ NUEVO: Crear AbortController
+  const abortController = new AbortController();
+  
+  // ⬅️ NUEVO: Detectar cuando el cliente cancela
+  req.on('close', () => {
+    if (!res.headersSent) {
+      console.log('🚫 Client closed connection - aborting filter counts query');
+      abortController.abort();
+    }
+  });
+
   try {
     const {
       range,
@@ -381,7 +392,7 @@ export const getFilterCounts = async (req: Request, res: Response) => {
       });
     }
 
-    // Obtener conteos
+    // ⬅️ MODIFICADO: Agregar signal
     const counts = await FilterCountsService.getCounts({
       search: parsedSearch,
       ranges: parsedRanges,
@@ -389,6 +400,7 @@ export const getFilterCounts = async (req: Request, res: Response) => {
       categories: parsedCategories,
       minRating: parsedMinRating,
       maxRating: parsedMaxRating,
+      signal: abortController.signal, // ⬅️ NUEVO
     });
 
     return res.status(200).json({
@@ -396,11 +408,25 @@ export const getFilterCounts = async (req: Request, res: Response) => {
       data: counts,
     });
   } catch (error) {
+    // ⬅️ NUEVO: Manejo especial para abort
+    if (error instanceof Error && error.message.includes('abort')) {
+      if (!res.headersSent) {
+        return res.status(499).json({
+          success: false,
+          message: 'Request was cancelled',
+        });
+      }
+      return;
+    }
+
     console.error('Error en getFilterCounts:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error al obtener conteos de filtros',
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
+    
+    if (!res.headersSent) {
+      return res.status(500).json({
+        success: false,
+        message: 'Error al obtener conteos de filtros',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 };

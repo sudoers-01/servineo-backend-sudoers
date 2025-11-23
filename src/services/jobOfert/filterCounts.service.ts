@@ -13,6 +13,7 @@ export type FilterCountsOptions = {
   categories?: string[];
   minRating?: number;
   maxRating?: number;
+  signal?: AbortSignal;
 };
 
 export type FilterCounts = {
@@ -43,6 +44,11 @@ export class FilterCountsService {
   static async getCounts(options: FilterCountsOptions = {}): Promise<FilterCounts> {
     const startTime = Date.now();
 
+    // ⬅️ NUEVO: Verificar si ya fue cancelado
+    if (options.signal?.aborted) {
+      throw new Error('Request was aborted before starting');
+    }
+
     const baseQuery: MongoQuery = this.buildBaseQuery(options);
 
     const [fixerCounts, cityCounts, categoryCounts, ratingCounts, total] = await Promise.all([
@@ -53,11 +59,28 @@ export class FilterCountsService {
       PerformanceCount.measure(
         'Total Count',
         baseQuery,
-        () => Offer.countDocuments(baseQuery)
+        () => {
+          const query = Offer.countDocuments(baseQuery);
+          
+          if (options.signal) {
+            options.signal.addEventListener('abort', () => {
+              console.log('🚫 Total count request aborted');
+            });
+          }
+          
+          return query;
+        }
       ),
     ]);
 
     const duration = Date.now() - startTime;
+    
+    // ⬅️ NUEVO: Verificar si fue cancelado después
+    if (options.signal?.aborted) {
+      console.log('🚫 Request was aborted after completion');
+      throw new Error('Request aborted');
+    }
+    
     console.log(`📊 Filter Counts completed in ${duration}ms`);
 
     // VALIDACIÓN: Verificar que los datos sean válidos
@@ -153,6 +176,11 @@ export class FilterCountsService {
     const queryWithoutFixerFilter = { ...baseQuery };
     delete queryWithoutFixerFilter.fixerName;
 
+    // ⬅️ NUEVO: Verificar cancelación
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
+    }
+
     interface AggregationResult {
       _id: string;
       count: number;
@@ -199,6 +227,11 @@ export class FilterCountsService {
   ): Promise<Record<string, number>> {
     const queryWithoutCityFilter = { ...baseQuery };
     delete queryWithoutCityFilter.city;
+
+    // ⬅️ NUEVO: Verificar cancelación
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
+    }
 
     interface AggregationResult {
       _id: string;
@@ -248,6 +281,11 @@ export class FilterCountsService {
     const queryWithoutCategoryFilter = { ...baseQuery };
     delete queryWithoutCategoryFilter.category;
 
+    // ⬅️ NUEVO: Verificar cancelación
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
+    }
+
     interface AggregationResult {
       _id: string;
       count: number;
@@ -295,6 +333,11 @@ export class FilterCountsService {
   ): Promise<Record<string, number>> {
     const queryWithoutRatingFilter = { ...baseQuery };
     delete queryWithoutRatingFilter.rating;
+
+    // ⬅️ NUEVO: Verificar cancelación
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
+    }
 
     interface BucketResult {
       _id: number | string;

@@ -4,6 +4,7 @@ import { validateAndNormalizeCity } from '../../utils/cityHelper';
 import { validateAndNormalizeCategory } from '../../utils/categoryHelper';
 import { getRangeRegex } from '../../utils/nameRangeHelper';
 import { PerformanceCount } from '../../utils/performanceCount';
+import { FilterCountValidator } from '../../validators/filterCount.validator';
 
 export type FilterCountsOptions = {
   search?: string;
@@ -58,6 +59,26 @@ export class FilterCountsService {
 
     const duration = Date.now() - startTime;
     console.log(`📊 Filter Counts completed in ${duration}ms`);
+
+    // VALIDACIÓN: Verificar que los datos sean válidos
+    const validation = FilterCountValidator.validateCounts(
+      fixerCounts,
+      cityCounts,
+      categoryCounts,
+      ratingCounts,
+      total
+    );
+
+    // Loguear errores si existen
+    if (!validation.isValid) {
+      console.error('❌ Filter counts validation FAILED:', validation.errors);
+      throw new Error(`Invalid filter counts: ${validation.errors.join(', ')}`);
+    }
+
+    // Loguear advertencias si existen
+    if (validation.warnings.length > 0) {
+      console.warn('⚠️  Filter counts validation warnings:', validation.warnings);
+    }
 
     return {
       fixers: fixerCounts,

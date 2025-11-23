@@ -9,6 +9,25 @@ import jobsRoutes from './api/routes/jobs.routes';
 //import photosRoutes from './api/routes/photos.routes';
 
 import searchRoutes from './api/routes/search.routes';
+import userProfileRoutes from './routes/userProfile.routes';
+import photosRoutes from './routes/photos.routes';
+
+import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
+import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
+import googleRouter from "../src/api/routes/userManagement/google.routes";
+import ubicacionRouter from "../src/api/routes/userManagement/ubicacion.routes"; 
+import authRouter from "../src/api/routes/userManagement/login.routes"; 
+import modificarDatosRouter from '../src/api/routes/userManagement/modificarDatos.routes';
+import nominatimRouter from '../src/api/routes/userManagement/sugerencias.routes'; 
+import deviceRouter from '../src/api/routes/userManagement/device.routes';
+import cambiarContrasenaRouter from '../src/api/routes/userManagement/editarContraseña.routes';
+import cerrarSesionesRouter from '../src/api/routes/userManagement/cerrarSesiones.routes';
+import ultimoCambioRouter from '../src/api/routes/userManagement/ultimoCambio.routes';
+import githubAuthRouter from '../src/api/routes/userManagement/github.routes';
+import discordRoutes from '../src/api/routes/userManagement/discord.routes';
+import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
+import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
+
 const app = express();
 
 // Lista de orígenes permitidos
@@ -56,6 +75,7 @@ app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
+app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', jobsRoutes);
 app.use('/api', searchRoutes);

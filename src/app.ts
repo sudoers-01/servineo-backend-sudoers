@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { connectDatabase } from './config/db.config';
 import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
@@ -44,6 +46,16 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDatabase();
+    next();
+  } catch (error) {
+    console.error('❌ Failed to connect to MongoDB:', error);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
 
 // Routes
 app.use('/api', HealthRoutes);

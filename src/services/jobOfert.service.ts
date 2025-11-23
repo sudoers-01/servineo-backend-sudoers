@@ -97,12 +97,27 @@ export const getOffersFiltered = async (options?: OfferFilterOptions) => {
     }
   }
 
-  // Filtrado por rating: comparación exacta con decimales (1.0..5.9)
+// 3.2. Lógica para filtro de CALIFICACIÓN (CORREGIDA)
   if (options && typeof options.rating === 'number' && !isNaN(options.rating)) {
-    if (options.rating >= 1.0 && options.rating <= 5.9) {
-      filterQuery = FilterCommon.combine(filterQuery, { rating: options.rating });
+   const star = options.rating;
+ 
+   // Si es un número entero (viene del filtro de estrellas básico)
+     if (Number.isInteger(star) && star >= 1 && star <= 5) {
+   // Lógica del filtro BÁSICO (Rango [N.0, (N+1).0))
+     const minRating = star;
+     const maxRatingExclusive = star + 1; 
+
+     filterQuery = FilterCommon.combine(filterQuery, {
+         rating: { $gte: minRating, $lt: maxRatingExclusive },
+  });
+
+ } 
+ // Si es un decimal (viene de la búsqueda avanzada o un filtro exacto)
+   else if (star >= 1.0 && star <= 5.9) {
+ // Lógica del filtro AVANZADO (Comparación exacta)
+     filterQuery = FilterCommon.combine(filterQuery, { rating: star });
     }
-  }
+   }
 
   const finalQuery = FilterCommon.combine(filterQuery, searchQuery); // 4. APLICAR ORDENAMIENTO Y PAGINACIÓN
 

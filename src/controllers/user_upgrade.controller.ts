@@ -22,24 +22,25 @@ export const upgradeToFixer = async (req: Request, res: Response) => {
     // 2. Manejar la subida de la imagen (fixerProfile)
     let fixerProfileUrl = user.fixerProfile; // Mantener la anterior si no se sube nueva
 
-    if (req.file) {
-      const fileName = `fixer-profiles/${Date.now()}-${Math.round(Math.random() * 1000)}-${req.file.originalname}`;
+    if ((req as any).file) {
+      const file = (req as any).file;
+      const fileName = `fixer-profiles/${Date.now()}-${Math.round(Math.random() * 1000)}-${file.originalname}`;
       const fileUpload = bucket.file(fileName);
 
       const blobStream = fileUpload.createWriteStream({
         metadata: {
-          contentType: req.file.mimetype,
+          contentType: file.mimetype,
         },
       });
 
       await new Promise<void>((resolve, reject) => {
-        blobStream.on('error', (error) => reject(error));
+        blobStream.on('error', (error: any) => reject(error));
         blobStream.on('finish', async () => {
           await fileUpload.makePublic();
           fixerProfileUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
           resolve();
         });
-        blobStream.end(req.file?.buffer);
+        blobStream.end((req as any).file?.buffer);
       });
     }
 

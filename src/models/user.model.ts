@@ -36,11 +36,10 @@ export interface IUser extends Document {
     hasEfectivo?: boolean;
     qr?: boolean;
     tarjetaCredito?: boolean;
+    numeroTarjeta?: string;
   };
 
-  experience?: {
-    descripcion?: string;
-  };
+  description?: string;
 
   workLocation?: {
     lat?: number;
@@ -89,26 +88,25 @@ const userSchema = new Schema<IUser>(
       pais: { type: String },
     },
 
-    ci: { type: String },
+    ci: { type: String, required: false },
 
-    servicios: [{ type: String }],
+    servicios: [{ type: String, required: false }],
 
     vehiculo: {
-      hasVehiculo: { type: Boolean },
-      tipoVehiculo: { type: String },
+      hasVehiculo: { type: Boolean, required: false },
+      tipoVehiculo: { type: String, required: false },
     },
 
-    acceptTerms: { type: Boolean, default: false },
+    acceptTerms: { type: Boolean, default: false, required: false },
 
     metodoPago: {
       hasEfectivo: { type: Boolean, default: false },
       qr: { type: Boolean, default: false },
       tarjetaCredito: { type: Boolean, default: false },
+      numeroTarjeta: { type: String },
     },
 
-    experience: {
-      descripcion: { type: String },
-    },
+    description: { type: String, required: false },
 
     workLocation: {
       lat: { type: Number },

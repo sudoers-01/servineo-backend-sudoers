@@ -59,6 +59,30 @@ router.get('/fixer/:fixerId', portfolioController.getPortfolioByFixerId);
 /**
  * @swagger
  * /portfolio/{id}:
+ *   put:
+ *     summary: Actualizar item de portafolio
+ *     tags: [Portfolio]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Item actualizado
+ */
+router.put('/:id', portfolioController.updatePortfolioItem);
+
+/**
+ * @swagger
+ * /portfolio/{id}:
  *   delete:
  *     summary: Eliminar item del portafolio
  *     tags: [Portfolio]

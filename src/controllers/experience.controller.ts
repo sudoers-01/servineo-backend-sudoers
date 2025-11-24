@@ -3,7 +3,16 @@ import { Experience } from '../models/experience.model';
 
 export const createExperience = async (req: Request, res: Response) => {
   try {
-    const experience = new Experience(req.body);
+    const user = (req as any).user;
+    if (!user || user.role !== 'fixer') {
+      return res.status(403).json({ message: 'Access denied. Only fixers can create experiences.' });
+    }
+
+    const experienceData = {
+      ...req.body,
+      fixerId: user._id,
+    };
+    const experience = new Experience(experienceData);
     await experience.save();
     res.status(201).json(experience);
   } catch (error) {

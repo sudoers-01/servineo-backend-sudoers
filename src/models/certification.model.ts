@@ -43,6 +43,7 @@ const certificationSchema = new Schema<ICertification>(
   },
   {
     timestamps: true,
+    collection: 'certificacion',
   }
 );
 

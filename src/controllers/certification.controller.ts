@@ -1,9 +1,44 @@
 import { Request, Response } from 'express';
 import { Certification } from '../models/certification.model';
+import { bucket } from '../config/firebase.config';
 
 export const createCertification = async (req: Request, res: Response) => {
   try {
-    const certification = new Certification(req.body);
+    const user = (req as any).user;
+    if (!user || user.role !== 'fixer') {
+      return res.status(403).json({ message: 'Access denied. Only fixers can create certifications.' });
+    }
+
+    let credentialUrl = '';
+    if ((req as any).file) {
+      const file = (req as any).file;
+      const fileName = `certifications/${Date.now()}-${Math.round(Math.random() * 1000)}-${file.originalname}`;
+      const fileUpload = bucket.file(fileName);
+
+      const blobStream = fileUpload.createWriteStream({
+        metadata: {
+          contentType: file.mimetype,
+        },
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        blobStream.on('error', (error: any) => reject(error));
+        blobStream.on('finish', async () => {
+          await fileUpload.makePublic();
+          credentialUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+          resolve();
+        });
+        blobStream.end((req as any).file?.buffer);
+      });
+    }
+
+    const certificationData = {
+      ...req.body,
+      fixerId: user._id,
+      credentialUrl: credentialUrl || req.body.credentialUrl,
+    };
+
+    const certification = new Certification(certificationData);
     await certification.save();
     res.status(201).json(certification);
   } catch (error) {

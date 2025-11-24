@@ -4,6 +4,7 @@ export interface IJobOffer extends Document {
   fixerId: Types.ObjectId;
   fixerName: string;
   fixerWhatsapp: string;
+  title: string;
   description: string;
   city: string;
   price: number;
@@ -25,6 +26,10 @@ const jobOfferSchema = new Schema<IJobOffer>(
       required: true,
     },
     fixerWhatsapp: {
+      type: String,
+      required: true,
+    },
+    title: {
       type: String,
       required: true,
     },
@@ -59,6 +64,7 @@ const jobOfferSchema = new Schema<IJobOffer>(
   },
   {
     timestamps: true,
+    collection: 'jobs',
   }
 );
 

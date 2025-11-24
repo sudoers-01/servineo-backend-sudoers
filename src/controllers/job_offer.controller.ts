@@ -4,7 +4,7 @@ import { bucket } from '../config/firebase.config';
 
 export const createJobOffer = async (req: Request, res: Response) => {
   try {
-    const files = req.files as Express.Multer.File[];
+    const files = (req as any).files as any[];
     const imageUrls: string[] = [];
 
     if (files && files.length > 0) {
@@ -19,7 +19,7 @@ export const createJobOffer = async (req: Request, res: Response) => {
         });
 
         return new Promise<string>((resolve, reject) => {
-          blobStream.on('error', (error) => {
+          blobStream.on('error', (error: any) => {
             reject(error);
           });
 
@@ -38,8 +38,16 @@ export const createJobOffer = async (req: Request, res: Response) => {
       imageUrls.push(...urls);
     }
 
+    const user = (req as any).user;
+    if (!user || user.role !== 'fixer') {
+      return res.status(403).json({ message: 'Access denied. Only fixers can create job offers.' });
+    }
+
     const jobOfferData = {
       ...req.body,
+      fixerId: user._id,
+      fixerName: user.name,
+      fixerWhatsapp: user.telefono, // Assuming telefono is the whatsapp number
       images: imageUrls,
     };
 

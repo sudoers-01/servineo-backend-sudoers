@@ -14,7 +14,7 @@ import multer from 'multer';
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: any, file: any, cb: any) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     if (allowed.includes(file.mimetype)) {
       cb(null, true);
@@ -60,7 +60,7 @@ export const uploadJobOfferPhoto = [
   upload.single('photo'),
   async (req: Request, res: Response) => {
     try {
-      if (!req.file) {
+      if (!(req as any).file) {
         return res.status(400).json({ error: 'No se subió ningún archivo' });
       }
 
@@ -71,7 +71,7 @@ export const uploadJobOfferPhoto = [
         return res.status(400).json({ error: 'userId es requerido (en form-data o query)' });
       }
 
-      const photoUrl = await addJobOfferPhoto(userId, req.file);
+      const photoUrl = await addJobOfferPhoto(userId, (req as any).file);
       res.json({ success: true, photoUrl });
     } catch (error: any) {
       if (error.message.includes('Máximo 5')) {

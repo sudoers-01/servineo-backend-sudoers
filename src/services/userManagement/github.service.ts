@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
-import clientPromise from "../../config/db/mongodb";
-import { ObjectId } from "mongodb";
-import { IUser } from "../../models/requester.model";
+import { User } from "../../models/user.model";
+import { IUser } from "../../models/user.model";
 
 interface GitHubUser {
   email: string;
@@ -34,29 +33,19 @@ export async function getGitHubUser(accessToken: string): Promise<GitHubUser | n
   };
 }
 
-export async function findUserByEmail(email: string) {
-  const mongoClient = await clientPromise;
-  const db = mongoClient.db("ServineoBD");
-
-  const user = await db.collection<IUser>("users").findOne({
+export async function findUserByEmail(email: string): Promise<IUser | null> {
+  return await User.findOne({
     "authProviders.provider": "github",
     "authProviders.providerId": email,
   });
-
-  if (!user) return null;
-  return { ...user, _id: user._id as ObjectId };
 }
 
-export async function checkUserExists(email: string): Promise<boolean> {
-  const user = await findUserByEmail(email);
-  return !!user;
+export async function checkUserExists(email: string) {
+  return !!(await findUserByEmail(email));
 }
 
-export async function createUser(githubUser: GitHubUser): Promise<IUser & { _id: ObjectId }> {
-  const mongoClient = await clientPromise;
-  const db = mongoClient.db("ServineoBD");
-
-  const newUser: IUser = {
+export async function createUser(githubUser: GitHubUser): Promise<IUser> {
+  const newUser = await User.create({
     name: githubUser.name,
     email: githubUser.email,
     url_photo: githubUser.picture || "",
@@ -72,16 +61,44 @@ export async function createUser(githubUser: GitHubUser): Promise<IUser & { _id:
 
     telefono: "",
     servicios: [],
-    ubicacion: {},
+
+    ubicacion: {
+      lat: null,
+      lng: null,
+      direccion: "",
+      departamento: "",
+      pais: "",
+    },
+
     ci: "",
-    vehiculo: {},
+
+    vehiculo: {
+      hasVehiculo: false,
+      tipoVehiculo: "",
+    },
+
     acceptTerms: false,
-    metodoPago: {},
-    experience: {},
-    workLocation: {},
-  };
 
-  const result = await db.collection<IUser>("users").insertOne(newUser);
+    metodoPago: {
+      hasEfectivo: false,
+      qr: false,
+      tarjetaCredito: false,
+    },
 
-  return { ...newUser, _id: result.insertedId };
+    experience: {
+      descripcion: "",
+    },
+
+    workLocation: {
+      lat: null,
+      lng: null,
+      direccion: "",
+      departamento: "",
+      pais: "",
+    },
+
+    fixerProfile: "",
+  });
+
+  return newUser;
 }

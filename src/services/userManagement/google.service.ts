@@ -1,7 +1,6 @@
 import { OAuth2Client } from "google-auth-library";
-import clientPromise from "../../config/db/mongodb";
-import { ObjectId } from "mongodb";
-import { IUser } from "../../models/requester.model";
+import { User } from "../../models/user.model";
+import { IUser } from "../../models/user.model";
 
 interface GoogleUser {
   email: string;
@@ -11,7 +10,7 @@ interface GoogleUser {
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-export async function verifyGoogleToken(token: string): Promise<GoogleUser | null> {
+export async function verifyGoogleToken(token: string) {
   const ticket = await client.verifyIdToken({
     idToken: token,
     audience: process.env.GOOGLE_CLIENT_ID,
@@ -27,33 +26,24 @@ export async function verifyGoogleToken(token: string): Promise<GoogleUser | nul
   };
 }
 
-export async function findUserByEmail(email: string): Promise<IUser & { _id: ObjectId } | null> {
-  const mongoClient = await clientPromise;
-  const db = mongoClient.db("ServineoBD");
-  const user = await db.collection<IUser>("users").findOne({
+export async function findUserByEmail(email: string): Promise<IUser | null> {
+  return await User.findOne({
     "authProviders.provider": "google",
-    "authProviders.providerId": email
+    "authProviders.providerId": email,
   });
-
-  if (!user) return null;
-
-  return { ...user, _id: user._id as ObjectId };
 }
 
-export async function checkUserExists(email: string): Promise<boolean> {
-  const user = await findUserByEmail(email);
-  return !!user;
+export async function checkUserExists(email: string) {
+  return !!(await findUserByEmail(email));
 }
 
-export async function createUser(googleUser: GoogleUser): Promise<IUser & { _id: ObjectId }> {
-  const mongoClient = await clientPromise;
-  const db = mongoClient.db("ServineoBD");
-
-  const newUser: IUser = {
+export async function createUser(googleUser: GoogleUser) {
+  const newUser = await User.create({
     name: googleUser.name,
     email: googleUser.email,
     url_photo: googleUser.picture || "",
     role: "requester",
+
     authProviders: [
       {
         provider: "google",
@@ -61,18 +51,48 @@ export async function createUser(googleUser: GoogleUser): Promise<IUser & { _id:
         password: "",
       },
     ],
+
     telefono: "",
-    servicios: [],
-    ubicacion: {},
+
+    ubicacion: {
+      lat: null,
+      lng: null,
+      direccion: "",
+      departamento: "",
+      pais: "",
+    },
+
     ci: "",
-    vehiculo: {},
+    servicios: [],
+
+    vehiculo: {
+      hasVehiculo: false,
+      tipoVehiculo: "",
+    },
+
     acceptTerms: false,
-    metodoPago: {},
-    experience: {},
-    workLocation: {},
-  };
 
-  const result = await db.collection<IUser>("users").insertOne(newUser);
+    metodoPago: {
+      hasEfectivo: false,
+      qr: false,
+      tarjetaCredito: false,
+    },
 
-  return { ...newUser, _id: result.insertedId };
+    experience: {
+      descripcion: "",
+    },
+
+    workLocation: {
+      lat: null,
+      lng: null,
+      direccion: "",
+      departamento: "",
+      pais: "",
+    },
+
+    fixerProfile: "",
+  });
+
+  return newUser;
 }
+

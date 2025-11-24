@@ -56,3 +56,4 @@ coverage/
 
 # Vercel local build cache
 .vercel/
+.vercel

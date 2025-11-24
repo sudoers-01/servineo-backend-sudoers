@@ -11,7 +11,6 @@ export async function updateUserPhoto(usuarioId: string, fotoPerfil: string): Pr
     {
       $set: {
         url_photo: fotoPerfil,
-        url_phto: fotoPerfil,
       },
     },
   );

@@ -1,5 +1,6 @@
-import clientPromise from "../../config/db/mongodb";
-import { ObjectId } from "mongodb";
+import { User } from "../../models/user.model";
+import { IUser } from "../../models/user.model";
+import bcrypt from "bcryptjs";
 
 interface ManualUser {
   email: string;
@@ -13,12 +14,8 @@ interface InsertedUser {
   name: string;
 }
 
-
 export async function checkUserExists(email: string): Promise<boolean> {
-  const mongoClient = await clientPromise;
-  const db = mongoClient.db("ServineoBD");
-
-  const user = await db.collection("users").findOne({
+  const user = await User.findOne({
     "authProviders.provider": "email",
     "authProviders.providerId": email,
   });
@@ -29,58 +26,77 @@ export async function checkUserExists(email: string): Promise<boolean> {
 export async function createManualUser(
   user: ManualUser
 ): Promise<InsertedUser & { _id: string; picture?: string }> {
-  const mongoClient = await clientPromise;
-  const db = mongoClient.db("ServineoBD");
+  
+  const hashedPassword = await bcrypt.hash(user.password, 10);
 
-  const newUser = {
+  const newUserData: Partial<IUser> = {
     name: user.name,
     email: user.email,
     url_photo: user.picture || "",
     role: "requester",
-    especialidad: "",
-    telefono: "",
-    certificacion: "",
-    language: "es",
-    createdAt: new Date(),
 
     authProviders: [
       {
         provider: "email",
         providerId: user.email,
-        password: user.password, 
-        linkedAt: new Date(),
+        password: hashedPassword,
       },
     ],
 
+    telefono: "",
     servicios: [],
-    ubicacion: {},
+
+    ubicacion: {
+      lat: 0,
+      lng: 0,
+      direccion: "",
+      departamento: "",
+      pais: "",
+    },
+
     ci: "",
-    vehiculo: {},
+
+    vehiculo: {
+      hasVehiculo: false,
+      tipoVehiculo: "",
+    },
+
     acceptTerms: false,
-    metodoPago: {},
-    experience: {},
-    workLocation: {},
+
+    metodoPago: {
+      hasEfectivo: false,
+      qr: false,
+      tarjetaCredito: false,
+    },
+
+    experience: {
+      descripcion: "",
+    },
+
+    workLocation: {
+      lat: 0,
+      lng: 0,
+      direccion: "",
+      departamento: "",
+      pais: "",
+    },
+
+    fixerProfile: "",
   };
 
-  const result = await db.collection("users").insertOne(newUser);
+  const created = await User.create(newUserData);
 
   console.log("Usuario manual creado:", user.email);
 
   return {
-    _id: result.insertedId.toHexString(),
-    name: user.name,
-    email: user.email,
-    picture: user.picture || "",
+    _id: created._id.toString(),
+    name: created.name,
+    email: created.email,
+    picture: created.url_photo,
   };
 }
 
-export async function getUserById(usuarioId: string): Promise<any | null> {
-  const mongoClient = await clientPromise;
-  const db = mongoClient.db("ServineoBD");
-
-  const user = await db
-    .collection("usuarios")
-    .findOne({ _id: new ObjectId(usuarioId) });
-
+export async function getUserById(usuarioId: string): Promise<IUser | null> {
+  const user = await User.findById(usuarioId);
   return user;
 }

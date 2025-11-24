@@ -29,7 +29,7 @@ export async function manualRegister(req: Request, res: Response) {
         const updated = await updateUserPhoto(newUser._id, req.body.picture);
         if (updated) {
           const userFromDb = await getUserById(newUser._id);
-          finalPicture = (userFromDb && (userFromDb.url_photo || userFromDb.url_phto || userFromDb.picture)) || finalPicture;
+          finalPicture = (userFromDb && (userFromDb.url_photo || userFromDb.url_photo)) || finalPicture;
         } else {
           console.warn('No se pudo actualizar la foto del usuario tras el registro:', newUser._id);
         }

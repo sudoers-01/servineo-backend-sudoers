@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import clientPromise from "../../config/db/mongodb";
 import { ObjectId } from "mongodb";
+import { IUser } from "../../models/requester.model";
 
 interface DiscordUser {
   email: string;
@@ -10,28 +11,14 @@ interface DiscordUser {
 }
 
 
-interface AuthProvider {
-  provider: string; 
-  email: string;
-  discordId?: string;
-  username?: string;
-  linkedAt: Date;
-}
-
-export interface User extends DiscordUser {
-  _id: ObjectId;
-  role: string;
-  url_photo: string;
-  authProviders?: AuthProvider[]; 
-}
-
+ //Obtener datos del usuario desde Discord API
 export async function getDiscordUser(accessToken: string): Promise<DiscordUser | null> {
   const resp = await fetch("https://discord.com/api/users/@me", {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
   const data = await resp.json();
-  if (!data) return null;
+  if (!data || !data.id) return null;
 
   const email = data.email || `${data.id}@discord.local`;
 
@@ -45,63 +32,77 @@ export async function getDiscordUser(accessToken: string): Promise<DiscordUser |
   };
 }
 
-export async function findUserByEmail(email: string): Promise<User | null> {
+
+ //Buscar usuario 
+ 
+export async function findUserByDiscordId(discordId: string): Promise<IUser & { _id: ObjectId } | null> {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
-  const user = await db.collection("users").findOne<User>({ email });
-  return user;
+
+  const user = await db.collection<IUser>("users").findOne({
+    "authProviders.provider": "discord",
+    "authProviders.providerId": discordId,
+  });
+
+  if (!user) return null;
+  return { ...user, _id: user._id as ObjectId };
 }
 
-export async function createUserDiscord(user: DiscordUser): Promise<User> {
+
+ // Crear usuario
+ 
+export async function createUserDiscord(user: DiscordUser): Promise<IUser & { _id: ObjectId }> {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
 
-  const newUserDocument = {
+  const newUser: IUser = {
     name: user.name,
     email: user.email,
     url_photo: user.picture || "",
     role: "requester",
+
     authProviders: [
       {
         provider: "discord",
-        email: user.email,
-        providerId: user.discordId,
-        username: user.name,
-        linkedAt: new Date(),
+        providerId: user.discordId, 
+        password: "",
       },
     ],
-    especialidad: "",
+
     telefono: "",
-    certificacion: "",
-    language: "es",
-    createdAt: new Date(),
+    servicios: [],
+    ubicacion: {},
+    ci: "",
+    vehiculo: {},
+    acceptTerms: false,
+    metodoPago: {},
+    experience: {},
+    workLocation: {},
   };
 
-  const result = await db.collection("users").insertOne(newUserDocument);
+  const result = await db.collection<IUser>("users").insertOne(newUser);
 
-  return {
-    _id: result.insertedId,
-    ...user,
-    ...newUserDocument,
-  } as User;
+  return { ...newUser, _id: result.insertedId };
 }
 
-export async function linkDiscordToUser(userId: ObjectId, discordUser: any) {
+
+ //Vincular
+
+export async function linkDiscordToUser(userId: ObjectId, discordUser: DiscordUser) {
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
 
-  return db.collection("users").updateOne(
+  return db.collection<IUser>("users").updateOne(
     { _id: userId },
     {
       $push: {
         authProviders: {
           provider: "discord",
-          email: discordUser.email,
-          discordId: discordUser.id,
-          username: discordUser.username,
-          linkedAt: new Date(),
+          providerId: discordUser.discordId, 
+          password: "",
         },
       },
-    }as any
+    }
   );
 }
+

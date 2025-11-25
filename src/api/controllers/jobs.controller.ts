@@ -47,7 +47,7 @@ export async function getJobsWithFixers(_req: Request, res: Response) {
       const fixersForService = fixers
         .filter((fixer) => (fixer as any).fixerProfile?.services?.includes(service))
         .map((fixer) => ({
-          id: fixer._id.toString(),
+          id: (fixer as any)._id.toString(),
           name: fixer.name,
           city: '', // se puede rellenar más adelante si agregas ciudad al modelo
           rating: 0, // placeholder hasta tener sistema de reseñas

@@ -4,11 +4,15 @@ import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
-import activityRoutes from './api/routes/activities.routes';
-import jobsRoutes from './api/routes/jobs.routes';
+import userProfileRoutes from './routes/userProfile.routes';
+import jobRoutes from './routes/job.routes';
+import jobOfferRoutes from './routes/job_offer.routes';
+import experienceRoutes from './routes/experience.routes';
+import certificationRoutes from './routes/certification.routes';
+import portfolioRoutes from './routes/portfolio.routes';
+import userUpgradeRoutes from './routes/user_upgrade.routes';
 
 import searchRoutes from './api/routes/search.routes';
-import userProfileRoutes from './routes/userProfile.routes';
 import photosRoutes from './routes/photos.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
@@ -27,6 +31,10 @@ import discordRoutes from '../src/api/routes/userManagement/discord.routes';
 import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
 
+// Swagger
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.config';
+
 const app = express();
 
 // Lista de orígenes permitidos
@@ -42,18 +50,7 @@ const allowedOrigins = [
 // Configuración CORS mejorada
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Permite requests sin origin (Postman, Thunder Client, apps móviles)
-      if (!origin) return callback(null, true);
-      
-      // Verifica si el origin está en la lista permitida
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        console.log('❌ CORS blocked origin:', origin);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: ['http://localhost:3000', 'http://localhost:8080','*'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -75,31 +72,21 @@ app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
 app.use('/api/user-profiles', userProfileRoutes);
-app.use('/api', activityRoutes);
-app.use('/api', jobsRoutes);
-app.use('/api', searchRoutes);
-app.use('/api/photos', photosRoutes);
+app.use('/api/jobs', jobRoutes);
 
-app.use('/api/controlC/google', googleRouter);
-app.use('/api/controlC/ubicacion', ubicacionRouter);
-app.use('/api/controlC/auth', authRouter);
-app.use('/api/controlC/registro', registrarDatosRouter);
-app.use('/api/controlC/modificar-datos', modificarDatosRouter);
-app.use('/api/controlC/sugerencias', nominatimRouter);
-app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);
-app.use('/api/controlC/cerrar-sesiones', cerrarSesionesRouter);
-app.use('/api/controlC/ultimo-cambio', ultimoCambioRouter);
-app.use('/api/controlC/foto-perfil', fotoPerfilRouter);
-app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
-app.use('/auth', githubAuthRouter);
-app.use('/auth', discordRoutes);
-app.use('/api/controlC/cliente', clienteRouter);
+// Fixer Profile Routes
+app.use('/api/job-offers', jobOfferRoutes);
+app.use('/api/experiences', experienceRoutes);
+app.use('/api/certifications', certificationRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 
-export const registerRoutes = (app: any) => {
-  app.use('/devices', deviceRouter);
-};
+// User Upgrade Route
+app.use('/api/users', userUpgradeRoutes);
 
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// 404 handler
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);
   res.status(404).send({

@@ -1,21 +1,21 @@
 import { Router } from 'express';
-import * as experienceController from '../controllers/experience.controller';
+import * as portfolioController from '../controllers/portfolio.controller';
 
 const router = Router();
 
 /**
  * @swagger
  * tags:
- *   name: Experience
- *   description: Gestión de experiencia laboral
+ *   name: Portfolio
+ *   description: Gestión de portafolio visual
  */
 
 /**
  * @swagger
- * /experiences:
+ * /portfolio:
  *   post:
- *     summary: Agregar experiencia laboral
- *     tags: [Experience]
+ *     summary: Agregar item al portafolio
+ *     tags: [Portfolio]
  *     requestBody:
  *       required: true
  *       content:
@@ -25,29 +25,25 @@ const router = Router();
  *             properties:
  *               fixerId:
  *                 type: string
- *               jobTitle:
+ *               type:
  *                 type: string
- *               jobType:
+ *                 enum: [image, youtube]
+ *               url:
  *                 type: string
- *               organization:
+ *               youtubeUrl:
  *                 type: string
- *               isCurrent:
- *                 type: boolean
- *               startDate:
- *                 type: string
- *                 format: date
  *     responses:
  *       201:
- *         description: Experiencia creada
+ *         description: Item creado
  */
-router.post('/', experienceController.createExperience);
+router.post('/', portfolioController.createPortfolioItem);
 
 /**
  * @swagger
- * /experiences/fixer/{fixerId}:
+ * /portfolio/fixer/{fixerId}:
  *   get:
- *     summary: Obtener experiencia de un fixer
- *     tags: [Experience]
+ *     summary: Obtener portafolio de un fixer
+ *     tags: [Portfolio]
  *     parameters:
  *       - in: path
  *         name: fixerId
@@ -56,16 +52,16 @@ router.post('/', experienceController.createExperience);
  *           type: string
  *     responses:
  *       200:
- *         description: Lista de experiencias
+ *         description: Lista de items del portafolio
  */
-router.get('/fixer/:fixerId', experienceController.getExperienceByFixerId);
+router.get('/fixer/:fixerId', portfolioController.getPortfolioByFixerId);
 
 /**
  * @swagger
- * /experiences/{id}:
+ * /portfolio/{id}:
  *   put:
- *     summary: Actualizar experiencia
- *     tags: [Experience]
+ *     summary: Actualizar item de portafolio
+ *     tags: [Portfolio]
  *     parameters:
  *       - in: path
  *         name: id
@@ -80,16 +76,16 @@ router.get('/fixer/:fixerId', experienceController.getExperienceByFixerId);
  *             type: object
  *     responses:
  *       200:
- *         description: Experiencia actualizada
+ *         description: Item actualizado
  */
-router.put('/:id', experienceController.updateExperience);
+router.put('/:id', portfolioController.updatePortfolioItem);
 
 /**
  * @swagger
- * /experiences/{id}:
+ * /portfolio/{id}:
  *   delete:
- *     summary: Eliminar experiencia
- *     tags: [Experience]
+ *     summary: Eliminar item del portafolio
+ *     tags: [Portfolio]
  *     parameters:
  *       - in: path
  *         name: id
@@ -98,8 +94,8 @@ router.put('/:id', experienceController.updateExperience);
  *           type: string
  *     responses:
  *       200:
- *         description: Experiencia eliminada
+ *         description: Item eliminado
  */
-router.delete('/:id', experienceController.deleteExperience);
+router.delete('/:id', portfolioController.deletePortfolioItem);
 
 export default router;

@@ -1,7 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import clientPromise from "../../config/db/mongodb";
 import { ObjectId } from "mongodb";
-import { IUser } from "../../models/requester.model";
+import { IUser } from "../../models/user.model";
 
 interface GoogleUser {
   email: string;
@@ -49,7 +49,7 @@ export async function createUser(googleUser: GoogleUser): Promise<IUser & { _id:
   const mongoClient = await clientPromise;
   const db = mongoClient.db("ServineoBD");
 
-  const newUser: IUser = {
+  const newUser: any = {
     name: googleUser.name,
     email: googleUser.email,
     url_photo: googleUser.picture || "",
@@ -68,7 +68,7 @@ export async function createUser(googleUser: GoogleUser): Promise<IUser & { _id:
     vehiculo: {},
     acceptTerms: false,
     metodoPago: {},
-    experience: {},
+    description: "",
     workLocation: {},
   };
 

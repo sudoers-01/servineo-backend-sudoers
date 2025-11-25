@@ -11,4 +11,4 @@ const walletRechargeSchema  = new mongoose.Schema(
 );
 
 // ⚙️ Usa exactamente la colección 'userpay'
-export const User = mongoose.models.User || mongoose.model("recharge", walletRechargeSchema , "recharge");
+export default mongoose.model("recharge", walletRechargeSchema , "recharge");

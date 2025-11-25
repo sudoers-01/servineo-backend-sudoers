@@ -4,6 +4,7 @@ export interface IJobOffer extends Document {
   _id: Types.ObjectId;
   fixerId: string;
   fixerName: string;
+  title?: string;
   description: string;
   services: string[];
   whatsapp: string;
@@ -22,6 +23,7 @@ const JobOfferSchema = new Schema<IJobOffer>(
   {
     fixerId: { type: String, required: true },
     fixerName: { type: String, required: true },
+    title: { type: String },
     description: { type: String, required: true },
     services: [{ type: String, required: true }],
     whatsapp: { type: String, required: true },
@@ -38,4 +40,4 @@ const JobOfferSchema = new Schema<IJobOffer>(
   { collection: 'offers' }
 );
 
-export const JobOfferModel = mongoose.models.IJobOffer || mongoose.model("JobOffer", JobOfferSchema);
+export const JobOfferModel = mongoose.model<IJobOffer>('JobOffer', JobOfferSchema);

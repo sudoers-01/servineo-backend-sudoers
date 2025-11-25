@@ -3,10 +3,9 @@ import jwt from "jsonwebtoken";
 import { generarToken } from "../../../utils/generadorToken";
 import {
   getDiscordUser,
-  findUserByEmail,
+  findUserByDiscordId,
   createUserDiscord,
   linkDiscordToUser,
-
 } from "../../../services/userManagement/discord.service";
 
 export async function discordAuth(req: Request, res: Response) {
@@ -23,15 +22,15 @@ export async function discordAuth(req: Request, res: Response) {
   let mode = "login"; 
   let token: string | null = null;
 
+  // Usa decodeURIComponent
   if (state) {
     try {
-      const decodedBase64 = Buffer.from(String(state), "base64").toString("utf-8");
-      const parsed = JSON.parse(decodedBase64);
+      const parsed = JSON.parse(decodeURIComponent(String(state)));
       mode = parsed.mode || "login";
       token = parsed.token || null;
       console.log("State parseado:", parsed);
     } catch (err: any) {
-      console.warn("⚠ No se pudo decodificar o parsear el state:", err.message);
+     // console.warn("⚠ No se pudo decodificar o parsear el state:", err.message);
     }
   }
 
@@ -60,18 +59,18 @@ export async function discordAuth(req: Request, res: Response) {
     const discordUser = await getDiscordUser(accessToken);
     if (!discordUser) throw new Error("No se pudo obtener información del usuario Discord");
 
+    // VINCULACIÓN
     if (mode === "link" && token) {
       console.log("🔗 Modo vinculación detectado en Discord");
 
       let decoded: any;
       try {
         decoded = jwt.verify(token, process.env.JWT_SECRET!);
-        console.log("Token válido:", decoded);
       } catch {
         throw new Error("Token inválido o expirado");
       }
 
-      const user = await findUserByEmail(decoded.email || decoded.id);
+      const user = await findUserByDiscordId(decoded.id);
       if (!user) throw new Error("Usuario no encontrado");
 
       const alreadyLinked = user.authProviders?.some((p: any) => p.provider === "discord");
@@ -90,7 +89,8 @@ export async function discordAuth(req: Request, res: Response) {
       `);
     }
 
-    let dbUser = await findUserByEmail(discordUser.email);
+    // LOGIN
+    let dbUser = await findUserByDiscordId(discordUser.discordId);
     let isFirstTime = false;
 
     if (!dbUser) {

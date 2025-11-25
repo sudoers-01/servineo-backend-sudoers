@@ -80,8 +80,7 @@ export async function githubAuth(req: Request, res: Response) {
           $push: {
             authProviders: {
               provider: "github",
-              email: githubUser.email,
-              githubId: githubUser.githubId,
+              providerId: githubUser.email,
               linkedAt: new Date(),
             },
           },

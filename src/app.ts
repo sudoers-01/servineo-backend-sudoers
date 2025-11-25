@@ -50,9 +50,8 @@ app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
-app.use('/api', activityRoutes);
-app.use('/api', jobsRoutes);
-app.use('/api', searchRoutes);
+app.use('/api/user-profiles', userProfileRoutes);
+app.use('/api/jobs', jobRoutes);
 
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);

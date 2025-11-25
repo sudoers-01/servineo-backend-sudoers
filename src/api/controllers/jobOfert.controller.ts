@@ -3,6 +3,7 @@ import { getAllOffers, getOffersFiltered, getPriceRanges } from '../../services/
 import { SortCriteria } from '../../types/sort.types';
 import { Offer } from '../../models/offer.model';
 import { getTagsForOffers } from '../../services/resultsAdvSearch/tags.service';
+import { FilterCountsService } from '../../services/jobOfert/filterCounts.service';
 
 import {
   saveSearchToHistory,
@@ -177,7 +178,15 @@ export const getOffers = async (req: Request, res: Response) => {
     // Preparar opciones para getOffersFiltered
     const options: any = {};
     if (range) options.ranges = Array.isArray(range) ? range.map(String) : [String(range)];
-    if (city && typeof city === 'string') options.city = city;
+    // Procesar ciudades: pueden venir como string separado por comas o como array
+    if (city) {
+      if (typeof city === 'string') {
+        // Dividir por comas si es un string
+        options.cities = city.split(',').map((c: string) => c.trim()).filter((c: string) => c.length > 0);
+      } else if (Array.isArray(city)) {
+        options.cities = city.map(String).filter((c: string) => c.length > 0);
+      }
+    }
     if (category)
       options.categories = Array.isArray(category) ? category.map(String) : [String(category)];
     if (search && typeof search === 'string') options.search = search.trim();
@@ -326,5 +335,106 @@ export const getUniqueTags = async (req: Request, res: Response) => {
       message: 'Error al obtener las etiquetas únicas',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
+  }
+};
+
+export const getFilterCounts = async (req: Request, res: Response) => {
+  // ⬅️ NUEVO: Crear AbortController
+  const abortController = new AbortController();
+  
+  // ⬅️ NUEVO: Detectar cuando el cliente cancela
+  req.on('close', () => {
+    if (!res.headersSent) {
+      console.log('🚫 Client closed connection - aborting filter counts query');
+      abortController.abort();
+    }
+  });
+
+  try {
+    const {
+      range,
+      city,
+      category,
+      search,
+      minRating,
+      maxRating,
+    } = req.query;
+
+    // Parsear rangos (mismo formato que getOffers)
+    const parsedRanges = range 
+      ? (Array.isArray(range) ? range.map(String) : [String(range)])
+      : undefined;
+    
+    // Parsear categorías (mismo formato que getOffers)
+    const parsedCategories = category
+      ? (Array.isArray(category) ? category.map(String) : [String(category)])
+      : undefined;
+
+    // Parsear ciudad
+    const parsedCity = city && typeof city === 'string' ? city : undefined;
+
+    // Parsear búsqueda
+    const parsedSearch = search && typeof search === 'string' ? search.trim() : undefined;
+
+    // Parsear ratings
+    const parsedMinRating = minRating && typeof minRating === 'string' 
+      ? parseFloat(minRating) 
+      : undefined;
+    
+    const parsedMaxRating = maxRating && typeof maxRating === 'string' 
+      ? parseFloat(maxRating) 
+      : undefined;
+
+    // Validar ratings si existen
+    if (parsedMinRating !== undefined && (isNaN(parsedMinRating) || parsedMinRating < 1.0 || parsedMinRating > 5.9)) {
+      return res.status(400).json({
+        success: false,
+        message: 'minRating debe estar entre 1.0 y 5.9',
+      });
+    }
+
+    if (parsedMaxRating !== undefined && (isNaN(parsedMaxRating) || parsedMaxRating < 1.0 || parsedMaxRating > 5.9)) {
+      return res.status(400).json({
+        success: false,
+        message: 'maxRating debe estar entre 1.0 y 5.9',
+      });
+    }
+
+    // ⬅️ MODIFICADO: Agregar signal
+    const counts = await FilterCountsService.getCounts({
+      search: parsedSearch,
+      ranges: parsedRanges,
+      city: parsedCity,
+      categories: parsedCategories,
+      minRating: parsedMinRating,
+      maxRating: parsedMaxRating,
+      signal: abortController.signal, // ⬅️ NUEVO
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: counts,
+    });
+  } catch (error) {
+    // ⬅️ NUEVO: Manejo especial para abort
+    if (error instanceof Error && error.message.includes('abort')) {
+      if (!res.headersSent) {
+        return res.status(499).json({
+          success: false,
+          message: 'Request was cancelled',
+        });
+      }
+      return;
+    }
+
+    console.error('Error en getFilterCounts:', error);
+    
+    if (!res.headersSent) {
+      return res.status(500).json({
+        success: false,
+        message: 'Error al obtener conteos de filtros',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 };

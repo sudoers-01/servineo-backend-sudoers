@@ -3,6 +3,7 @@ dotenv.config({ path: '.env' });
 
 import express from 'express';
 import cors from 'cors';
+import { connectDatabase } from './config/db.config';
 import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
@@ -14,10 +15,10 @@ import searchRoutes from './api/routes/search.routes';
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
 import googleRouter from "../src/api/routes/userManagement/google.routes";
-import ubicacionRouter from "../src/api/routes/userManagement/ubicacion.routes"; 
-import authRouter from "../src/api/routes/userManagement/login.routes"; 
+import ubicacionRouter from "../src/api/routes/userManagement/ubicacion.routes";
+import authRouter from "../src/api/routes/userManagement/login.routes";
 import modificarDatosRouter from '../src/api/routes/userManagement/modificarDatos.routes';
-import nominatimRouter from '../src/api/routes/userManagement/sugerencias.routes'; 
+import nominatimRouter from '../src/api/routes/userManagement/sugerencias.routes';
 import deviceRouter from '../src/api/routes/userManagement/device.routes';
 import cambiarContrasenaRouter from '../src/api/routes/userManagement/editarContraseña.routes';
 import cerrarSesionesRouter from '../src/api/routes/userManagement/cerrarSesiones.routes';
@@ -26,6 +27,7 @@ import githubAuthRouter from '../src/api/routes/userManagement/github.routes';
 import discordRoutes from '../src/api/routes/userManagement/discord.routes';
 import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
+
 
 
 const app = express();
@@ -50,8 +52,8 @@ app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
-app.use('/api/user-profiles', userProfileRoutes);
-app.use('/api/jobs', jobRoutes);
+//app.use('/api/user-profiles', userProfileRoutes);
+//app.use('/api/jobs', jobRoutes);
 
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
@@ -77,5 +79,16 @@ app.use((req, res) => {
     message: 'route not found',
   });
 });
-app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));
+
+const startServer = async () => {
+  try {
+    await connectDatabase();
+    app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));
+  } catch (error) {
+    console.error('Error starting server:', error);
+  }
+};
+
+startServer();
+
 export default app;

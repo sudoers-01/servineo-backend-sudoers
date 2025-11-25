@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { getAllOffers, getOffersFiltered, getPriceRanges } from '../../services/jobOfert.service';
 import { SortCriteria } from '../../types/sort.types';
-import { Offer } from '../../models/offer.model';
 import { getTagsForOffers } from '../../services/resultsAdvSearch/tags.service';
 import { FilterCountsService } from '../../services/jobOfert/filterCounts.service';
 
@@ -18,7 +17,6 @@ import {
   validatePageRange,
   normalizePageParam,
   calculatePaginationParams,
-  validatePaginationConsistency,
 } from '../../validators/pagination.validator';
 
 export const getOffers = async (req: Request, res: Response) => {
@@ -263,7 +261,7 @@ export const getOffers = async (req: Request, res: Response) => {
           month: '2-digit',
           year: 'numeric',
         }).format(date);
-      } catch (e) {
+      } catch {
         return null;
       }
     };
@@ -319,7 +317,7 @@ export const getOffers = async (req: Request, res: Response) => {
 
 export const getUniqueTags = async (req: Request, res: Response) => {
   try {
-    const { search, category, recent, limit } = req.query;
+    const { search, category, limit } = req.query;
     const categories =
       typeof category === 'string' && category.length ? category.split(',') : undefined;
     const tags = await getTagsForOffers(

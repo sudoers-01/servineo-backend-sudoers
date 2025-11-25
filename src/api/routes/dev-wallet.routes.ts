@@ -12,7 +12,10 @@ const usersCollection = process.env.FIXERS_COLLECTION || 'users';
 // A) Ver DB y colecciones
 devWalletRouter.get('/dbinfo', async (_req, res) => {
   const name = mongoose.connection.name;
-  const cols = await mongoose.connection.db.listCollections().toArray();
+  const db = mongoose.connection.db;
+  if (!db) return res.status(500).json({ error: 'DATABASE_CONNECTION_NOT_AVAILABLE' });
+  
+  const cols = await db.listCollections().toArray();
   res.json({
     db: name,
     collections: cols.map(c => c.name),
@@ -27,7 +30,10 @@ devWalletRouter.get('/wallet/find-by-email', async (req, res) => {
   const email = String(req.query.email || '').trim();
   if (!email) return res.status(400).json({ error: 'EMAIL_REQUIRED' });
 
-  const doc = await mongoose.connection.db.collection(usersCollection).findOne(
+  const db = mongoose.connection.db;
+  if (!db) return res.status(500).json({ error: 'DATABASE_CONNECTION_NOT_AVAILABLE' });
+  
+  const doc = await db.collection(usersCollection).findOne(
     { email },
     { projection: { _id: 1, role: 1, name: 1 } }
   );

@@ -22,7 +22,10 @@ export function makeWalletCollectionByUserIdAdapter(
   return {
     async getWalletById(fixerId: string): Promise<WalletSlice | null> {
       const query = { [idField]: toQueryForId(fixerId) };
-      const doc = await mongoose.connection.db.collection(collectionName).findOne(
+      const db = mongoose.connection.db;
+      if (!db) throw new Error("Database connection not available");
+      
+      const doc = await db.collection(collectionName).findOne(
         query,
         { projection: { balance: 1, lowBalanceThreshold: 1, flags: 1, lastLowBalanceNotification: 1 } }
       );
@@ -37,8 +40,11 @@ export function makeWalletCollectionByUserIdAdapter(
       };
     },
 
-    async updateWalletById(fixerId: string, patch): Promise<void> {
+    async updateWalletById(fixerId: string, patch: any): Promise<void> {
       const query = { [idField]: toQueryForId(fixerId) };
+      const db = mongoose.connection.db;
+      if (!db) throw new Error("Database connection not available");
+      
       const $set: any = { updatedAt: new Date() };
       if (patch.balance !== undefined) $set.balance = patch.balance;
       if (patch.lowBalanceThreshold !== undefined) $set.lowBalanceThreshold = patch.lowBalanceThreshold;
@@ -52,7 +58,7 @@ export function makeWalletCollectionByUserIdAdapter(
         : String(fixerId);
       setOnInsert[idField] = usersIdValue;
 
-      await mongoose.connection.db.collection(collectionName).updateOne(
+      await db.collection(collectionName).updateOne(
         query,
         { $set, $setOnInsert: setOnInsert },
         { upsert: true }

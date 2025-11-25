@@ -175,8 +175,8 @@ export const getPriceRanges = async (buckets = 4, includeExtremes = true) => {
     return result;
   }
 
-  let min = agg[0].min as number;
-  let max = agg[0].max as number;
+  const min = agg[0].min as number;
+  const max = agg[0].max as number;
 
   if (min == null || max == null) {
     const result = { min: null, max: null, ranges: [] };

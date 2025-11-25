@@ -10,5 +10,5 @@ const walletRechargeSchema  = new mongoose.Schema(
   { timestamps: true } // crea automáticamente createdAt y updatedAt
 );
 
-// ⚙️ Usa exactamente la colección 'userpay'
-export const User = mongoose.models.User || mongoose.model("recharge", walletRechargeSchema , "recharge");
+// ⚙️ Usa exactamente la colección 'recharge'
+export const Recharge = mongoose.models.Recharge || mongoose.model("recharge", walletRechargeSchema , "recharge");

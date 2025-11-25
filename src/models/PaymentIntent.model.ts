@@ -1,15 +1,19 @@
 import { Schema, model, models, InferSchemaType } from 'mongoose';
 
 const PaymentIntentSchema = new Schema({
-  //bookingId: { type: String, index: true, required: true, unique: true },
   bookingId: {
     type: String,
     index: true,
-    required: function (this: PaymentIntentDoc) {
-      return this.type === 'service';
-    },
-    unique: function (this: PaymentIntentDoc) {
-      return this.type === 'service';
+    sparse: true,
+    validate: {
+      validator: function(this: PaymentIntentDoc, value: string | undefined) {
+        // If type is 'service', bookingId is required
+        if (this.type === 'service') {
+          return value !== undefined && value !== '';
+        }
+        return true;
+      },
+      message: 'bookingId is required for service type',
     },
   },
 

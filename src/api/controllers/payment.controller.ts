@@ -1,8 +1,9 @@
+import type { Request, Response } from "express";
 import Stripe from "stripe";
-import Payment from "../../models/payment.model";
-import Card from "../../models/card.model";
-import User from "../../models/userPayment.model";
-import Jobs from "../../models/jobsPayment.model";
+import { Payment } from "../../models/payment.model";
+import { Card } from "../../models/card.model";
+import { User } from "../../models/userPayment.model";
+import { Job } from "../../models/jobsPayment.model";
 import 'dotenv/config';
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -11,10 +12,10 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-06-20",
+  apiVersion: "2023-10-16" as any,
 });
 
-export const createPayment = async (req, res) => {
+export const createPayment = async (req: Request, res: Response) => {
   console.group("🧾 [createPayment] Nueva solicitud de pago");
   console.time("⏱ Duración total del proceso");
 
@@ -113,11 +114,11 @@ export const createPayment = async (req, res) => {
         automatic_payment_methods: { enabled: true, allow_redirects: "never" },
       });
       console.log("✅ PaymentIntent creado:", paymentIntent.id, "Estado:", paymentIntent.status);
-    } catch (stripeError) {
-      console.error("❌ Error al crear PaymentIntent:", stripeError.message);
+    } catch (stripeError: any) {
+      console.error("❌ Error al crear PaymentIntent:", (stripeError as any).message);
       return res.status(400).json({
         error: "Error al procesar el pago con Stripe",
-        details: stripeError.message,
+        details: (stripeError as any).message,
       });
     }
 
@@ -137,7 +138,7 @@ export const createPayment = async (req, res) => {
     console.log(`✅ Pago guardado correctamente con estado '${paymentData.status}'`);
 
     // --- ACTUALIZAR ESTADO DEL TRABAJO ---
-    const job = await Jobs.findById(jobId);
+    const job = await Job.findById(jobId);
     if (!job) {
       console.error(`⚠️ Trabajo con ID ${jobId} no encontrado`);
     } else {
@@ -154,15 +155,15 @@ export const createPayment = async (req, res) => {
       payment: paymentData,
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("🔥 Error inesperado en createPayment:", error);
     console.timeEnd("⏱ Duración total del proceso");
     console.groupEnd();
 
     return res.status(500).json({
       error: "Error inesperado en el servidor",
-      details: error.message,
-      stack: error.stack,
+      details: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
     });
   }
 };

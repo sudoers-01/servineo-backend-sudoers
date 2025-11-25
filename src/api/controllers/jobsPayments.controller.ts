@@ -1,10 +1,11 @@
-import Job from "../../models/jobsPayment.model";
-import User from "../../models/userPayment.model";
+import type { Request, Response } from "express";
+import { Job } from "../../models/jobsPayment.model";
+import { User } from "../../models/userPayment.model";
 
 // =========================
 // Listar trabajos de usuario (solo requester)
 // =========================
-export const listJobs = async (req, res) => {
+export const listJobs = async (req: Request, res: Response) => {
   try {
     const { userId } = req.query;
     console.log("🟦 [listJobs] Iniciando búsqueda de trabajos...");
@@ -57,6 +58,6 @@ export const listJobs = async (req, res) => {
 
   } catch (error) {
     console.error("🔥 Error listJobs:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error instanceof Error ? error.message : "Internal server error" });
   }
 };

@@ -19,7 +19,15 @@ const activitySchema = new Schema(
     },
     type: {
       type: String,
-      enum: ['login', 'search', 'click', 'review', 'session_start', 'session_end'],
+      enum: [
+        'login',
+        'search',
+        'click',
+        'review',
+        'session_start',
+        'session_end',
+        'daily_jobs_status',
+      ],
       required: true,
       index: true,
     },
@@ -52,7 +60,14 @@ export interface ActivityDoc {
   userId: Types.ObjectId;
   date: Date;
   role: 'visitor' | 'requester' | 'fixer';
-  type: 'login' | 'search' | 'click' | 'review' | 'session_start' | 'session_end';
+  type:
+    | 'login'
+    | 'search'
+    | 'click'
+    | 'review'
+    | 'session_start'
+    | 'session_end'
+    | 'daily_jobs_status';
   metadata: {
     button?: string;
     searchTerm?: string;
@@ -64,4 +79,3 @@ export interface ActivityDoc {
   };
   timestamp: Date;
 }
-  

@@ -12,4 +12,4 @@ const cardSchema = new mongoose.Schema({
   cardholderName: String,
 });
 
-export default mongoose.model("cards", cardSchema);
+export const User = mongoose.models.User || mongoose.model("cards", cardSchema);

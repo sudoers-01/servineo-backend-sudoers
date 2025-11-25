@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Payment } from '../models/payment.model'; 
 import { Wallet } from '../models/wallet.model';
 import { Comision } from '../models/historycomission.model';
-import Recharge from '../models/walletRecharge.model';
+import { Recharge } from '../models/walletRecharge.model';
 
 /**
  * Obtiene las estadísticas de trabajos "Pagado" para un Fixer

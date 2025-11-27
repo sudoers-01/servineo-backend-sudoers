@@ -11,6 +11,7 @@ import fixerRoutes from './api/routes/fixer.routes';
 import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
 import searchRoutes from './api/routes/search.routes';
+import experienceRoutes from './routes/experience.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
@@ -28,7 +29,7 @@ import discordRoutes from '../src/api/routes/userManagement/discord.routes';
 import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
 
-
+import userProfileRoutes from './routes/userProfile.routes';
 
 const app = express();
 
@@ -52,7 +53,10 @@ app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
-//app.use('/api/user-profiles', userProfileRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/experiences', experienceRoutes);
+
+app.use('/api/user-profiles', userProfileRoutes);
 //app.use('/api/jobs', jobRoutes);
 
 app.use('/api/controlC/google', googleRouter);

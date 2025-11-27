@@ -54,7 +54,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
 app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -71,6 +70,7 @@ app.use('/api/controlC/foto-perfil', fotoPerfilRouter);
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/api/controlC/registro', registrarDatosRouter);
 app.use('/api/controlC/auth', authRouter);
+app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);

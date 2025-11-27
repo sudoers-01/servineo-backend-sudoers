@@ -46,7 +46,6 @@ export const updateBio = async (
   }
 };
 
-
 export const getUsersByRole = async (
   req: Request<{ role: string }>,
   res: Response
@@ -74,17 +73,18 @@ export const convertToFixer = async (
     // Map profile data to User model fields
     const updateData: any = {
       role: 'fixer',
+      telefono: profile.telefono,
       ci: profile.ci,
-      servicios: profile.services ? profile.services.map((s: any) => s.name) : [], // Assuming services is array of objects
+      servicios: profile.services ? profile.services.map((s: any) => s.name) : [],
       vehiculo: profile.vehicle,
       metodoPago: profile.paymentMethods ? {
-        hasEfectivo: profile.paymentMethods.some((p: any) => p.type === 'efectivo'), // Example mapping logic
+        hasEfectivo: profile.paymentMethods.some((p: any) => p.type === 'efectivo'),
         qr: profile.paymentMethods.some((p: any) => p.type === 'qr'),
         tarjetaCredito: profile.paymentMethods.some((p: any) => p.type === 'tarjeta'),
       } : undefined,
       workLocation: profile.location,
       acceptTerms: profile.terms?.accepted,
-      fixerProfile: 'completed' // Optional flag
+      fixerProfile: 'completed'
     };
 
     // Clean undefined values
@@ -99,7 +99,7 @@ export const convertToFixer = async (
     if (!updatedUser) return res.status(404).json({ error: 'User not found' });
     res.json(updatedUser);
   } catch (error: any) {
-    console.error('Error completo en convertToFixer:', error); // ← IMPRIME TODO
+    console.error('Error completo en convertToFixer:', error);
 
     let message = 'Error desconocido';
     if (error.name === 'CastError') {

@@ -13,6 +13,7 @@ import jobsRoutes from './api/routes/jobs.routes';
 import searchRoutes from './api/routes/search.routes';
 import experienceRoutes from './routes/experience.routes';
 import userProfileRoutes from './routes/userProfile.routes';
+import userRoutes from './routes/user.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
@@ -53,7 +54,12 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
+<<<<<<< Updated upstream
 
+=======
+ // En esta seccion tienes que poner la ruta para api/user/:id
+// Routes
+>>>>>>> Stashed changes
 app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -61,6 +67,7 @@ app.use('/api/fixers', fixerRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/user-profiles', userProfileRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
 app.use('/api/controlC/sugerencias', nominatimRouter);
 app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);

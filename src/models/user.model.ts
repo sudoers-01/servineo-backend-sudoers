@@ -31,6 +31,7 @@ export interface IUser extends Document {
   };
   fixerProfile?: string;
   acceptTerms?: boolean;
+  description?: string;
 
   metodoPago?: {
     hasEfectivo?: boolean;
@@ -97,6 +98,8 @@ const userSchema = new Schema<IUser>(
     acceptTerms: { type: Boolean, default: false },
 
     fixerProfile: { type: String, required: false },
+
+    description: { type: String, required: false },
 
     metodoPago: {
       hasEfectivo: { type: Boolean, default: false },

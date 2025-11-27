@@ -1,20 +1,19 @@
-// src/models/user.model.ts
-
-import { Schema, model, models, Document } from "mongoose";
+import { Schema, model, models, Document, Types } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
   email: string;
   url_photo?: string;
-  role: "requester" | "fixer" | "both"; // puedes usar "both" si quieres permitir los dos roles
+  role: string;
 
   authProviders?: Array<{
     provider: string;
     providerId: string;
-    password?: string;
+    password: string;
   }>;
 
   telefono?: string;
+
   ubicacion?: {
     lat?: number;
     lng?: number;
@@ -24,20 +23,25 @@ export interface IUser extends Document {
   };
 
   ci?: string;
-  servicios?: string[];                    // ← IDs de servicios
+  servicios?: string[];
+
   vehiculo?: {
-    hasVehiculo: boolean;
+    hasVehiculo?: boolean;
     tipoVehiculo?: string;
   };
+  fixerProfile?: string;
   acceptTerms?: boolean;
 
   metodoPago?: {
-    hasEfectivo: boolean;
-    qr: boolean;
-    tarjetaCredito: boolean;
+    hasEfectivo?: boolean;
+    qr?: boolean;
+    tarjetaCredito?: boolean;
   };
 
-  // workLocation opcional si el fixer trabaja en otra zona
+  experience?: {
+    descripcion?: string;
+  };
+
   workLocation?: {
     lat?: number;
     lng?: number;
@@ -45,20 +49,25 @@ export interface IUser extends Document {
     departamento?: string;
     pais?: string;
   };
-
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    url_photo: String,
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+
+    url_photo: { type: String },
 
     role: {
       type: String,
-      enum: ["requester", "fixer", "both"],
+      enum: ["requester", "fixer", "visitor"],
       default: "requester",
     },
 
@@ -66,28 +75,32 @@ const userSchema = new Schema<IUser>(
       {
         provider: { type: String, required: true },
         providerId: { type: String, required: true },
-        password: String,
+        password: { type: String, required: false },
       },
     ],
 
-    telefono: String,
+    telefono: { type: String },
+
     ubicacion: {
-      lat: Number,
-      lng: Number,
-      direccion: String,
-      departamento: String,
-      pais: String,
+      lat: { type: Number },
+      lng: { type: Number },
+      direccion: { type: String },
+      departamento: { type: String },
+      pais: { type: String },
     },
 
-    ci: String,
-    servicios: [String],
+    ci: { type: String },
+
+    servicios: [{ type: String }],
 
     vehiculo: {
-      hasVehiculo: { type: Boolean, default: false },
-      tipoVehiculo: String,
+      hasVehiculo: { type: Boolean },
+      tipoVehiculo: { type: String },
     },
 
     acceptTerms: { type: Boolean, default: false },
+
+    fixerProfile: { type: String, required : false },
 
     metodoPago: {
       hasEfectivo: { type: Boolean, default: false },
@@ -95,12 +108,16 @@ const userSchema = new Schema<IUser>(
       tarjetaCredito: { type: Boolean, default: false },
     },
 
+    experience: {
+      descripcion: { type: String },
+    },
+
     workLocation: {
-      lat: Number,
-      lng: Number,
-      direccion: String,
-      departamento: String,
-      pais: String,
+      lat: { type: Number },
+      lng: { type: Number },
+      direccion: { type: String },
+      departamento: { type: String },
+      pais: { type: String },
     },
   },
   {

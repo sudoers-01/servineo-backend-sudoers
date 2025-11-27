@@ -29,7 +29,7 @@ import discordRoutes from '../src/api/routes/userManagement/discord.routes';
 import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
 
-import userProfileRoutes from './routes/userProfile.routes';
+
 
 const app = express();
 
@@ -56,7 +56,7 @@ app.use('/api/fixers', fixerRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/experiences', experienceRoutes);
 
-app.use('/api/user-profiles', userProfileRoutes);
+//app.use('/api/user-profiles', userProfileRoutes);
 //app.use('/api/jobs', jobRoutes);
 
 app.use('/api/controlC/google', googleRouter);

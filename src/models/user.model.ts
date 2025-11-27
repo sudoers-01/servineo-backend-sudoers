@@ -38,10 +38,6 @@ export interface IUser extends Document {
     tarjetaCredito?: boolean;
   };
 
-  experience?: {
-    descripcion?: string;
-  };
-
   workLocation?: {
     lat?: number;
     lng?: number;
@@ -100,16 +96,12 @@ const userSchema = new Schema<IUser>(
 
     acceptTerms: { type: Boolean, default: false },
 
-    fixerProfile: { type: String, required : false },
+    fixerProfile: { type: String, required: false },
 
     metodoPago: {
       hasEfectivo: { type: Boolean, default: false },
       qr: { type: Boolean, default: false },
       tarjetaCredito: { type: Boolean, default: false },
-    },
-
-    experience: {
-      descripcion: { type: String },
     },
 
     workLocation: {

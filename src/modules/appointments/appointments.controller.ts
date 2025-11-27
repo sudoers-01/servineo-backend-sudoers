@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import { connectDB } from '../../config/db/mongoClient';
 import * as appointmentsService from './appointments.service';
 
 export async function getAppointmentsByFixerId(req: Request, res: Response) {
@@ -14,7 +15,8 @@ export async function getAppointmentsByFixerId(req: Request, res: Response) {
       return res.status(422).json({ error: 'Invalid fixer ID format' });
     }
 
-    const appointments = await appointmentsService.getAppointmentsByFixerId(req.db, fixerId);
+    const db = await connectDB();
+    const appointments = await appointmentsService.getAppointmentsByFixerId(db, fixerId);
 
     return res.json(appointments);
   } catch (error) {

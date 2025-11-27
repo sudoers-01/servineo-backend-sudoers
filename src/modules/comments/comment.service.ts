@@ -1,8 +1,8 @@
-import { getDB } from '../../config/db/mongoClient';
+import { connectDB } from '../../config/db/mongoClient';
 import { ObjectId } from 'mongodb';
 
 export const getCommentsByFixer = async (fixerId: string) => {
-  const db = getDB();
+  const db = await connectDB();
 
   return await db
     .collection('jobs')

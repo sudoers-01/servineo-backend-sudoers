@@ -1,13 +1,14 @@
 import { ObjectId } from 'mongodb';
-import { getDB as db } from '../../config/db/mongoClient';
+import { connectDB } from '../../config/db/mongoClient';
 import { FixerProfile } from './profile.model';
 export async function getProfileData(id: string): Promise<FixerProfile> {
-  const usersCollection = db().collection('users');
+  const db = await connectDB();
+  const usersCollection = db.collection('users');
   const user = await usersCollection.findOne({ _id: new ObjectId(id) });
   if (!user) {
     throw new Error('User not found');
   }
-  const jobsCollection = db().collection('jobs');
+  const jobsCollection = db.collection('jobs');
   const ratings = await jobsCollection
     .find({ fixerId: new ObjectId(id) }, { projection: { rating: 1 } })
     .toArray();

@@ -4,7 +4,7 @@ import { changeJobStatus, completeJobWithValidation } from '../services/jobs.ser
 export const changeToPendingPaymentController = async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
-    await changeJobStatus(req.db, jobId, 'pending payment');
+    await changeJobStatus(jobId, 'pending payment');
 
     res.status(200).json({ message: 'Job status updated to pending payment' });
   } catch (error: unknown) {
@@ -21,7 +21,7 @@ export const completeJobController = async (req: Request, res: Response) => {
     const { jobId } = req.params;
     const { location } = req.body;
 
-    await completeJobWithValidation(req.db, jobId, location);
+    await completeJobWithValidation(jobId, location);
 
     res.status(200).json({ message: 'Job completed successfully' });
   } catch (error) {

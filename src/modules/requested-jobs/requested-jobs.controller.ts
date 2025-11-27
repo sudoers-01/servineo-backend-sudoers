@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
+import { connectDB } from '../../config/db/mongoClient';
 import * as jobService from './requested-jobs.service';
 
 export async function getAllJobs(req: Request, res: Response) {
   try {
-    const jobs = await jobService.getAllJobs(req.db);
+    const db = await connectDB();
+    const jobs = await jobService.getAllJobs(db);
     res.json(jobs);
   } catch (error) {
     console.error('Error fetching jobs:', error);
@@ -14,7 +16,8 @@ export async function getAllJobs(req: Request, res: Response) {
 export async function getJobById(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const job = await jobService.getJobById(req.db, id);
+    const db = await connectDB();
+    const job = await jobService.getJobById(db, id);
 
     if (!job) return res.status(404).json({ message: 'Job not found' });
     res.json(job);
@@ -27,7 +30,8 @@ export async function getJobById(req: Request, res: Response) {
 export async function createJob(req: Request, res: Response) {
   try {
     const jobData = req.body;
-    const newJob = await jobService.createJob(req.db, jobData);
+    const db = await connectDB();
+    const newJob = await jobService.createJob(db, jobData);
     res.status(201).json(newJob);
   } catch (error) {
     console.error('Error creating job:', error);

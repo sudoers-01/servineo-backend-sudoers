@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
+import { connectDB } from '../../config/db/mongoClient';
 import { getJobSummary } from './service';
 
 export async function getJobInfoHandler(req: Request, res: Response) {
   const { id } = req.params;
-  const db = req.db;
+  const db = await connectDB();
 
   if (!db) return res.status(500).json({ message: 'Database not available' });
   if (!id) return res.status(400).json({ message: 'ID is required' });

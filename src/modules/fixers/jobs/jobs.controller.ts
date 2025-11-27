@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { connectDB } from '../../../config/db/mongoClient';
 import { getJobsByFixerId } from './jobs.service';
 
 export async function getJobs(req: Request, res: Response) {
@@ -8,7 +9,8 @@ export async function getJobs(req: Request, res: Response) {
       return res.status(400).json({ status: 400, message: 'fixerId is required' });
     }
 
-    const jobs = await getJobsByFixerId(req.db, fixerId);
+    const db = await connectDB();
+    const jobs = await getJobsByFixerId(db, fixerId);
 
     return res.status(200).json({ status: 200, data: jobs });
   } catch (error) {

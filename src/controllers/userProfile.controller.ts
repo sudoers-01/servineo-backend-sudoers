@@ -2,6 +2,9 @@ import userProfileModel, { IUserProfile } from '../models/userProfile.model';
 import { Request, Response } from 'express';
 import { User } from '../models/user.model';
 
+/**
+ * Crea un nuevo UserProfile
+ */
 export const createUserProfile = async (
   req: Request<{}, {}, IUserProfile>,
   res: Response<IUserProfile | { error: string }>
@@ -15,6 +18,9 @@ export const createUserProfile = async (
   }
 };
 
+/**
+ * Obtiene todos los UserProfiles
+ */
 export const getUserProfiles = async (
   _req: Request,
   res: Response<IUserProfile[] | { error: string }>
@@ -24,6 +30,26 @@ export const getUserProfiles = async (
     res.json(profiles);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const getUserById = async (
+  req: Request<{ id: string }>,
+  res: Response<IUserProfile | { error: string }>
+) => {
+  try {
+    const { id } = req.params;
+
+    // Buscar por el id que se guarda en user.id durante el registro
+    const userProfile = await userProfileModel.findOne({ 'user.id': id });
+
+    if (!userProfile) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    return res.status(200).json(userProfile);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
   }
 };
 

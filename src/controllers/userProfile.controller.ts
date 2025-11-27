@@ -1,5 +1,6 @@
 import userProfileModel, { IUserProfile } from '../models/userProfile.model';
 import { Request, Response } from 'express';
+import { User } from '../models/user.model';
 
 export const createUserProfile = async (
   req: Request<{}, {}, IUserProfile>,
@@ -66,14 +67,49 @@ export const convertToFixer = async (
   try {
     const { id } = req.params;
     const { profile } = req.body;
-    const updated = await userProfileModel.findOneAndUpdate(
-      { 'user.id': id },
-      { $set: { 'user.role': 'fixer', profile } },
+
+    console.log('convertToFixer called for ID:', id);
+    console.log('Profile data:', JSON.stringify(profile, null, 2));
+
+    // Map profile data to User model fields
+    const updateData: any = {
+      role: 'fixer',
+      ci: profile.ci,
+      servicios: profile.services ? profile.services.map((s: any) => s.name) : [], // Assuming services is array of objects
+      vehiculo: profile.vehicle,
+      metodoPago: profile.paymentMethods ? {
+        hasEfectivo: profile.paymentMethods.some((p: any) => p.type === 'efectivo'), // Example mapping logic
+        qr: profile.paymentMethods.some((p: any) => p.type === 'qr'),
+        tarjetaCredito: profile.paymentMethods.some((p: any) => p.type === 'tarjeta'),
+      } : undefined,
+      workLocation: profile.location,
+      acceptTerms: profile.terms?.accepted,
+      fixerProfile: 'completed' // Optional flag
+    };
+
+    // Clean undefined values
+    Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $set: updateData },
       { new: true }
     );
-    if (!updated) return res.status(404).json({ error: 'User not found' });
-    res.json(updated);
+
+    if (!updatedUser) return res.status(404).json({ error: 'User not found' });
+    res.json(updatedUser);
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    console.error('Error completo en convertToFixer:', error); // ← IMPRIME TODO
+
+    let message = 'Error desconocido';
+    if (error.name === 'CastError') {
+      message = `ID inválido: ${error.value}`;
+    } else if (error.name === 'ValidationError') {
+      message = Object.values(error.errors).map((e: any) => e.message).join(', ');
+    } else if (error.message) {
+      message = error.message;
+    }
+
+    res.status(400).json({ error: message });
   }
 };

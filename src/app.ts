@@ -54,12 +54,9 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
-<<<<<<< Updated upstream
 
-=======
- // En esta seccion tienes que poner la ruta para api/user/:id
-// Routes
->>>>>>> Stashed changes
+ 
+
 app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);

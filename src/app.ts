@@ -10,6 +10,7 @@ import fixerRoutes from './api/routes/fixer.routes';
 import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
 import searchRoutes from './api/routes/search.routes';
+import trackingRoutes from './api/routes/tracking-appointments.routes'; 
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
@@ -53,6 +54,7 @@ app.use('/api/fixers', fixerRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', jobsRoutes);
 app.use('/api', searchRoutes);
+app.use('/api/admin', trackingRoutes);
 
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);

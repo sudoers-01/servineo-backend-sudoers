@@ -1,4 +1,4 @@
-import { Schema, model, models, Document } from "mongoose";
+import { Schema, model, models, Document, Types } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
@@ -29,17 +29,14 @@ export interface IUser extends Document {
     hasVehiculo?: boolean;
     tipoVehiculo?: string;
   };
-
+  fixerProfile?: string;
   acceptTerms?: boolean;
 
   metodoPago?: {
     hasEfectivo?: boolean;
     qr?: boolean;
     tarjetaCredito?: boolean;
-    numeroTarjeta?: string;
   };
-
-  description?: string;
 
   workLocation?: {
     lat?: number;
@@ -88,25 +85,24 @@ const userSchema = new Schema<IUser>(
       pais: { type: String },
     },
 
-    ci: { type: String, required: false },
+    ci: { type: String },
 
-    servicios: [{ type: String, required: false }],
+    servicios: [{ type: String }],
 
     vehiculo: {
-      hasVehiculo: { type: Boolean, required: false },
-      tipoVehiculo: { type: String, required: false },
+      hasVehiculo: { type: Boolean },
+      tipoVehiculo: { type: String },
     },
 
-    acceptTerms: { type: Boolean, default: false, required: false },
+    acceptTerms: { type: Boolean, default: false },
+
+    fixerProfile: { type: String, required: false },
 
     metodoPago: {
       hasEfectivo: { type: Boolean, default: false },
       qr: { type: Boolean, default: false },
       tarjetaCredito: { type: Boolean, default: false },
-      numeroTarjeta: { type: String },
     },
-
-    description: { type: String, required: false },
 
     workLocation: {
       lat: { type: Number },

@@ -1,10 +1,13 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { verifyGoogleToken, findUserByEmail, createUser } from "../../../services/userManagement/google.service";
 import { generarToken } from "../../../utils/generadorToken";
 import jwt from "jsonwebtoken";
+import { IUser } from "../../../models/user.model";
+import { Types } from "mongoose";
 
 export async function googleAuth(req: Request, res: Response) {
   const { token } = req.body;
+
   if (!token) {
     return res.status(400).json({ status: "error", message: "Token no recibido" });
   }
@@ -15,11 +18,12 @@ export async function googleAuth(req: Request, res: Response) {
       return res.status(400).json({ status: "error", message: "Token inválido" });
     }
 
-    let dbUser = await findUserByEmail(googleUser.email);
+    // Forzamos el tipo para que TS reconozca _id
+    let dbUser = await findUserByEmail(googleUser.email) as (IUser & { _id: Types.ObjectId }) | null;
     const exists = dbUser !== null;
 
     if (!exists) {
-      dbUser = await createUser(googleUser);
+      dbUser = await createUser(googleUser) as IUser & { _id: Types.ObjectId };
     }
 
     if (!dbUser) {
@@ -32,7 +36,7 @@ export async function googleAuth(req: Request, res: Response) {
     const sessionToken = generarToken(
       dbUser._id.toString(),
       dbUser.name,
-      googleUser.email
+      dbUser.email
     );
 
     return res.json({
@@ -53,7 +57,8 @@ export async function googleAuth(req: Request, res: Response) {
   }
 }
 
-export function verifyJWT(req: Request, res: Response, next: any) {
+// Middleware para verificar JWT
+export function verifyJWT(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Token no proporcionado" });

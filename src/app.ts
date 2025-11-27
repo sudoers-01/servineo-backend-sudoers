@@ -21,6 +21,7 @@ import rechargeWallet from './api/routes/wallet.routes';
 import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.model'; 
 import { devWalletRouter } from './api/routes/dev-wallet.routes';
 import { simPaymentsRouter } from './api/routes/sim-payments.routes';
+import SudoersRouter from './modules/sudoers.routes';
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use('/api/transferencia-bancaria', bankTransferRoutes);
 app.use('/api/v1/invoices', invoiceDetailRouter); 
 app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
 app.use("/payments", paymentsRouter); 
+app.use('/', SudoersRouter);
 
 console.log('FEATURE_DEV_WALLET =', FEATURE_DEV_WALLET);
 if (FEATURE_DEV_WALLET) {

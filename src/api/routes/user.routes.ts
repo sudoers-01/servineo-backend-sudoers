@@ -1,9 +1,9 @@
 import { Router } from "express";
 import {  listUsers , getUserById} from "../controllers/user.controller";
 
-const router = Router();
+const routerUser = Router();
 
-router.get("/users", listUsers);
-router.get("/:id", getUserById); 
+routerUser.get("/users", listUsers);
+routerUser.get("/:id", getUserById); 
 
-export default router;
+export default routerUser;

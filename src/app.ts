@@ -29,6 +29,8 @@ import githubAuthRouter from '../src/api/routes/userManagement/github.routes';
 import discordRoutes from '../src/api/routes/userManagement/discord.routes';
 import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
+import routerUser from './api/routes/user.routes';
+
 
 
 
@@ -74,6 +76,7 @@ app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
+app.use('/api/user',routerUser);
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

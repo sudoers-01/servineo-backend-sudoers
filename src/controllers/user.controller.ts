@@ -64,6 +64,12 @@ export const postDescriptionFixer = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { description } = req.body;
 
+    console.log("***");
+    console.log("***");
+    console.log("***");
+    console.log("Mis datos del fixer", req.body);
+    console.log("Mi descripcion", description);
+
     // Validar que se proporcionó una descripción
     if (!description || typeof description !== 'string') {
       return res.status(400).json({ message: 'Description is required and must be a string' });

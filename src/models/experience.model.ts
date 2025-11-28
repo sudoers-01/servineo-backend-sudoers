@@ -44,7 +44,7 @@ const experienceSchema = new Schema<IExperience>(
   },
   {
     timestamps: true,
-    collection: 'experiencias',
+    collection: 'experiences',
   }
 );
 

@@ -5,6 +5,7 @@ export interface IUser extends Document {
   email: string;
   url_photo?: string;
   role: string;
+  description?: string;
 
   authProviders?: Array<{
     provider: string;
@@ -36,10 +37,6 @@ export interface IUser extends Document {
     hasEfectivo?: boolean;
     qr?: boolean;
     tarjetaCredito?: boolean;
-  };
-
-  experience?: {
-    descripcion?: string;
   };
 
   workLocation?: {
@@ -90,6 +87,7 @@ const userSchema = new Schema<IUser>(
     },
 
     ci: { type: String },
+    description: { type: String },
 
     servicios: [{ type: String }],
 
@@ -100,16 +98,12 @@ const userSchema = new Schema<IUser>(
 
     acceptTerms: { type: Boolean, default: false },
 
-    fixerProfile: { type: String, required : false },
+    fixerProfile: { type: String, required: false },
 
     metodoPago: {
       hasEfectivo: { type: Boolean, default: false },
       qr: { type: Boolean, default: false },
       tarjetaCredito: { type: Boolean, default: false },
-    },
-
-    experience: {
-      descripcion: { type: String },
     },
 
     workLocation: {

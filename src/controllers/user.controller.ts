@@ -57,3 +57,44 @@ export const getFixerById = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error fetching fixer', error });
   }
 };
+
+
+export const postDescriptionFixer = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { description } = req.body;
+
+    console.log("***");
+    console.log("***");
+    console.log("***");
+    console.log("Mis datos del fixer", req.body);
+    console.log("Mi descripcion", description);
+
+    // Validar que se proporcionó una descripción
+    if (!description || typeof description !== 'string') {
+      return res.status(400).json({ message: 'Description is required and must be a string' });
+    }
+
+    // Validar que el usuario existe y es un fixer
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.role !== 'fixer') {
+      return res.status(400).json({ message: 'User is not a fixer' });
+    }
+
+    // Actualizar la descripción
+    user.description = description;
+    const updatedUser = await user.save();
+
+    res.status(200).json({ 
+      message: 'Fixer description updated successfully',
+      user: updatedUser 
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating fixer description', error });
+  }
+};
+

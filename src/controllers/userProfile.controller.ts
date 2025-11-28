@@ -1,4 +1,5 @@
 
+//src/controllers/userProfile.controller.ts
 import { User } from '../models/user.model';
 import { Request, Response } from 'express';
 import type { IUserProfile } from '../types/job-offer'; // ← Ruta correcta en backend

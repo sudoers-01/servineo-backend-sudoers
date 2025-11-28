@@ -4,19 +4,20 @@ import { Experience } from '../models/experience.model';
 export const createExperience = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    if (!user || user.role !== 'fixer') {
-      return res.status(403).json({ message: 'Access denied. Only fixers can create experiences.' });
+    
+    if (!user) {
+      return res.status(401).json({ message: 'No autorizado' });
     }
 
     const experienceData = {
       ...req.body,
-      fixerId: user._id,
+      fixerId: user.id,
     };
     const experience = new Experience(experienceData);
     await experience.save();
     res.status(201).json(experience);
   } catch (error) {
-    res.status(400).json({ message: 'Error creating experience', error });
+    res.status(400).json({ message: 'Error al crear la experiencia', error });
   }
 };
 
@@ -33,7 +34,17 @@ export const getExperienceByFixerId = async (req: Request, res: Response) => {
 export const updateExperience = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const experience = await Experience.findByIdAndUpdate(id, req.body, { new: true });
+    const user = (req as any).user;
+
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const experience = await Experience.findOneAndUpdate(
+      { _id: id, fixerId: user.id },
+      req.body,
+      { new: true }
+    );
     if (!experience) {
       return res.status(404).json({ message: 'Experience not found' });
     }
@@ -46,7 +57,13 @@ export const updateExperience = async (req: Request, res: Response) => {
 export const deleteExperience = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const experience = await Experience.findByIdAndDelete(id);
+    const user = (req as any).user;
+
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const experience = await Experience.findOneAndDelete({ _id: id, fixerId: user.id });
     if (!experience) {
       return res.status(404).json({ message: 'Experience not found' });
     }

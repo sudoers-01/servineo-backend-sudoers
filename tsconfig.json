@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "esnext", // ← Cambiar esto
+    "module": "commonjs", // ← Cambiar esto
     "rootDir": "./src",
     "moduleResolution": "node",
     "resolveJsonModule": true,

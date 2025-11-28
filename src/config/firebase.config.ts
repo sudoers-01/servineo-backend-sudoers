@@ -13,14 +13,14 @@ if (!admin.apps.length) {
     });
   } catch (error) {
     // Si no existe el JSON, pasa a la opción 2 (para desarrollo local)
-    console.warn('firebase-service-account.json no encontrado → usando firebaseConfig del .env');
+    console.warn(
+      'firebase-service-account.json no encontrado → usando firebaseConfig del .env' + error,
+    );
 
     // ──────────────────────────────────────────────────
     // OPCIÓN 2 (Solo desarrollo/local): usar las credenciales públicas
     // ──────────────────────────────────────────────────
-    const firebaseConfig = {
-        
-    };
+    const firebaseConfig = {};
 
     admin.initializeApp({
       credential: admin.credential.applicationDefault(), // usa ADC o variables de entorno

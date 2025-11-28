@@ -4,13 +4,13 @@ dotenv.config({ path: '.env' });
 import express from 'express';
 import cors from 'cors';
 import { connectDatabase } from './config/db.config';
-import HealthRoutes from './api/routes/health.routes';
+// import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
-import activityRoutes from './api/routes/activities.routes';
+// import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
-import searchRoutes from './api/routes/search.routes';
+// import searchRoutes from './api/routes/search.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
@@ -49,8 +49,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
-//app.use('/api/user-profiles', userProfileRoutes);
-//app.use('/api/jobs', jobRoutes);
+// app.use('/api/user-profiles', userProfileRoutes);
+app.use('/api/jobs', jobsRoutes);
 
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);

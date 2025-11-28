@@ -10,7 +10,8 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -19,12 +20,14 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Servineo/servineo-backend/issues"
   },
   "homepage": "https://github.com/Servineo/servineo-backend#readme",
   "dependencies": {
+    "axios": "^1.12.2",
+    "morgan": "^1.10.1",
     "@types/express": "^5.0.3",
     "@types/node": "^24.7.2",
     "bcrypt": "^6.0.0",
@@ -53,7 +56,9 @@
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.5",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.3",
+    "@types/morgan": "^1.9.10",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.96",
     "@types/node": "^24.6.1",
@@ -67,6 +72,10 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.4.0",
+    "nodemon": "^3.1.10",
+    "tsc-watch": "^7.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.17",

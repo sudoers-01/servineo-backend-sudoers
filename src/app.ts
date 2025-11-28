@@ -14,9 +14,9 @@ import searchRoutes from './api/routes/search.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
-import googleRouter from "../src/api/routes/userManagement/google.routes";
-import ubicacionRouter from "../src/api/routes/userManagement/ubicacion.routes";
-import authRouter from "../src/api/routes/userManagement/login.routes";
+import googleRouter from '../src/api/routes/userManagement/google.routes';
+import ubicacionRouter from '../src/api/routes/userManagement/ubicacion.routes';
+import authRouter from '../src/api/routes/userManagement/login.routes';
 import modificarDatosRouter from '../src/api/routes/userManagement/modificarDatos.routes';
 import nominatimRouter from '../src/api/routes/userManagement/sugerencias.routes';
 import deviceRouter from '../src/api/routes/userManagement/device.routes';
@@ -28,8 +28,6 @@ import discordRoutes from '../src/api/routes/userManagement/discord.routes';
 import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
 
-
-
 const app = express();
 
 app.use(
@@ -38,7 +36,7 @@ app.use(
       'https://devmasters-servineo-frontend-zk3q.vercel.app',
       'http://localhost:8080',
       'http://localhost:8081',
-      'http://localhost:3000'
+      'http://localhost:3000',
     ],
     credentials: true,
   }),
@@ -48,7 +46,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
@@ -69,7 +66,7 @@ app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
-export const registerRoutes = (app: any) => {
+export const registerRoutes = (app: express.Application) => {
   app.use('/devices', deviceRouter);
 };
 

@@ -22,6 +22,7 @@ export function makeWalletCollectionByUserIdAdapter(
   return {
     async getWalletById(fixerId: string): Promise<WalletSlice | null> {
       const query = { [idField]: toQueryForId(fixerId) };
+      if (!mongoose.connection.db) throw new Error('Database not connected');
       const doc = await mongoose.connection.db.collection(collectionName).findOne(
         query,
         { projection: { balance: 1, lowBalanceThreshold: 1, flags: 1, lastLowBalanceNotification: 1 } }
@@ -52,6 +53,7 @@ export function makeWalletCollectionByUserIdAdapter(
         : String(fixerId);
       setOnInsert[idField] = usersIdValue;
 
+      if (!mongoose.connection.db) throw new Error('Database not connected');
       await mongoose.connection.db.collection(collectionName).updateOne(
         query,
         { $set, $setOnInsert: setOnInsert },

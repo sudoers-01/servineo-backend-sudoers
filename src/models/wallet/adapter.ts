@@ -10,6 +10,7 @@ export function makeRawCollectionWalletAdapter(collectionName: string) {
   return {
     async getWalletById(fixerId: string) {
       const _id = normalizeId(fixerId); // <-- cambio
+      if (!mongoose.connection.db) throw new Error('Database not connected');
       const doc = await mongoose.connection.db
         .collection(collectionName)
         .findOne(
@@ -40,6 +41,7 @@ export function makeRawCollectionWalletAdapter(collectionName: string) {
       if (patch.flags !== undefined) $set["wallet.flags"] = patch.flags;
       if (patch.lastLowBalanceNotification !== undefined) $set["wallet.lastLowBalanceNotification"] = patch.lastLowBalanceNotification;
 
+      if (!mongoose.connection.db) throw new Error('Database not connected');
       await mongoose.connection.db
         .collection(collectionName)
         .updateOne({ _id }, { $set });

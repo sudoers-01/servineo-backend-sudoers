@@ -2,6 +2,8 @@ import * as dotenv from 'dotenv';
 import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js'
 import mongoose from 'mongoose';
+import { sendMeetingInvite } from '../../utils/googleCalendarHelper.js';
+import Email from 'next-auth/providers/email.js';
 
 dotenv.config();
 
@@ -20,7 +22,7 @@ interface AppointmentParameter {
     selected_date: Date;
     current_requester_name: string;
     appointment_type: 'virtual' | 'presential';
-    appointment_description?: string;
+    appointment_description: string;
     link_id?: string;
     current_requester_phone: string;
     starting_time: Date;
@@ -29,6 +31,7 @@ interface AppointmentParameter {
     display_location_name?: string;
     lat?: string;
     lon?: string;
+    mail: string[];
     cancelled_fixer?: boolean;
     reprogram_reason?: string;
 }
@@ -45,7 +48,8 @@ export async function create_appointment(current_appointment: AppointmentParamet
         const fixer_id = current_appointment.id_fixer;
         const date_selected = current_appointment.selected_date;
         const time_starting = current_appointment.starting_time;
-
+        const mail = current_appointment.mail;
+        const appointment_description = current_appointment.appointment_description;   
         const db = mongoose.connection.db!;
         const formated_id_fixer = new mongoose.Types.ObjectId(fixer_id);
         const formated_id_requester = new mongoose.Types.ObjectId(requester_id);
@@ -70,6 +74,7 @@ export async function create_appointment(current_appointment: AppointmentParamet
             selected_date: date_selected,
             starting_time: time_starting
         });
+
         console.log(exists);
         let appointment = null;
         if (!exists || (exists && exists.cancelled_fixer)) {
@@ -85,10 +90,13 @@ export async function create_appointment(current_appointment: AppointmentParamet
                 { $set: current_appointment },
                 { new: true }
             );
+            sendMeetingInvite(mail, "cita Agendada Servineo", date_selected, appointment_description, 60);
             return { result: true, message_state: 'Cita creada correctamente.' };
         } else {
             return { result: true, message_state: 'No se puede crear la cita, la cita ya existe.' };
         }
+        
+
     } catch (err) {
         throw new Error('Error creating appointment: ' + (err as Error).message);
     }

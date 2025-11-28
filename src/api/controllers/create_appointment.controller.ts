@@ -1,6 +1,8 @@
 import 'express';
 import { Request, Response } from 'express';
 import * as CreateAppointmentService from '../../services/appointment/create_appointment.service.js';
+import { sendMeetingInvite } from '../../utils/googleCalendarHelper.js';
+import Email from 'next-auth/providers/email.js';
 
 // * Fixed: fix, controladores deben devolver siempre status codes, dataExists no debe existir
 // *Fixed: no esta devolviendo status code con json de respuesta, revisar dataExists
@@ -47,7 +49,7 @@ export async function createAppointment(req: Request, res: Response) {
                 created: result,
             });
         }
-
+        
     } catch (err) {
         console.error('Error en el controlador:', err);
         return res

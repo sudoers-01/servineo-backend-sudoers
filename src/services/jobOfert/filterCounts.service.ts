@@ -30,7 +30,7 @@ interface MongoQuery {
     fixerName?: RegExp;
   }>;
   fixerName?: RegExp;
-  city?: string;
+  city?: string | { $in: string[] };
   category?: string | { $in: string[] };
   rating?: {
     $gte?: number;
@@ -81,7 +81,7 @@ export class FilterCountsService {
     console.log(`📊 Filter Counts completed in ${duration}ms`);
 
     const validation = FilterCountValidator.validateCounts(
-      {},
+      rangeCounts,
       cityCounts,
       categoryCounts,
       ratingCounts,
@@ -165,7 +165,6 @@ export class FilterCountsService {
     );
 
     fixers.forEach((fixer) => {
-      // ✅ CORREGIDO: Validar que _id exista, no sea null y sea string
       if (!fixer._id || typeof fixer._id !== 'string') {
         console.warn('⚠️ Skipping fixer with invalid _id:', fixer);
         return;
@@ -222,19 +221,17 @@ export class FilterCountsService {
     }
 
     if (options.city) {
-      // ✅ CORREGIDO: Manejar múltiples ciudades separadas por coma
       const cities = options.city.split(',').map(c => c.trim()).filter(Boolean);
       if (cities.length === 1) {
         query.city = validateAndNormalizeCity(cities[0]);
       } else if (cities.length > 1) {
-        // Si hay múltiples ciudades, usar $in
         const normalizedCities = cities
           .map(c => validateAndNormalizeCity(c))
           .filter(Boolean);
         if (normalizedCities.length > 0) {
           query.city = normalizedCities.length === 1 
             ? normalizedCities[0] 
-            : { $in: normalizedCities } as any;
+            : { $in: normalizedCities };
         }
       }
     }
@@ -244,7 +241,9 @@ export class FilterCountsService {
         .map((c) => validateAndNormalizeCategory(c))
         .filter(Boolean) as string[];
       if (normalizedCategories.length > 0) {
-        query.category = { $in: normalizedCategories };
+        query.category = normalizedCategories.length === 1
+          ? normalizedCategories[0]
+          : { $in: normalizedCategories };
       }
     }
 
@@ -307,6 +306,8 @@ export class FilterCountsService {
       }
     );
 
+    console.log('🏙️ City counts from DB:', counts);
+
     return counts.reduce((acc, item) => {
       acc[item._id] = item.count;
       return acc;
@@ -357,6 +358,8 @@ export class FilterCountsService {
         return aggregation.exec();
       }
     );
+
+    console.log('📊 Category counts from DB:', counts);
 
     return counts.reduce((acc, item) => {
       acc[item._id] = item.count;

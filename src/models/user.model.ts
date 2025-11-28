@@ -5,6 +5,7 @@ export interface IUser extends Document {
   email: string;
   url_photo?: string;
   role: string;
+  description?: string;
 
   authProviders?: Array<{
     provider: string;
@@ -86,6 +87,7 @@ const userSchema = new Schema<IUser>(
     },
 
     ci: { type: String },
+    description: { type: String },
 
     servicios: [{ type: String }],
 

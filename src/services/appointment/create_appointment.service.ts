@@ -74,6 +74,7 @@ export async function create_appointment(current_appointment: AppointmentParamet
             selected_date: date_selected,
             starting_time: time_starting
         });
+//los odio
 
         console.log(exists);
         let appointment = null;

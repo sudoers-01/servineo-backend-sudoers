@@ -4,8 +4,7 @@ import {
   getUserProfiles,
   updateBio,
   getUsersByRole,
-  convertToFixer,
-  getUserProfileById 
+  convertToFixer
 } from '../controllers/userProfile.controller';
 
 const router = Router();
@@ -15,7 +14,7 @@ router.get('/', getUserProfiles);
 
 // Editar bio
 router.patch('/:id/bio', updateBio);
-router.get('/:id', getUserProfileById);
+
 // Obtener usuarios por rol
 router.get('/role/:role', getUsersByRole);
 

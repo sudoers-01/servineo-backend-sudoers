@@ -3,6 +3,8 @@ dotenv.config({ path: '.env' });
 
 import express from 'express';
 import cors from 'cors';
+import { connectDatabase } from './config/db.config';
+import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
@@ -47,9 +49,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
-app.use('/api', activityRoutes);
-app.use('/api', jobsRoutes);
-app.use('/api', searchRoutes);
+//app.use('/api/user-profiles', userProfileRoutes);
+//app.use('/api/jobs', jobRoutes);
 
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
@@ -75,5 +76,16 @@ app.use((req, res) => {
     message: 'route not found',
   });
 });
-app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));
+
+const startServer = async () => {
+  try {
+    await connectDatabase();
+    app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));
+  } catch (error) {
+    console.error('Error starting server:', error);
+  }
+};
+
+startServer();
+
 export default app;

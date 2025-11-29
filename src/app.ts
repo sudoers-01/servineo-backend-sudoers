@@ -17,9 +17,9 @@ import userRoutes from './routes/user.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
-import googleRouter from "../src/api/routes/userManagement/google.routes";
-import ubicacionRouter from "../src/api/routes/userManagement/ubicacion.routes";
-import authRouter from "../src/api/routes/userManagement/login.routes";
+import googleRouter from '../src/api/routes/userManagement/google.routes';
+import ubicacionRouter from '../src/api/routes/userManagement/ubicacion.routes';
+import authRouter from '../src/api/routes/userManagement/login.routes';
 import modificarDatosRouter from '../src/api/routes/userManagement/modificarDatos.routes';
 import nominatimRouter from '../src/api/routes/userManagement/sugerencias.routes';
 import deviceRouter from '../src/api/routes/userManagement/device.routes';
@@ -32,9 +32,7 @@ import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
 import portfolioRoutes from '../src/routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
-
-
-
+import Search from './models/search.model';
 
 const app = express();
 
@@ -44,7 +42,7 @@ app.use(
       'https://devmasters-servineo-frontend-zk3q.vercel.app',
       'http://localhost:8080',
       'http://localhost:8081',
-      'http://localhost:3000'
+      'http://localhost:3000',
     ],
     credentials: true,
   }),
@@ -58,15 +56,14 @@ app.use((req, res, next) => {
   next();
 });
 
- 
-
 app.use('/api', HealthRoutes);
+app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/experiences', experienceRoutes);
-app.use('/api/portfolio', portfolioRoutes);//portafolio
+app.use('/api/portfolio', portfolioRoutes); //portafolio
 //app.use('/api/user-profiles', userProfileRoutes);
 //app.use('/api/jobs', jobRoutes);
 
@@ -89,7 +86,7 @@ app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
-app.use('/api/user',routerUser);
+app.use('/api/user', routerUser);
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

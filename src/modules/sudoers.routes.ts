@@ -11,6 +11,7 @@ import JobRequestRoutes from '../modules/job-request/job-request.routes';
 import AppointmentsRoutes from '../modules/appointments/appointments.routes';
 import RatedJobsRoutes from '../modules/rated-jobs/routes';
 import JobRatingDetailsRoutes from '../modules/job-rating-details/job-rating-details.routes';
+import PromotionRoutes from '../modules/promotion/promotion.routes';
 
 const router = Router();
 
@@ -26,6 +27,7 @@ router.use('/api/jobrequests', JobRequestRoutes);
 router.use('/api/appointments', AppointmentsRoutes);
 router.use('/api/rated-jobs', RatedJobsRoutes);
 router.use('/api', JobRatingDetailsRoutes);
+router.use('/api/promotions', PromotionRoutes);
 
 router.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

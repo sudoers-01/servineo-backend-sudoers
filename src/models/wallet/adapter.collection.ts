@@ -34,6 +34,9 @@ export function makeWalletCollectionByUserIdAdapter(
       
       const doc = await db.collection(collectionName).findOne(
         query as any,
+      if (!mongoose.connection.db) throw new Error('Database not connected');
+      const doc = await mongoose.connection.db.collection(collectionName).findOne(
+        query,
         { projection: { balance: 1, lowBalanceThreshold: 1, flags: 1, lastLowBalanceNotification: 1 } }
       );
       if (!doc) return null;
@@ -66,6 +69,9 @@ export function makeWalletCollectionByUserIdAdapter(
 
       await db.collection(collectionName).updateOne(
         query as any,
+      if (!mongoose.connection.db) throw new Error('Database not connected');
+      await mongoose.connection.db.collection(collectionName).updateOne(
+        query,
         { $set, $setOnInsert: setOnInsert },
         { upsert: true }
       );

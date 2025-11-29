@@ -15,7 +15,6 @@ import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
 import userProfileRoutes from './routes/userProfile.routes';
 import userRoutes from './routes/user.routes';
-
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
 import googleRouter from '../src/api/routes/userManagement/google.routes';
@@ -64,14 +63,9 @@ app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', jobsRoutes);
-app.use('/api', searchRoutes);
 app.use('/api/admin', trackingRoutes);
-app.use('/api/activity', activityRoutes);
 app.use('/api/experiences', experienceRoutes);
-app.use('/api/portfolio', portfolioRoutes); //portafolio
-//app.use('/api/user-profiles', userProfileRoutes);
-//app.use('/api/jobs', jobRoutes);
-
+app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/api/controlC/auth', authRouter);
@@ -85,13 +79,11 @@ app.use('/api/controlC/cerrar-sesiones', cerrarSesionesRouter);
 app.use('/api/controlC/ultimo-cambio', ultimoCambioRouter);
 app.use('/api/controlC/foto-perfil', fotoPerfilRouter);
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
-app.use('/api/controlC/registro', registrarDatosRouter);
-app.use('/api/controlC/auth', authRouter);
-app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
+
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

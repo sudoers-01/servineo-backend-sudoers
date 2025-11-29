@@ -1,5 +1,5 @@
 import { computeWalletFlags } from "./flags";
-import type { WalletModelAdapter } from "./adapter";
+import type { WalletModelAdapter, WalletPatch } from "./adapter";
 import { logFlagChangeHuman } from './prettyLog';
 
 
@@ -45,7 +45,7 @@ export async function applyCommissionToWallet(
 
 
   // marca auditoría básica si encendiste algo
-  const patch: any = {
+  const patch: WalletPatch = {
     balance: post,
     flags: nextFlags,
   };

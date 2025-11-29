@@ -25,6 +25,10 @@ import discordRoutes from './api/routes/userManagement/discord.routes';
 import clienteRouter from './api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes';
 
+import createrAppointmentRoutes from './api/routes/create_appointment.routes';
+import readAppointmentRoutes from './api/routes/read_appointment.routes';
+import updateAppoitnmenRoutes from './api/routes/update_appointment.routes';
+
 const app = express();
 
 app.use(
@@ -63,6 +67,11 @@ app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
+
+app.use('/api/crud_create', createrAppointmentRoutes);
+app.use('/api/crud_read', readAppointmentRoutes);
+app.use('/api/crud_update', updateAppoitnmenRoutes);
+
 export const registerRoutes = (app: express.Application) => {
   app.use('/devices', deviceRouter);
 };

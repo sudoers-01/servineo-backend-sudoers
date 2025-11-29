@@ -1,3 +1,4 @@
+/*
 import mongoose from 'mongoose';
 import type { WalletModelAdapter, WalletSlice } from './adapter.types'; // Cambia la importación
 
@@ -21,8 +22,9 @@ function toQueryForId(id: string) {
   // Por defecto (string), busca por string; si el doc ya estuviera con ObjectId, igual lo encontrará
   return { $in: [String(id), asObjId] };
 }
-
+*/
 /** Wallet en colección separada, referenciando usuario por WALLET_USER_ID_FIELD */
+/*
 export function makeWalletCollectionByUserIdAdapter(
   collectionName: string,
   idField: string = 'users_id'
@@ -78,3 +80,4 @@ export function makeWalletCollectionByUserIdAdapter(
     },
   };
 }
+*/

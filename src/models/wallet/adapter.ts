@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+/*import mongoose from "mongoose";
 
 // Agrega esta interfaz al principio del archivo
 export interface WalletModelAdapter {
@@ -78,3 +78,5 @@ export function makeRawCollectionWalletAdapter(collectionName: string): WalletMo
     },
   };
 }
+}
+*/

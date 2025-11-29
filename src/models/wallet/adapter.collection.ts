@@ -1,5 +1,13 @@
 import mongoose from 'mongoose';
-import type { WalletModelAdapter, WalletSlice } from './adapter';
+import type { WalletModelAdapter, WalletSlice } from './adapter.types'; // Cambia la importación
+
+// Verificar que la conexión esté establecida
+function getDb() {
+  if (!mongoose.connection.db) {
+    throw new Error('Database connection not established');
+  }
+  return mongoose.connection.db;
+}
 
 function toQueryForId(id: string) {
   const asObjId = /^[0-9a-fA-F]{24}$/.test(String(id))
@@ -21,7 +29,11 @@ export function makeWalletCollectionByUserIdAdapter(
 ): WalletModelAdapter {
   return {
     async getWalletById(fixerId: string): Promise<WalletSlice | null> {
+      const db = getDb();
       const query = { [idField]: toQueryForId(fixerId) };
+      
+      const doc = await db.collection(collectionName).findOne(
+        query as any,
       if (!mongoose.connection.db) throw new Error('Database not connected');
       const doc = await mongoose.connection.db.collection(collectionName).findOne(
         query,
@@ -29,7 +41,7 @@ export function makeWalletCollectionByUserIdAdapter(
       );
       if (!doc) return null;
 
-      const flags = doc.flags ?? null; // puede no existir aún
+      const flags = doc.flags ?? null;
       return {
         balance: Number(doc.balance ?? 0),
         lowBalanceThreshold: Number(doc.lowBalanceThreshold ?? 0),
@@ -38,8 +50,10 @@ export function makeWalletCollectionByUserIdAdapter(
       };
     },
 
-    async updateWalletById(fixerId: string, patch): Promise<void> {
+    async updateWalletById(fixerId: string, patch: Partial<WalletSlice>): Promise<void> {
+      const db = getDb();
       const query = { [idField]: toQueryForId(fixerId) };
+      
       const $set: any = { updatedAt: new Date() };
       if (patch.balance !== undefined) $set.balance = patch.balance;
       if (patch.lowBalanceThreshold !== undefined) $set.lowBalanceThreshold = patch.lowBalanceThreshold;
@@ -53,6 +67,8 @@ export function makeWalletCollectionByUserIdAdapter(
         : String(fixerId);
       setOnInsert[idField] = usersIdValue;
 
+      await db.collection(collectionName).updateOne(
+        query as any,
       if (!mongoose.connection.db) throw new Error('Database not connected');
       await mongoose.connection.db.collection(collectionName).updateOne(
         query,

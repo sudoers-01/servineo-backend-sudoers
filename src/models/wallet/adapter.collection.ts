@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import type { WalletModelAdapter, WalletSlice } from './adapter';
+import type { WalletModelAdapter, WalletSlice, WalletPatch } from './adapter';
 
 function toQueryForId(id: string) {
   const asObjId = /^[0-9a-fA-F]{24}$/.test(String(id))
@@ -22,7 +22,10 @@ export function makeWalletCollectionByUserIdAdapter(
   return {
     async getWalletById(fixerId: string): Promise<WalletSlice | null> {
       const query = { [idField]: toQueryForId(fixerId) };
-      const doc = await mongoose.connection.db.collection(collectionName).findOne(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = mongoose.connection.db as any;
+      if (!db) throw new Error('Database connection not initialized');
+      const doc = await db.collection(collectionName).findOne(
         query,
         { projection: { balance: 1, lowBalanceThreshold: 1, flags: 1, lastLowBalanceNotification: 1 } }
       );
@@ -37,22 +40,27 @@ export function makeWalletCollectionByUserIdAdapter(
       };
     },
 
-    async updateWalletById(fixerId: string, patch): Promise<void> {
+    async updateWalletById(fixerId: string, patch: WalletPatch): Promise<void> {
       const query = { [idField]: toQueryForId(fixerId) };
-      const $set: any = { updatedAt: new Date() };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const $set: Record<string, any> = { updatedAt: new Date() };
       if (patch.balance !== undefined) $set.balance = patch.balance;
       if (patch.lowBalanceThreshold !== undefined) $set.lowBalanceThreshold = patch.lowBalanceThreshold;
       if (patch.flags !== undefined) $set.flags = patch.flags;
       if (patch.lastLowBalanceNotification !== undefined) $set.lastLowBalanceNotification = patch.lastLowBalanceNotification;
 
-      const setOnInsert: any = { createdAt: new Date() };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const setOnInsert: Record<string, any> = { createdAt: new Date() };
       // aseguremos el campo users_id en el upsert:
       const usersIdValue = (process.env.WALLET_USER_ID_IS_OBJECTID === 'true')
         ? new mongoose.Types.ObjectId(String(fixerId))
         : String(fixerId);
       setOnInsert[idField] = usersIdValue;
 
-      await mongoose.connection.db.collection(collectionName).updateOne(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = mongoose.connection.db as any;
+      if (!db) throw new Error('Database connection not initialized');
+      await db.collection(collectionName).updateOne(
         query,
         { $set, $setOnInsert: setOnInsert },
         { upsert: true }

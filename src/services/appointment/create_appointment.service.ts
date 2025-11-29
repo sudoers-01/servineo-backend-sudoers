@@ -3,7 +3,6 @@ import db_connection from '../../database.js';
 import Appointment from '../../models/Appointment.js'
 import mongoose from 'mongoose';
 import { sendMeetingInvite } from '../../utils/googleCalendarHelper.js';
-import Email from 'next-auth/providers/email.js';
 
 dotenv.config();
 
@@ -75,7 +74,7 @@ export async function create_appointment(current_appointment: AppointmentParamet
             starting_time: time_starting
         });
 //los odio
-
+// TODO GUARDAR TAMBIEN EL MAIL EN LA BASE DE DATOS PARA OBTENER EL REFRESH TOKEN
         console.log(exists);
         let appointment = null;
         if (!exists || (exists && exists.cancelled_fixer)) {

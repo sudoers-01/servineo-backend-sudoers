@@ -1,12 +1,12 @@
 // src/config/firebase.config.ts
 import * as admin from 'firebase-admin';
+import serviceAccount from '../../firebase-service-account.json';
 
 // ──────────────────────────────────────────────────
 // OPCIÓN 1 (Recomendada para producción): usar cuenta de servicio JSON
 // ──────────────────────────────────────────────────
 if (!admin.apps.length) {
   try {
-    const serviceAccount = require('../../firebase-service-account.json');
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
       storageBucket: 'conexia-400921.appspot.com',

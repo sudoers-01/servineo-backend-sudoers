@@ -11,6 +11,7 @@ import fixerRoutes from './api/routes/fixer.routes';
 import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
 import searchRoutes from './api/routes/search.routes';
+import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
 import userProfileRoutes from './routes/userProfile.routes';
 import userRoutes from './routes/user.routes';
@@ -61,6 +62,10 @@ app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
+app.use('/api', activityRoutes);
+app.use('/api', jobsRoutes);
+app.use('/api', searchRoutes);
+app.use('/api/admin', trackingRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes); //portafolio

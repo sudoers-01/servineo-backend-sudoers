@@ -102,3 +102,17 @@ export async function deletePromotion(req: Request, res: Response) {
     res.status(500).json({ message: 'Error deleting promotion' });
   }
 }
+
+export async function getPromotionsByOfferId(req: Request, res: Response) {
+  try {
+    const { offerId } = req.params;
+    if (!ObjectId.isValid(offerId)) {
+      return res.status(400).json({ message: 'Invalid Offer ID' });
+    }
+    const promotions = await PromotionService.getPromotionsByOfferId(offerId);
+    res.json(promotions);
+  } catch (error) {
+    console.error('Error fetching promotions by offer:', error);
+    res.status(500).json({ message: 'Error fetching promotions by offer' });
+  }
+}

@@ -96,3 +96,20 @@ export async function deletePromotion(id: string) {
     throw error;
   }
 }
+
+export async function getPromotionsByOfferId(offerId: string) {
+  try {
+    const db = await connectDB();
+
+    const query = {
+      $or: [{ offerId: offerId }, { offerId: new ObjectId(offerId) }],
+    };
+
+    const results = await db.collection('promotions').find(query).toArray();
+
+    return results;
+  } catch (error) {
+    console.error('Error en getPromotionsByOfferId:', error);
+    throw error;
+  }
+}

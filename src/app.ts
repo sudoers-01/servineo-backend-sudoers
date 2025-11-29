@@ -95,15 +95,4 @@ app.use((req, res) => {
   });
 });
 
-const startServer = async () => {
-  try {
-    await connectDatabase();
-    app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));
-  } catch (error) {
-    console.error('Error starting server:', error);
-  }
-};
-
-startServer();
-
 export default app;

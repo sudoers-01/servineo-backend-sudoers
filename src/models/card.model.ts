@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 const cardSchema = new mongoose.Schema({
@@ -12,4 +11,4 @@ const cardSchema = new mongoose.Schema({
   cardholderName: String,
 });
 
-export const User = mongoose.models.User || mongoose.model("cards", cardSchema);
+export default mongoose.models.Card || mongoose.model("Card", cardSchema);

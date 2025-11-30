@@ -4,7 +4,7 @@ export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
   email: string;
-  url_photo?: string;
+  url_photo?: string; 
   role: string;
 
   authProviders?: Array<{
@@ -50,6 +50,8 @@ export interface IUser extends Document {
     departamento?: string;
     pais?: string;
   };
+
+  stripeCustomerId?: string; // ⚡ Campo nuevo para Stripe
 }
 
 const userSchema = new Schema<IUser>(
@@ -101,7 +103,7 @@ const userSchema = new Schema<IUser>(
 
     acceptTerms: { type: Boolean, default: false },
 
-    fixerProfile: { type: String, required : false },
+    fixerProfile: { type: String, required: false },
 
     metodoPago: {
       hasEfectivo: { type: Boolean, default: false },
@@ -120,6 +122,8 @@ const userSchema = new Schema<IUser>(
       departamento: { type: String },
       pais: { type: String },
     },
+
+    stripeCustomerId: { type: String }, // ⚡ Agregado
   },
   {
     collection: "users",

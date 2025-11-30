@@ -35,6 +35,7 @@ import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.ro
 import PaymentCenterRoutes from './api/routes/paymentCenter.routes'; // <--- ESTA ES LA CLAVE DEL ERROR 404
 import CardsRoutes from "./api/routes/card.routes";
 import PaymentRoutes from "./api/routes/payment.routes";
+import paymentRoutes from "./api/routes/paymentsQR.routes";
 import BankAccountRoutes from './api/routes/BankAccount.routes';
 import invoiceDetailRouter from './api/routes/invoice.routes'; 
 import bankTransferRoutes from './api/routes/bankTransfer.routes';
@@ -88,10 +89,15 @@ app.use('/api/controlC/cliente', clienteRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 
+app.get('/api/controlC/auth/test', (req, res) => {
+  res.send("RUTA FUNCIONA");
+});
+
 // 3. Rutas de Pagos (LO QUE SOLUCIONA EL 404)
 app.use('/api/fixer/payment-center', PaymentCenterRoutes); // <--- ESTO ARREGLA TU ERROR
 app.use('/api', CardsRoutes);
 app.use('/api', PaymentRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api', BankAccountRoutes);
 app.use('/api/v1/invoices', invoiceDetailRouter);
 app.use('/api/transferencia-bancaria', bankTransferRoutes);

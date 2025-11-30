@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import Payment from "../../models/payment.model";
 import Card from "../../models/card.model";
-import User from "../../models/userPayment.model";
-import Jobs from "../../models/jobsPayment.model";
+import {User} from "../../models/user.model";
+import  Job  from '../../models/jobs.model';
 import 'dotenv/config';
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -137,7 +137,7 @@ export const createPayment = async (req, res) => {
     console.log(`✅ Pago guardado correctamente con estado '${paymentData.status}'`);
 
     // --- ACTUALIZAR ESTADO DEL TRABAJO ---
-    const job = await Jobs.findById(jobId);
+    const job = await Job.findById(jobId);
     if (!job) {
       console.error(`⚠️ Trabajo con ID ${jobId} no encontrado`);
     } else {

@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import Card from "../../models/card.model";
-import User from "../../models/userPayment.model";
+import {User} from "../../models/user.model";
 import 'dotenv/config';
-
+ 
 // Validar que la clave de Stripe existe
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('❌ STRIPE_SECRET_KEY no está definida en las variables de entorno');

@@ -1,4 +1,4 @@
-//pasar
+//pasar a jhasseft
 import PaymentIntent from '../../models/PaymentIntent.model';
 import ProviderPaymentMethod from '../../models/ProviderPaymentMethod.model';
 
@@ -35,31 +35,47 @@ export async function createOrReuseIntent(req, res) {
 
     const providerId = SERVINEO_PROVIDER_ID;
 
-    console.log('🔍 Buscando intent existente...');
-    let intent = await PaymentIntent.findOne({ fixerId, type: 'wallet'});
-    console.log('📄 Intent encontrado:', intent);
-
-    if (!intent) {
-      console.log('🆕 Creando nuevo intent...');
-      intent = await PaymentIntent.create({
-        bookingId: null,
-        providerId,
-        fixerId,
-        amountExpected: amount,
-        currency,
-        paymentReference: generateRef(),
-        deadlineAt: new Date(Date.now() + deadlineMinutes * 60 * 1000),
-        status: 'pending',
-        type: 'wallet',
-        method: 'transfer',
-      });
+    let intent;
+    try {
+      console.log('🔍 Buscando intent existente...');
+      intent = await PaymentIntent.findOne({ fixerId, type: 'wallet' });
+      console.log('📄 Intent encontrado:', intent);
+    } catch (e) {
+      console.error('Error buscando intent:', e);
+      throw e;
     }
 
-    console.log('🏦 Buscando método de pago activo...');
+    if (!intent) {
+      try {
+        console.log('🆕 Creando nuevo intent...');
+        intent = await PaymentIntent.create({
+          bookingId: generateRef(),
+          providerId,
+          fixerId,
+          amountExpected: amount,
+          currency,
+          paymentReference: generateRef(),
+          deadlineAt: new Date(Date.now() + deadlineMinutes * 60 * 1000),
+          status: 'pending',
+          type: 'wallet',
+          method: 'transfer',
+        });
+        console.log('🆕 Intent creado:', intent);
+      } catch (e) {
+        console.error('Error creando intent:', e);
+        throw e;
+      }
+    }
 
-    const method = await ProviderPaymentMethod.findOne({ providerId, active: true });
-    
-    console.log('✅ Método encontrado:', method);
+    let method;
+    try {
+      console.log('🏦 Buscando método de pago activo...');
+      method = await ProviderPaymentMethod.findOne({ providerId, active: true });
+      console.log('✅ Método encontrado:', method);
+    } catch (e) {
+      console.error('Error buscando método:', e);
+      throw e;
+    }
 
     if (!method) {
       return res.json({

@@ -30,26 +30,26 @@ interface AppointmentParameter {
   display_location_name?: string;
   lat?: string;
   lon?: string;
-  mail: string[];
+  mail: string[] | string;   // ← aceptamos también string
   cancelled_fixer?: boolean;
   reprogram_reason?: string;
-  googleEventId?: string; 
+  googleEventId?: string;
 }
 
-//Citas
-// * Mantener endpoint Vale (revisar si existen fallas con el nuevo esquema de la db).
-// * Existian incompatibilidades con el esquema modificado
-// ? Asuntos modificados: Ya no se actualizan appointments existentes.
-// ? Si ya existe un appointment con el mismo fixer, fecha y hora, se rechaza la creacion.
 export async function create_appointment(current_appointment: AppointmentParameter) {
   try {
     await set_db_connection();
+
     const requester_id = current_appointment.id_requester;
     const fixer_id = current_appointment.id_fixer;
     const date_selected = current_appointment.selected_date;
     const time_starting = current_appointment.starting_time;
-    const mail = current_appointment.mail;
     const appointment_description = current_appointment.appointment_description;
+
+    // 🔥 CONVERTIR MAIL A ARRAY SI LLEGA COMO STRING
+    const mailInput = current_appointment.mail;
+    const mailList = Array.isArray(mailInput) ? mailInput : [mailInput];
+
     const db = mongoose.connection.db!;
     const formated_id_fixer = new mongoose.Types.ObjectId(fixer_id);
     const formated_id_requester = new mongoose.Types.ObjectId(requester_id);
@@ -74,47 +74,45 @@ export async function create_appointment(current_appointment: AppointmentParamet
       selected_date: date_selected,
       starting_time: time_starting,
     });
-    //los odio
-    // TODO GUARDAR TAMBIEN EL MAIL EN LA BASE DE DATOS PARA OBTENER EL REFRESH TOKEN
-    console.log(exists);
 
-    // google
     const syncWithGoogle = async () => {
-        if (mail && mail.length > 0) {
-            const endTime = current_appointment.finishing_time || new Date(new Date(time_starting).getTime() + 60 * 60000);
-            
-            const desc = `Cliente: ${current_appointment.current_requester_name}\nContacto: ${current_appointment.current_requester_phone}\nDescripcion: ${appointment_description}`;
+      if (mailList && mailList.length > 0) {
+        const endTime =
+          current_appointment.finishing_time ||
+          new Date(new Date(time_starting).getTime() + 60 * 60000);
 
-            const googleResult = await sendMeetingInvite({
-                emails: mail,
-                title: "Cita con Servineo",
-                description: desc,
-                start: time_starting,
-                end: endTime,
-                isVirtual: current_appointment.appointment_type === 'virtual',
-                customLink: current_appointment.link_id, 
-                locationName: current_appointment.display_location_name,
-                locationCoordinates: (current_appointment.lat && current_appointment.lon) 
-                    ? { lat: current_appointment.lat, lon: current_appointment.lon } 
-                    : undefined
-            });
+        const desc = `Cliente: ${current_appointment.current_requester_name}\nContacto: ${current_appointment.current_requester_phone}\nDescripcion: ${appointment_description}`;
 
-            if (googleResult.success) {
-                current_appointment.googleEventId = googleResult.eventId || undefined;
-            }
+        const googleResult = await sendMeetingInvite({
+          emails: mailList, 
+          title: 'Cita con Servineo',
+          description: desc,
+          start: time_starting,
+          end: endTime,
+          isVirtual: current_appointment.appointment_type === 'virtual',
+          customLink: current_appointment.link_id,
+          locationName: current_appointment.display_location_name,
+          locationCoordinates:
+            current_appointment.lat && current_appointment.lon
+              ? { lat: current_appointment.lat, lon: current_appointment.lon }
+              : undefined,
+        });
+
+        if (googleResult.success) {
+          current_appointment.googleEventId = googleResult.eventId || undefined;
         }
+      }
     };
 
     let appointment = null;
+
     if (!exists || (exists && exists.cancelled_fixer)) {
-      
-      await syncWithGoogle(); 
+      await syncWithGoogle();
 
       appointment = new Appointment(current_appointment);
       await appointment.save();
       return { result: true, message_state: 'Cita creada correctamente.' };
     } else if (exists && exists.schedule_state === 'cancelled') {
-      
       await syncWithGoogle();
 
       const id_appointmente_exists = exists._id;
@@ -125,10 +123,13 @@ export async function create_appointment(current_appointment: AppointmentParamet
         { $set: current_appointment },
         { new: true },
       );
-      // sendMeetingInvite eliminado aquí porque ya llamamos a syncWithGoogle arriba
+
       return { result: true, message_state: 'Cita creada correctamente.' };
     } else {
-      return { result: true, message_state: 'No se puede crear la cita, la cita ya existe.' };
+      return {
+        result: true,
+        message_state: 'No se puede crear la cita, la cita ya existe.',
+      };
     }
   } catch (err) {
     throw new Error('Error creating appointment: ' + (err as Error).message);

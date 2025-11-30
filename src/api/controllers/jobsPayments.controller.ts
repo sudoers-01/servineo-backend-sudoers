@@ -1,5 +1,4 @@
-import type { Request, Response } from "express";
-import { Job } from "../../models/jobsPayment.model";
+import Job from "../../models/jobsPayment.model";
 import { User } from "../../models/userPayment.model";
 
 // =========================

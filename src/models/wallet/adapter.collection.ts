@@ -1,5 +1,14 @@
+/*
 import mongoose from 'mongoose';
-import type { WalletModelAdapter, WalletSlice } from './adapter';
+import type { WalletModelAdapter, WalletSlice } from './adapter.types'; // Cambia la importación
+
+// Verificar que la conexión esté establecida
+function getDb() {
+  if (!mongoose.connection.db) {
+    throw new Error('Database connection not established');
+  }
+  return mongoose.connection.db;
+}
 
 function toQueryForId(id: string) {
   const asObjId = /^[0-9a-fA-F]{24}$/.test(String(id))
@@ -13,25 +22,28 @@ function toQueryForId(id: string) {
   // Por defecto (string), busca por string; si el doc ya estuviera con ObjectId, igual lo encontrará
   return { $in: [String(id), asObjId] };
 }
-
+*/
 /** Wallet en colección separada, referenciando usuario por WALLET_USER_ID_FIELD */
+/*
 export function makeWalletCollectionByUserIdAdapter(
   collectionName: string,
   idField: string = 'users_id'
 ): WalletModelAdapter {
   return {
     async getWalletById(fixerId: string): Promise<WalletSlice | null> {
+      const db = getDb();
       const query = { [idField]: toQueryForId(fixerId) };
-      const db = mongoose.connection.db;
-      if (!db) throw new Error("Database connection not available");
       
       const doc = await db.collection(collectionName).findOne(
+        query as any,
+      if (!mongoose.connection.db) throw new Error('Database not connected');
+      const doc = await mongoose.connection.db.collection(collectionName).findOne(
         query,
         { projection: { balance: 1, lowBalanceThreshold: 1, flags: 1, lastLowBalanceNotification: 1 } }
       );
       if (!doc) return null;
 
-      const flags = doc.flags ?? null; // puede no existir aún
+      const flags = doc.flags ?? null;
       return {
         balance: Number(doc.balance ?? 0),
         lowBalanceThreshold: Number(doc.lowBalanceThreshold ?? 0),
@@ -40,10 +52,9 @@ export function makeWalletCollectionByUserIdAdapter(
       };
     },
 
-    async updateWalletById(fixerId: string, patch: any): Promise<void> {
+    async updateWalletById(fixerId: string, patch: Partial<WalletSlice>): Promise<void> {
+      const db = getDb();
       const query = { [idField]: toQueryForId(fixerId) };
-      const db = mongoose.connection.db;
-      if (!db) throw new Error("Database connection not available");
       
       const $set: any = { updatedAt: new Date() };
       if (patch.balance !== undefined) $set.balance = patch.balance;
@@ -59,6 +70,9 @@ export function makeWalletCollectionByUserIdAdapter(
       setOnInsert[idField] = usersIdValue;
 
       await db.collection(collectionName).updateOne(
+        query as any,
+      if (!mongoose.connection.db) throw new Error('Database not connected');
+      await mongoose.connection.db.collection(collectionName).updateOne(
         query,
         { $set, $setOnInsert: setOnInsert },
         { upsert: true }
@@ -66,3 +80,4 @@ export function makeWalletCollectionByUserIdAdapter(
     },
   };
 }
+*/

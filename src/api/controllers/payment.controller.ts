@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import Stripe from "stripe";
 import { Payment } from "../../models/payment.model";
-import { Card } from "../../models/card.model";
+import  { Card } from "../../models/card.model";
 import { User } from "../../models/userPayment.model";
-import { Job } from "../../models/jobsPayment.model";
+import { Jobs } from "../../models/jobsPayment.model";
 import 'dotenv/config';
 
 if (!process.env.STRIPE_SECRET_KEY) {

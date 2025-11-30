@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import Stripe from "stripe";
-import { Card } from "../../models/card.model";
+import card from "../../models/card.model";
 import { User } from "../../models/userPayment.model";
 import 'dotenv/config';
 

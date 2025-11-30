@@ -1,4 +1,17 @@
-import mongoose from "mongoose";
+/*import mongoose from "mongoose";
+
+// Agrega esta interfaz al principio del archivo
+export interface WalletModelAdapter {
+  getWalletById(fixerId: string): Promise<WalletSlice | null>;
+  updateWalletById(fixerId: string, patch: Partial<WalletSlice>): Promise<void>;
+}
+
+export interface WalletSlice {
+  balance: number;
+  lowBalanceThreshold: number;
+  flags: any;
+  lastLowBalanceNotification: Date | null;
+}
 
 // 👇 Type definitions for wallet adapter
 export interface WalletSlice {
@@ -14,19 +27,30 @@ export interface WalletModelAdapter {
 }
 
 // 👇 helper: si son 24 hex, usa ObjectId; si no, deja string
-function normalizeId(raw: string) {
+function normalizeId(raw: string): mongoose.Types.ObjectId | string {
   const s = String(raw).trim();
   return /^[0-9a-fA-F]{24}$/.test(s) ? new mongoose.Types.ObjectId(s) : s;
 }
 
-export function makeRawCollectionWalletAdapter(collectionName: string) {
+// Verificar que la conexión esté establecida
+function getDb() {
+  if (!mongoose.connection.db) {
+    throw new Error('Database connection not established');
+  }
+  return mongoose.connection.db;
+}
+
+export function makeRawCollectionWalletAdapter(collectionName: string): WalletModelAdapter {
   return {
-    async getWalletById(fixerId: string) {
-      const _id = normalizeId(fixerId); // <-- cambio
-      const db = mongoose.connection.db;
-      if (!db) throw new Error("Database connection not available");
+    async getWalletById(fixerId: string): Promise<WalletSlice | null> {
+      const _id = normalizeId(fixerId);
+      const db = getDb();
       
       const doc = await db
+    async getWalletById(fixerId: string) {
+      const _id = normalizeId(fixerId); // <-- cambio
+      if (!mongoose.connection.db) throw new Error('Database not connected');
+      const doc = await mongoose.connection.db
         .collection(collectionName)
         .findOne(
           { _id } as any,
@@ -39,6 +63,7 @@ export function makeRawCollectionWalletAdapter(collectionName: string) {
             },
           }
         );
+        
       if (!doc?.wallet) return null;
       return {
         balance: Number(doc.wallet.balance ?? 0),
@@ -48,10 +73,9 @@ export function makeRawCollectionWalletAdapter(collectionName: string) {
       };
     },
 
-    async updateWalletById(fixerId: string, patch: any) {
-      const _id = normalizeId(fixerId); // <-- cambio
-      const db = mongoose.connection.db;
-      if (!db) throw new Error("Database connection not available");
+    async updateWalletById(fixerId: string, patch: Partial<WalletSlice>): Promise<void> {
+      const _id = normalizeId(fixerId);
+      const db = getDb();
       
       const $set: any = { "wallet.updatedAt": new Date() };
       if (patch.balance !== undefined) $set["wallet.balance"] = patch.balance;
@@ -60,8 +84,12 @@ export function makeRawCollectionWalletAdapter(collectionName: string) {
       if (patch.lastLowBalanceNotification !== undefined) $set["wallet.lastLowBalanceNotification"] = patch.lastLowBalanceNotification;
 
       await db
+      if (!mongoose.connection.db) throw new Error('Database not connected');
+      await mongoose.connection.db
         .collection(collectionName)
         .updateOne({ _id } as any, { $set });
     },
   };
 }
+}
+*/

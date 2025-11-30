@@ -33,7 +33,7 @@ export function validatePageRange(
       isValid: true,
       currentPage: totalPages,
       totalPages,
-      //errorMessage: `Página ${currentPage} fuera de rango. Total de páginas disponibles: ${totalPages}`,
+      
     };
   }
 

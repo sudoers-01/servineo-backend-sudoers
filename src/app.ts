@@ -34,13 +34,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      'https://devmasters-servineo-frontend-zk3q.vercel.app',
-      'http://localhost:8080',
-      'http://localhost:8081',
-      'http://localhost:3000',
-    ],
+    origin: true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   }),
 );
 

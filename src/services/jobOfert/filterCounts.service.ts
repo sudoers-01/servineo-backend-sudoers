@@ -28,10 +28,14 @@ interface MongoQuery {
     title?: RegExp;
     description?: RegExp;
     fixerName?: RegExp;
+    category?: RegExp;
+    city?: RegExp;
+    tags?: RegExp;
   }>;
   fixerName?: RegExp;
-  city?: string | { $in: string[] };
+  city?: string | { $in: string[] } | RegExp;
   category?: string | { $in: string[] };
+  tags?: string | string[] | { $in: string[] };
   rating?: {
     $gte?: number;
     $lte?: number;
@@ -190,11 +194,16 @@ export class FilterCountsService {
     const query: MongoQuery = {};
 
     if (options.search) {
+      // Use the same searchable fields as the main offers search to keep behavior consistent
+      // (title, description, fixerName, category, city, tags)
       const searchRegex = new RegExp(options.search, 'i');
       query.$or = [
         { title: searchRegex },
         { description: searchRegex },
         { fixerName: searchRegex },
+        { category: searchRegex },
+        { city: searchRegex },
+        { tags: searchRegex },
       ];
     }
 

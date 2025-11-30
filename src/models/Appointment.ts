@@ -79,6 +79,16 @@ const appointment_schema = new mongoose.Schema(
       default: '',
       required: false,
       unique: false
+    },
+    googleEventId: {
+      type: String,
+      required: false,
+      unique: false
+    },
+    mail: {
+      type: [String], // Array de strings
+      required: false,
+      unique: false
     }
   },
   { timestamps: true },

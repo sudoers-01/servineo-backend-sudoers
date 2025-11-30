@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/scripts/test-google.ts
 import { calendar, CALENDAR_ID } from '../config/google.config'; // Asegúrate que esta ruta sea correcta
 import dotenv from 'dotenv';

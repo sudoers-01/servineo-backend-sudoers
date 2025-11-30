@@ -33,6 +33,7 @@ interface AppointmentParameter {
   mail: string[];
   cancelled_fixer?: boolean;
   reprogram_reason?: string;
+  googleEventId?: string; 
 }
 
 //Citas
@@ -76,12 +77,46 @@ export async function create_appointment(current_appointment: AppointmentParamet
     //los odio
     // TODO GUARDAR TAMBIEN EL MAIL EN LA BASE DE DATOS PARA OBTENER EL REFRESH TOKEN
     console.log(exists);
+
+    // google
+    const syncWithGoogle = async () => {
+        if (mail && mail.length > 0) {
+            const endTime = current_appointment.finishing_time || new Date(new Date(time_starting).getTime() + 60 * 60000);
+            
+            const desc = `Cliente: ${current_appointment.current_requester_name}\nContacto: ${current_appointment.current_requester_phone}\nDescripcion: ${appointment_description}`;
+
+            const googleResult = await sendMeetingInvite({
+                emails: mail,
+                title: "Cita con Servineo",
+                description: desc,
+                start: time_starting,
+                end: endTime,
+                isVirtual: current_appointment.appointment_type === 'virtual',
+                customLink: current_appointment.link_id, 
+                locationName: current_appointment.display_location_name,
+                locationCoordinates: (current_appointment.lat && current_appointment.lon) 
+                    ? { lat: current_appointment.lat, lon: current_appointment.lon } 
+                    : undefined
+            });
+
+            if (googleResult.success) {
+                current_appointment.googleEventId = googleResult.eventId || undefined;
+            }
+        }
+    };
+
     let appointment = null;
     if (!exists || (exists && exists.cancelled_fixer)) {
+      
+      await syncWithGoogle(); 
+
       appointment = new Appointment(current_appointment);
       await appointment.save();
       return { result: true, message_state: 'Cita creada correctamente.' };
     } else if (exists && exists.schedule_state === 'cancelled') {
+      
+      await syncWithGoogle();
+
       const id_appointmente_exists = exists._id;
       current_appointment.schedule_state = 'booked';
       current_appointment.reprogram_reason = '';
@@ -90,7 +125,7 @@ export async function create_appointment(current_appointment: AppointmentParamet
         { $set: current_appointment },
         { new: true },
       );
-      sendMeetingInvite(mail, 'cita Agendada Servineo', date_selected, appointment_description, 60);
+      // sendMeetingInvite eliminado aquí porque ya llamamos a syncWithGoogle arriba
       return { result: true, message_state: 'Cita creada correctamente.' };
     } else {
       return { result: true, message_state: 'No se puede crear la cita, la cita ya existe.' };

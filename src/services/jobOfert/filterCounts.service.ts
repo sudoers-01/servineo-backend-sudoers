@@ -28,10 +28,14 @@ interface MongoQuery {
     title?: RegExp;
     description?: RegExp;
     fixerName?: RegExp;
+    category?: RegExp;
+    city?: RegExp;
+    tags?: RegExp;
   }>;
   fixerName?: RegExp;
-  city?: string;
+  city?: string | { $in: string[] } | RegExp;
   category?: string | { $in: string[] };
+  tags?: string | string[] | { $in: string[] };
   rating?: {
     $gte?: number;
     $lte?: number;
@@ -81,7 +85,7 @@ export class FilterCountsService {
     console.log(`📊 Filter Counts completed in ${duration}ms`);
 
     const validation = FilterCountValidator.validateCounts(
-      {},
+      rangeCounts,
       cityCounts,
       categoryCounts,
       ratingCounts,
@@ -106,85 +110,100 @@ export class FilterCountsService {
     };
   }
 
-private static async getRangeCounts(
-  baseQuery: MongoQuery,
-  options: FilterCountsOptions
-): Promise<Record<string, number>> {
-  const queryWithoutFixerFilter = { ...baseQuery };
-  delete queryWithoutFixerFilter.fixerName;
-  // ✅ NO eliminar rating - se mantiene automáticamente
+  private static async getRangeCounts(
+    baseQuery: MongoQuery,
+    options: FilterCountsOptions
+  ): Promise<Record<string, number>> {
+    const queryWithoutFixerFilter = { ...baseQuery };
+    delete queryWithoutFixerFilter.fixerName;
 
-  if (options.signal?.aborted) {
-    throw new Error('Request aborted');
-  }
-
-  const ranges: Record<string, number> = {
-    'De (A-C)': 0,
-    'De (D-F)': 0,
-    'De (G-I)': 0,
-    'De (J-L)': 0,
-    'De (M-Ñ)': 0,
-    'De (O-Q)': 0,
-    'De (R-T)': 0,
-    'De (U-W)': 0,
-    'De (X-Z)': 0,
-  };
-
-  const getRangeKey = (firstLetter: string): string => {
-    const letter = firstLetter.toUpperCase();
-    
-    if (['A', 'B', 'C'].includes(letter)) return 'De (A-C)';
-    if (['D', 'E', 'F'].includes(letter)) return 'De (D-F)';
-    if (['G', 'H', 'I'].includes(letter)) return 'De (G-I)';
-    if (['J', 'K', 'L'].includes(letter)) return 'De (J-L)';
-    if (['M', 'N', 'Ñ'].includes(letter)) return 'De (M-Ñ)';
-    if (['O', 'P', 'Q'].includes(letter)) return 'De (O-Q)';
-    if (['R', 'S', 'T'].includes(letter)) return 'De (R-T)';
-    if (['U', 'V', 'W'].includes(letter)) return 'De (U-W)';
-    if (['X', 'Y', 'Z'].includes(letter)) return 'De (X-Z)';
-    
-    return 'De (X-Z)';
-  };
-
-  interface FixerResult {
-    _id: string;
-    count: number;
-  }
-
-const fixers = await PerformanceCount.measure(
-    'Range Counts Aggregation',
-    queryWithoutFixerFilter,
-    () => Offer.aggregate<FixerResult>([
-      { $match: queryWithoutFixerFilter },
-      {
-        $group: {
-          _id: '$fixerName',
-          count: { $sum: 1 },
-        },
-      },
-    ]).exec()
-  );
-
-  fixers.forEach((fixer) => {
-    const firstLetter = fixer._id.trim().charAt(0);
-    if (firstLetter) {
-      const rangeKey = getRangeKey(firstLetter);
-      ranges[rangeKey] += fixer.count;
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
     }
-  });
 
-  return ranges;
-}
+    const ranges: Record<string, number> = {
+      'De (A-C)': 0,
+      'De (D-F)': 0,
+      'De (G-I)': 0,
+      'De (J-L)': 0,
+      'De (M-Ñ)': 0,
+      'De (O-Q)': 0,
+      'De (R-T)': 0,
+      'De (U-W)': 0,
+      'De (X-Z)': 0,
+    };
+
+    const getRangeKey = (firstLetter: string): string => {
+      const letter = firstLetter.toUpperCase();
+      
+      if (['A', 'B', 'C'].includes(letter)) return 'De (A-C)';
+      if (['D', 'E', 'F'].includes(letter)) return 'De (D-F)';
+      if (['G', 'H', 'I'].includes(letter)) return 'De (G-I)';
+      if (['J', 'K', 'L'].includes(letter)) return 'De (J-L)';
+      if (['M', 'N', 'Ñ'].includes(letter)) return 'De (M-Ñ)';
+      if (['O', 'P', 'Q'].includes(letter)) return 'De (O-Q)';
+      if (['R', 'S', 'T'].includes(letter)) return 'De (R-T)';
+      if (['U', 'V', 'W'].includes(letter)) return 'De (U-W)';
+      if (['X', 'Y', 'Z'].includes(letter)) return 'De (X-Z)';
+      
+      return 'De (X-Z)';
+    };
+
+    interface FixerResult {
+      _id: string | null;
+      count: number;
+    }
+
+    const fixers = await PerformanceCount.measure(
+      'Range Counts Aggregation',
+      queryWithoutFixerFilter,
+      () => Offer.aggregate<FixerResult>([
+        { $match: queryWithoutFixerFilter },
+        {
+          $group: {
+            _id: '$fixerName',
+            count: { $sum: 1 },
+          },
+        },
+      ]).exec()
+    );
+
+    fixers.forEach((fixer) => {
+      if (!fixer._id || typeof fixer._id !== 'string') {
+        console.warn('⚠️ Skipping fixer with invalid _id:', fixer);
+        return;
+      }
+      
+      const trimmedId = fixer._id.trim();
+      if (!trimmedId) {
+        console.warn('⚠️ Skipping fixer with empty name');
+        return;
+      }
+      
+      const firstLetter = trimmedId.charAt(0);
+      if (firstLetter) {
+        const rangeKey = getRangeKey(firstLetter);
+        ranges[rangeKey] += fixer.count;
+      }
+    });
+
+    return ranges;
+  }
 
   private static buildBaseQuery(options: FilterCountsOptions): MongoQuery {
     const query: MongoQuery = {};
 
     if (options.search) {
+      // Use the same searchable fields as the main offers search to keep behavior consistent
+      // (title, description, fixerName, category, city, tags)
       const searchRegex = new RegExp(options.search, 'i');
       query.$or = [
         { title: searchRegex },
         { description: searchRegex },
         { fixerName: searchRegex },
+        { category: searchRegex },
+        { city: searchRegex },
+        { tags: searchRegex },
       ];
     }
 
@@ -211,7 +230,19 @@ const fixers = await PerformanceCount.measure(
     }
 
     if (options.city) {
-      query.city = validateAndNormalizeCity(options.city);
+      const cities = options.city.split(',').map(c => c.trim()).filter(Boolean);
+      if (cities.length === 1) {
+        query.city = validateAndNormalizeCity(cities[0]);
+      } else if (cities.length > 1) {
+        const normalizedCities = cities
+          .map(c => validateAndNormalizeCity(c))
+          .filter(Boolean);
+        if (normalizedCities.length > 0) {
+          query.city = normalizedCities.length === 1 
+            ? normalizedCities[0] 
+            : { $in: normalizedCities };
+        }
+      }
     }
 
     if (options.categories && options.categories.length > 0) {
@@ -219,7 +250,9 @@ const fixers = await PerformanceCount.measure(
         .map((c) => validateAndNormalizeCategory(c))
         .filter(Boolean) as string[];
       if (normalizedCategories.length > 0) {
-        query.category = { $in: normalizedCategories };
+        query.category = normalizedCategories.length === 1
+          ? normalizedCategories[0]
+          : { $in: normalizedCategories };
       }
     }
 
@@ -237,155 +270,156 @@ const fixers = await PerformanceCount.measure(
     return query;
   }
 
- private static async getCityCounts(
-  baseQuery: MongoQuery,
-  options: FilterCountsOptions
-): Promise<Record<string, number>> {
-  const queryWithoutCityFilter = { ...baseQuery };
-  delete queryWithoutCityFilter.city;
-  // ✅ NO eliminar rating - se mantiene automáticamente
+  private static async getCityCounts(
+    baseQuery: MongoQuery,
+    options: FilterCountsOptions
+  ): Promise<Record<string, number>> {
+    const queryWithoutCityFilter = { ...baseQuery };
+    delete queryWithoutCityFilter.city;
 
-  if (options.signal?.aborted) {
-    throw new Error('Request aborted');
-  }
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
+    }
 
-  interface AggregationResult {
-    _id: string;
-    count: number;
-  }
+    interface AggregationResult {
+      _id: string;
+      count: number;
+    }
 
-  const counts = await PerformanceCount.measure(
-    'City Counts Aggregation',
-    queryWithoutCityFilter,
-    () => {
-      const aggregation = Offer.aggregate<AggregationResult>([
-        { $match: queryWithoutCityFilter },
-        {
-          $group: {
-            _id: '$city',
-            count: { $sum: 1 },
+    const counts = await PerformanceCount.measure(
+      'City Counts Aggregation',
+      queryWithoutCityFilter,
+      () => {
+        const aggregation = Offer.aggregate<AggregationResult>([
+          { $match: queryWithoutCityFilter },
+          {
+            $group: {
+              _id: '$city',
+              count: { $sum: 1 },
+            },
           },
-        },
-        { $sort: { _id: 1 } },
-      ]);
+          { $sort: { _id: 1 } },
+        ]);
 
-      const hasComplexQuery = queryWithoutCityFilter.$or || queryWithoutCityFilter.fixerName;
-      
-      if (!hasComplexQuery) {
-        if (queryWithoutCityFilter.category) {
-          aggregation.hint('city_1_category_1');
-        } else {
-          aggregation.hint('city_1');
+        const hasComplexQuery = queryWithoutCityFilter.$or || queryWithoutCityFilter.fixerName;
+        
+        if (!hasComplexQuery) {
+          if (queryWithoutCityFilter.category) {
+            aggregation.hint('city_1_category_1');
+          } else {
+            aggregation.hint('city_1');
+          }
         }
+
+        return aggregation.exec();
       }
+    );
 
-      return aggregation.exec();
+    console.log('🏙️ City counts from DB:', counts);
+
+    return counts.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {} as Record<string, number>);
+  }
+
+  private static async getCategoryCounts(
+    baseQuery: MongoQuery,
+    options: FilterCountsOptions
+  ): Promise<Record<string, number>> {
+    const queryWithoutCategoryFilter = { ...baseQuery };
+    delete queryWithoutCategoryFilter.category;
+
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
     }
-  );
 
-  return counts.reduce((acc, item) => {
-    acc[item._id] = item.count;
-    return acc;
-  }, {} as Record<string, number>);
-}
+    interface AggregationResult {
+      _id: string;
+      count: number;
+    }
 
-private static async getCategoryCounts(
-  baseQuery: MongoQuery,
-  options: FilterCountsOptions
-): Promise<Record<string, number>> {
-  const queryWithoutCategoryFilter = { ...baseQuery };
-  delete queryWithoutCategoryFilter.category;
-  // ✅ NO eliminar rating - se mantiene automáticamente
-
-  if (options.signal?.aborted) {
-    throw new Error('Request aborted');
-  }
-
-  interface AggregationResult {
-    _id: string;
-    count: number;
-  }
-
-  const counts = await PerformanceCount.measure(
-    'Category Counts Aggregation',
-    queryWithoutCategoryFilter,
-    () => {
-      const aggregation = Offer.aggregate<AggregationResult>([
-        { $match: queryWithoutCategoryFilter },
-        {
-          $group: {
-            _id: '$category',
-            count: { $sum: 1 },
+    const counts = await PerformanceCount.measure(
+      'Category Counts Aggregation',
+      queryWithoutCategoryFilter,
+      () => {
+        const aggregation = Offer.aggregate<AggregationResult>([
+          { $match: queryWithoutCategoryFilter },
+          {
+            $group: {
+              _id: '$category',
+              count: { $sum: 1 },
+            },
           },
-        },
-        { $sort: { count: -1, _id: 1 } },
-      ]);
+          { $sort: { count: -1, _id: 1 } },
+        ]);
 
-      const hasComplexQuery = queryWithoutCategoryFilter.$or || queryWithoutCategoryFilter.fixerName;
-      
-      if (!hasComplexQuery) {
-        if (queryWithoutCategoryFilter.city) {
-          aggregation.hint('city_1_category_1');
-        } else {
-          aggregation.hint('category_1');
+        const hasComplexQuery = queryWithoutCategoryFilter.$or || queryWithoutCategoryFilter.fixerName;
+        
+        if (!hasComplexQuery) {
+          if (queryWithoutCategoryFilter.city) {
+            aggregation.hint('city_1_category_1');
+          } else {
+            aggregation.hint('category_1');
+          }
         }
+
+        return aggregation.exec();
       }
+    );
 
-      return aggregation.exec();
+    console.log('📊 Category counts from DB:', counts);
+
+    return counts.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {} as Record<string, number>);
+  }
+
+  private static async getRatingCounts(
+    baseQuery: MongoQuery,
+    options: FilterCountsOptions
+  ): Promise<Record<string, number>> {
+    const queryWithoutRatingFilter = { ...baseQuery };
+    delete queryWithoutRatingFilter.rating;
+
+    if (options.signal?.aborted) {
+      throw new Error('Request aborted');
     }
-  );
 
-  return counts.reduce((acc, item) => {
-    acc[item._id] = item.count;
-    return acc;
-  }, {} as Record<string, number>);
-}
+    interface BucketResult {
+      _id: number | string;
+      count: number;
+    }
 
-private static async getRatingCounts(
-  baseQuery: MongoQuery,
-  options: FilterCountsOptions
-): Promise<Record<string, number>> {
-  const queryWithoutRatingFilter = { ...baseQuery };
-  delete queryWithoutRatingFilter.rating;
-  // ✅ ESTE sí elimina rating porque estamos calculando los buckets de rating
-
-  if (options.signal?.aborted) {
-    throw new Error('Request aborted');
-  }
-
-  interface BucketResult {
-    _id: number | string;
-    count: number;
-  }
-
-  const counts = await PerformanceCount.measure(
-    'Rating Counts Aggregation',
-    queryWithoutRatingFilter,
-    () => Offer.aggregate<BucketResult>([
-      { $match: queryWithoutRatingFilter },
-      {
-        $bucket: {
-          groupBy: '$rating',
-          boundaries: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
-          default: 'other',
-          output: {
-            count: { $sum: 1 },
+    const counts = await PerformanceCount.measure(
+      'Rating Counts Aggregation',
+      queryWithoutRatingFilter,
+      () => Offer.aggregate<BucketResult>([
+        { $match: queryWithoutRatingFilter },
+        {
+          $bucket: {
+            groupBy: '$rating',
+            boundaries: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            default: 'other',
+            output: {
+              count: { $sum: 1 },
+            },
           },
         },
-      },
-    ]).exec()
-  );
+      ]).exec()
+    );
 
-  const ratingRanges: Record<string, number> = {};
-  counts.forEach((item) => {
-    if (item._id !== 'other' && typeof item._id === 'number') {
-      const start = item._id;
-      const end = start + 1;
-      const key = `${start}-${end}`;
-      ratingRanges[key] = item.count;
-    }
-  });
+    const ratingRanges: Record<string, number> = {};
+    counts.forEach((item) => {
+      if (item._id !== 'other' && typeof item._id === 'number') {
+        const start = item._id;
+        const end = start + 1;
+        const key = `${start}-${end}`;
+        ratingRanges[key] = item.count;
+      }
+    });
 
-  return ratingRanges;
-}
+    return ratingRanges;
+  }
 }

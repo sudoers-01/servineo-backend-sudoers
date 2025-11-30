@@ -28,6 +28,7 @@ import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes'
 import createrAppointmentRoutes from './api/routes/create_appointment.routes';
 import readAppointmentRoutes from './api/routes/read_appointment.routes';
 import updateAppoitnmenRoutes from './api/routes/update_appointment.routes';
+import locationRouter from './api/routes/location.routes';
 
 const app = express();
 
@@ -71,6 +72,8 @@ app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/crud_create', createrAppointmentRoutes);
 app.use('/api/crud_read', readAppointmentRoutes);
 app.use('/api/crud_update', updateAppoitnmenRoutes);
+
+app.use('/api/location', locationRouter);
 
 export const registerRoutes = (app: express.Application) => {
   app.use('/devices', deviceRouter);

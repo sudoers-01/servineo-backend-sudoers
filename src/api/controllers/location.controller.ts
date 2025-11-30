@@ -1,6 +1,6 @@
 import 'express';
 import { Request, Response } from 'express';
-import * as LocationService from '../../services/location/location.service.js';
+import * as LocationService from '../../services/location/location.service';
 
 export async function getLocation(req: Request, res: Response) {
   try {

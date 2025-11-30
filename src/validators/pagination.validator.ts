@@ -32,8 +32,7 @@ export function validatePageRange(
     return {
       isValid: true,
       currentPage: totalPages,
-      totalPages,
-      
+      totalPages, 
     };
   }
 

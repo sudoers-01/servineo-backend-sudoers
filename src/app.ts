@@ -25,10 +25,11 @@ import discordRoutes from './api/routes/userManagement/discord.routes';
 import clienteRouter from './api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes';
 
-import createrAppointmentRoutes from './api/routes/create_appointment.routes';
-import readAppointmentRoutes from './api/routes/read_appointment.routes';
-import updateAppoitnmenRoutes from './api/routes/update_appointment.routes';
-import locationRouter from './api/routes/location.routes';
+import CreateRoutes from './api/routes/create_appointment.routes';
+import ReadRoutes from './api/routes/read_appointment.routes';
+import UpdateRoutes from './api/routes/update_appointment.routes';
+import LocationRoutes from './api/routes/location.routes';
+import GetScheduleRoutes from './api/routes/get_schedule.routes';
 
 const app = express();
 
@@ -66,11 +67,11 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 
-app.use('/api/crud_create', createrAppointmentRoutes);
-app.use('/api/crud_read', readAppointmentRoutes);
-app.use('/api/crud_update', updateAppoitnmenRoutes);
-
-app.use('/api/location', locationRouter);
+app.use('/api/location', LocationRoutes);
+app.use('/api/crud_create', CreateRoutes);
+app.use('/api/crud_read', ReadRoutes);
+app.use('/api/crud_update', UpdateRoutes);
+app.use('/api/crud_read', GetScheduleRoutes);
 
 export const registerRoutes = (app: express.Application) => {
   app.use('/devices', deviceRouter);

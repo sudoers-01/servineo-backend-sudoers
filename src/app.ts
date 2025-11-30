@@ -38,6 +38,8 @@ import PaymentRoutes from "./api/routes/payment.routes";
 import BankAccountRoutes from './api/routes/BankAccount.routes';
 import invoiceDetailRouter from './api/routes/invoice.routes'; 
 import bankTransferRoutes from './api/routes/bankTransfer.routes';
+import CashpayLabRoutes from './api/routes/cashpay.routes';
+
 // (Puedes añadir el resto de rutas de pagos aquí si las necesitas: CashPay, Wallet, etc.)
 
 const app = express();
@@ -61,6 +63,7 @@ app.use(express.urlencoded({ extended: true }));
 // --- MOUNT DE RUTAS ---
 
 // 1. Rutas Generales
+app.use('/api/lab', CashpayLabRoutes);
 app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);

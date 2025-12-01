@@ -86,9 +86,7 @@ app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
 app.use('/api/controlC/recaptcha', reCaptchaRouter);
 app.use("/api/controlC/telefono", telefonoRoutes);
-export const registerRoutes = (app: any) => {
-  app.use('/devices', deviceRouter);
-};
+app.use('/devices', deviceRouter);
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

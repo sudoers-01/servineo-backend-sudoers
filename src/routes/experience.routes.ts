@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as experienceController from '../controllers/experience.controller';
+import { verifyJWT } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -40,7 +41,7 @@ const router = Router();
  *       201:
  *         description: Experiencia creada
  */
-router.post('/', experienceController.createExperience);
+router.post('/', verifyJWT, experienceController.createExperience);
 
 /**
  * @swagger
@@ -82,7 +83,7 @@ router.get('/fixer/:fixerId', experienceController.getExperienceByFixerId);
  *       200:
  *         description: Experiencia actualizada
  */
-router.put('/:id', experienceController.updateExperience);
+router.put('/:id', verifyJWT, experienceController.updateExperience);
 
 /**
  * @swagger
@@ -100,6 +101,6 @@ router.put('/:id', experienceController.updateExperience);
  *       200:
  *         description: Experiencia eliminada
  */
-router.delete('/:id', experienceController.deleteExperience);
+router.delete('/:id', verifyJWT, experienceController.deleteExperience);
 
 export default router;

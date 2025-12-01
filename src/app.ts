@@ -11,6 +11,10 @@ import fixerRoutes from './api/routes/fixer.routes';
 import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
 import searchRoutes from './api/routes/search.routes';
+import experienceRoutes from './routes/experience.routes';
+import userProfileRoutes from './routes/userProfile.routes';
+import userRoutes from './routes/user.routes';
+import jobOfficial from './routes/job_offer.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
@@ -27,6 +31,10 @@ import githubAuthRouter from '../src/api/routes/userManagement/github.routes';
 import discordRoutes from '../src/api/routes/userManagement/discord.routes';
 import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
+import portfolioRoutes from '../src/routes/portfolio.routes';
+import routerUser from './api/routes/user.routes';
+import certificationRoutes from './routes/certification.routes';
+
 
 
 
@@ -47,11 +55,20 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+
+
 app.use('/api', HealthRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/experiences', experienceRoutes);
+app.use('/api/portfolio', portfolioRoutes);//portafolio
 //app.use('/api/user-profiles', userProfileRoutes);
 //app.use('/api/jobs', jobRoutes);
 
@@ -59,6 +76,8 @@ app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/api/controlC/auth', authRouter);
 app.use('/api/controlC/registro', registrarDatosRouter);
+app.use('/api/user-profiles', userProfileRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
 app.use('/api/controlC/sugerencias', nominatimRouter);
 app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);
@@ -66,12 +85,22 @@ app.use('/api/controlC/cerrar-sesiones', cerrarSesionesRouter);
 app.use('/api/controlC/ultimo-cambio', ultimoCambioRouter);
 app.use('/api/controlC/foto-perfil', fotoPerfilRouter);
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
+app.use('/api/controlC/registro', registrarDatosRouter);
+app.use('/api/controlC/auth', authRouter);
+app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
+app.use('/api/user', routerUser);
+//ruta oficial para ofertas de trabajo no borrar
+app.use('/api/job-offers', jobOfficial);
+app.use('/api/certifications', certificationRoutes);
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

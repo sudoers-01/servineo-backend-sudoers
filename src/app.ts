@@ -67,7 +67,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      'servineo-frontend-bytes-bandidos.vercel.app',
+      'https://servineo-frontend-bytes-bandidos.vercel.app',
       'https://devmasters-servineo-frontend-zk3q.vercel.app',
       'http://localhost:8080',
       'http://localhost:8081',

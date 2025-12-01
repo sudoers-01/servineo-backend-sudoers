@@ -13,6 +13,19 @@ export interface WalletSlice {
   lastLowBalanceNotification: Date | null;
 }
 
+// 👇 Type definitions for wallet adapter
+export interface WalletSlice {
+  balance: number;
+  lowBalanceThreshold: number;
+  flags: any;
+  lastLowBalanceNotification: Date | null;
+}
+
+export interface WalletModelAdapter {
+  getWalletById(fixerId: string): Promise<WalletSlice | null>;
+  updateWalletById(fixerId: string, patch: any): Promise<void>;
+}
+
 // 👇 helper: si son 24 hex, usa ObjectId; si no, deja string
 function normalizeId(raw: string): mongoose.Types.ObjectId | string {
   const s = String(raw).trim();

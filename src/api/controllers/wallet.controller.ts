@@ -89,7 +89,7 @@ export const rechargeWallet = async (req: Request, res: Response) => {
         wallet,
         recharge: newRecharge, // opcional, para devolver el registro
       });
-    } catch (rechargeError) {
+    } catch (rechargeError: any) {
       console.error('❌ Error al guardar el registro de recarga:', rechargeError);
       // No revertimos el balance, pero notificamos el error
       return res.status(500).json({

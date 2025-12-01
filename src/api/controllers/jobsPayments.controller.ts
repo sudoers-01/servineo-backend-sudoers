@@ -1,4 +1,4 @@
-import Job from "../../models/jobsPayment.model";
+import { Jobspay } from './../../models/jobsPayment.model';
 import { User } from "../../models/userPayment.model";
 
 // =========================

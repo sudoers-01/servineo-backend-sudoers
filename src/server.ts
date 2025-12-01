@@ -1,11 +1,13 @@
 import { SERVER_PORT } from './config/env.config';
 import app from './app';
 import { connectDatabase } from './config/db.config';
+import { connectDB } from './config/db/mongoClient';
 import { startJobsStatusCollectorCron } from './services/jobs-status-collector.cron';
 
 async function startServer() {
   try {
     await connectDatabase();
+    await connectDB();
 
     app.listen(SERVER_PORT, () => {
       const url = `http://localhost:${SERVER_PORT}`;

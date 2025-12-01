@@ -34,6 +34,7 @@ import portfolioRoutes from '../src/routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
 import Search from './models/search.model';
 import reCaptchaRouter from './api/routes/userManagement/reCaptcha.routes';
+import telefonoRoutes from "./api/routes/userManagement/telefono.routes";
 const app = express();
 
 app.use(
@@ -84,6 +85,7 @@ app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
 app.use('/api/controlC/recaptcha', reCaptchaRouter);
+app.use("/api/controlC/telefono", telefonoRoutes);
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

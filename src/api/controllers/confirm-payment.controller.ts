@@ -6,7 +6,7 @@ import { Comision } from "../../models/historycomission.model";
 import { Wallet } from "../../models/wallet.model";
 import Job from "../../models/jobPayment.model";
 import User from "../../models/userPayment.model"; 
-import Jobspay from "../../models/jobsPayment.model"; 
+import Jobspay from "../../models/jobs.model"; 
 import { updateWalletLowBalanceFlags } from "../../services/wallet.service";
 
 

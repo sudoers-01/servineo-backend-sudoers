@@ -2,7 +2,17 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-const uploadDir = path.resolve(__dirname, "..", "..", "uploads");
+let uploadDir;
+
+if (process.env.NODE_ENV === 'production') {
+  uploadDir = '/tmp/uploads';
+} else {
+  uploadDir = path.resolve(__dirname, "..", "..", "uploads");
+  
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+}
 
 // Crear carpeta si no existe
 if (!fs.existsSync(uploadDir)) {

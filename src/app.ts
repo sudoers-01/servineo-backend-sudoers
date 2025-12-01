@@ -4,12 +4,32 @@ dotenv.config({ path: '.env' });
 import express from 'express';
 import cors from 'cors';
 import { connectDatabase } from './config/db.config';
-import HealthRoutes from './api/routes/health.routes';
+
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
-import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
+import registrarDatosRouter from './api/routes/userManagement/registrarDatos.routes';
+import fotoPerfilRouter from './api/routes/userManagement/fotoPerfil.routes';
+import googleRouter from './api/routes/userManagement/google.routes';
+import ubicacionRouter from './api/routes/userManagement/ubicacion.routes';
+import authRouter from './api/routes/userManagement/login.routes';
+import modificarDatosRouter from './api/routes/userManagement/modificarDatos.routes';
+import nominatimRouter from './api/routes/userManagement/sugerencias.routes';
+import deviceRouter from './api/routes/userManagement/device.routes';
+import cambiarContrasenaRouter from './api/routes/userManagement/editarContraseña.routes';
+import cerrarSesionesRouter from './api/routes/userManagement/cerrarSesiones.routes';
+import ultimoCambioRouter from './api/routes/userManagement/ultimoCambio.routes';
+import githubAuthRouter from './api/routes/userManagement/github.routes';
+import discordRoutes from './api/routes/userManagement/discord.routes';
+import clienteRouter from './api/routes/userManagement/cliente.routes';
+import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes';
+
+import CreateRoutes from './api/routes/create_appointment.routes';
+import ReadRoutes from './api/routes/read_appointment.routes';
+import UpdateRoutes from './api/routes/update_appointment.routes';
+import LocationRoutes from './api/routes/location.routes';
+import GetScheduleRoutes from './api/routes/get_schedule.routes';
 import searchRoutes from './api/routes/search.routes';
 import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
@@ -45,6 +65,8 @@ app.use(
       'http://localhost:3000',
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   }),
 );
 
@@ -83,8 +105,13 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
+app.use('/api/location', LocationRoutes);
+app.use('/api/crud_create', CreateRoutes);
+app.use('/api/crud_read', ReadRoutes);
+app.use('/api/crud_update', UpdateRoutes);
+app.use('/api/crud_read', GetScheduleRoutes);
 
-export const registerRoutes = (app: any) => {
+export const registerRoutes = (app: express.Application) => {
   app.use('/devices', deviceRouter);
 };
 

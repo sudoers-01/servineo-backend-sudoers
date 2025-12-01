@@ -10,6 +10,7 @@ import fixerRoutes from './api/routes/fixer.routes';
 import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
 import searchRoutes from './api/routes/search.routes';
+import chartRoutes from './api/routes/chart.routes';
 
 import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
 import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
@@ -70,6 +71,7 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/admin', adminRouter);
+app.use("/api/admin/chart", chartRoutes);
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

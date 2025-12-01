@@ -13,7 +13,7 @@ const activitySchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['visitor', 'requester', 'fixer'],
+      enum: ['visitor', 'requester', 'fixer', 'admin'],
       required: true,
       index: true,
     },
@@ -59,7 +59,7 @@ export interface ActivityDoc {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
   date: Date;
-  role: 'visitor' | 'requester' | 'fixer';
+  role: 'visitor' | 'requester' | 'fixer' | 'admin';
   type:
     | 'login'
     | 'search'

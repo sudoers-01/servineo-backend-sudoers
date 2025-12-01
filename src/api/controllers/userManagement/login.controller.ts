@@ -3,6 +3,7 @@ import { connectDB } from '../../../config/db/mongoClient';
 import bcrypt from 'bcryptjs';
 import { generarToken } from '../../../utils/generadorToken';
 import { verifyGoogleToken, findUserByEmail } from "../../../services/userManagement/google.service";
+import * as activityService from '../../../services/activities.service';
 
 export const loginUsuario = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -57,6 +58,14 @@ export const loginUsuario = async (req: Request, res: Response) => {
       email,
       userPicture
     );
+
+    await activityService.createSimpleActivity({
+      userId: user._id,
+      date: new Date(),
+      role: user.role,
+      type: "session_start",
+      metadata: { resumed: true },
+    });
 
     return res.json({
       success: true,
@@ -114,6 +123,14 @@ export const loginGoogle = async (req: Request, res: Response) => {
       dbUser.url_photo
     );
 
+    await activityService.createSimpleActivity({
+      userId: dbUser._id,
+      date: new Date(),
+      role: dbUser.role,
+      type: "session_start",
+      metadata: { resumed: true },
+    });
+    
     return res.json({
       success: true,
       message: "Inicio de sesión exitoso",

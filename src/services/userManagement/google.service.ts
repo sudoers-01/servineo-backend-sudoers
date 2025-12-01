@@ -1,6 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { User } from "../../models/user.model";
 import { IUser } from "../../models/user.model";
+import * as activityService from '../activities.service';
 
 interface GoogleUser {
   email: string;
@@ -91,6 +92,14 @@ export async function createUser(googleUser: GoogleUser) {
     },
 
     fixerProfile: "",
+  });
+
+  await activityService.createSimpleActivity({
+    userId: newUser._id,
+    date: new Date(),
+    role: newUser.role,
+    type: "session_start",
+    metadata: { resumed: false },
   });
 
   return newUser;

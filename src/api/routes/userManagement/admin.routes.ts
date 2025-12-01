@@ -3,6 +3,7 @@ import { loginAdministrador } from "../../controllers/userManagement/admin.contr
 
 const router = Router();
 
+// POST /api/admin
 router.post("/login", loginAdministrador);
 
 export default router;

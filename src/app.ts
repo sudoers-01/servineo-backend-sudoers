@@ -53,6 +53,14 @@ import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.
 import { devWalletRouter } from './api/routes/dev-wallet.routes';
 import { simPaymentsRouter } from './api/routes/sim-payments.routes';
 import SudoersRouter from './modules/sudoers.routes';
+import reCaptchaRouter from './api/routes/userManagement/reCaptcha.routes';
+import telefonoRoutes from "./api/routes/userManagement/telefono.routes";
+
+import sesion2faRouter from "./api/routes/userManagement/sesion2fa.routes";
+import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
+import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
+import twoFaRouter from './api/routes/userManagement/2fa.routes';
+
 
 const app = express();
 
@@ -135,6 +143,14 @@ if (FEATURE_DEV_WALLET) {
 if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
+app.use('/api/controlC/recaptcha', reCaptchaRouter);
+app.use("/api/controlC/telefono", telefonoRoutes);
+app.use('/devices', deviceRouter);
+
+app.use("/api/controlC/sesion2fa", sesion2faRouter);
+app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
+app.use('/api/controlC/codigos2fa', codigos2faRouter);
+app.use('/api/controlC/2fa', twoFaRouter);
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

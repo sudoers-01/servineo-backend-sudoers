@@ -1,8 +1,9 @@
+import { Jobspay } from './../../models/jobsPayment.model';
+import type { Request, Response } from "express";
 import Stripe from "stripe";
 import { Payment } from "../../models/payment.model";
 import  { Card } from "../../models/card.model";
 import { User } from "../../models/userPayment.model";
-import { Jobs } from "../../models/jobsPayment.model";
 import 'dotenv/config';
 
 // Validar llave al inicio

@@ -1,19 +1,10 @@
 import * as dotenv from 'dotenv';
-import db_connection from '../../database';
+import { connectDatabase } from '../../config/db.config';
 import Appointment from '../../models/Appointment';
 import mongoose from 'mongoose';
 import { sendMeetingInvite } from '../../utils/googleCalendarHelper';
 
 dotenv.config();
-
-let connected = false;
-
-async function set_db_connection() {
-  if (!connected) {
-    await db_connection();
-    connected = true;
-  }
-}
 
 interface AppointmentParameter {
   id_fixer: string;
@@ -30,7 +21,7 @@ interface AppointmentParameter {
   display_location_name?: string;
   lat?: string;
   lon?: string;
-  mail: string[] | string;   // ← aceptamos también string
+  mail: string[] | string; // ← aceptamos también string
   cancelled_fixer?: boolean;
   reprogram_reason?: string;
   googleEventId?: string;
@@ -38,7 +29,7 @@ interface AppointmentParameter {
 
 export async function create_appointment(current_appointment: AppointmentParameter) {
   try {
-    await set_db_connection();
+    await connectDatabase();
 
     const requester_id = current_appointment.id_requester;
     const fixer_id = current_appointment.id_fixer;
@@ -84,7 +75,7 @@ export async function create_appointment(current_appointment: AppointmentParamet
         const desc = `Cliente: ${current_appointment.current_requester_name}\nContacto: ${current_appointment.current_requester_phone}\nDescripcion: ${appointment_description}`;
 
         const googleResult = await sendMeetingInvite({
-          emails: mailList, 
+          emails: mailList,
           title: 'Cita con Servineo',
           description: desc,
           start: time_starting,

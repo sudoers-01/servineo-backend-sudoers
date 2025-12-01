@@ -1,20 +1,11 @@
 import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import db_connection from '../../database';
+import { connectDatabase } from '../../config/db.config';
 import Appointment from '../../models/Appointment';
 
 import { updateMeetingInvite, deleteMeetingEvent } from '../../utils/googleCalendarHelper';
 
 dotenv.config();
-
-let connected = false;
-
-async function set_db_connection() {
-  if (!connected) {
-    await db_connection();
-    connected = true;
-  }
-}
 
 interface IAppointment {
   _id: string;
@@ -36,9 +27,9 @@ interface IAppointment {
 
 // * Fixed Endpoint Pichon: Refactorizar y probar en Postman.
 // * El endpoint estaba actualizando mas slots de los que deberia, ahora con el nuevo esquema actualiza lo solicitado.
-export async function update_appointment_by_id(id: string, attributes: Partial<IAppointment>) { 
+export async function update_appointment_by_id(id: string, attributes: Partial<IAppointment>) {
   try {
-    await set_db_connection();
+    await connectDatabase();
 
     //obtener el googleEventId ANTES del cambio
     const originalAppointment = (await Appointment.findById(id)) as unknown as IAppointment | null;
@@ -54,44 +45,41 @@ export async function update_appointment_by_id(id: string, attributes: Partial<I
 
     // google
     if (updated_appointment && originalAppointment?.googleEventId) {
-        
-        const googleId = originalAppointment.googleEventId;
+      const googleId = originalAppointment.googleEventId;
 
-        // CANCELACION (Si el estado cambia a cancelled)
-        if (attributes.schedule_state === 'cancelled') {
-            console.log("Cancelacion detectada. Eliminando de Google Calendar...");
-            await deleteMeetingEvent(googleId);
-        } 
-        // EDICION DE DATOS (Si no es cancelacion)
-        else {
-            console.log("Edicion detectada. Actualizando Google Calendar...");
-            
-            // Usamos los datos actualizados para reflejarlos en el calendario
-            const appt = updated_appointment;
-            
-            const desc = `Cliente: ${appt.current_requester_name}\nContacto: ${appt.current_requester_phone}\nDescripcion: ${appt.appointment_description}`;
+      // CANCELACION (Si el estado cambia a cancelled)
+      if (attributes.schedule_state === 'cancelled') {
+        console.log('Cancelacion detectada. Eliminando de Google Calendar...');
+        await deleteMeetingEvent(googleId);
+      }
+      // EDICION DE DATOS (Si no es cancelacion)
+      else {
+        console.log('Edicion detectada. Actualizando Google Calendar...');
 
-            // Mantenemos las fechas originales (ya que dijiste que no se editan)
-            const start = appt.starting_time;
-            const end = appt.finishing_time || new Date(new Date(start).getTime() + 60 * 60000);
+        // Usamos los datos actualizados para reflejarlos en el calendario
+        const appt = updated_appointment;
 
-            // El titulo tambien se actualiza por si cambio el nombre del cliente
-            const title = "Cita Servineo";
+        const desc = `Cliente: ${appt.current_requester_name}\nContacto: ${appt.current_requester_phone}\nDescripcion: ${appt.appointment_description}`;
 
-            await updateMeetingInvite(googleId, {
-                emails: appt.mail, 
-                title: title,
-                description: desc,
-                start: start,
-                end: end,
-                isVirtual: appt.appointment_type === 'virtual',
-                customLink: appt.link_id,
-                locationName: appt.display_name_location,
-                locationCoordinates: (appt.lat && appt.lon) 
-                    ? { lat: appt.lat, lon: appt.lon } 
-                    : undefined
-            });
-        }
+        // Mantenemos las fechas originales (ya que dijiste que no se editan)
+        const start = appt.starting_time;
+        const end = appt.finishing_time || new Date(new Date(start).getTime() + 60 * 60000);
+
+        // El titulo tambien se actualiza por si cambio el nombre del cliente
+        const title = 'Cita Servineo';
+
+        await updateMeetingInvite(googleId, {
+          emails: appt.mail,
+          title: title,
+          description: desc,
+          start: start,
+          end: end,
+          isVirtual: appt.appointment_type === 'virtual',
+          customLink: appt.link_id,
+          locationName: appt.display_name_location,
+          locationCoordinates: appt.lat && appt.lon ? { lat: appt.lat, lon: appt.lon } : undefined,
+        });
+      }
     }
 
     if (updated_appointment) {
@@ -106,10 +94,12 @@ export async function update_appointment_by_id(id: string, attributes: Partial<I
 
 export async function fixer_cancell_appointment_by_id(appointment_id: string) {
   try {
-    await set_db_connection();
-    
+    await connectDatabase();
+
     // cita original para tener el ID
-    const originalAppointment = (await Appointment.findById(appointment_id)) as unknown as IAppointment | null;
+    const originalAppointment = (await Appointment.findById(
+      appointment_id,
+    )) as unknown as IAppointment | null;
 
     const result = (await Appointment.findByIdAndUpdate(
       appointment_id,
@@ -123,8 +113,8 @@ export async function fixer_cancell_appointment_by_id(appointment_id: string) {
 
     //google
     if (result && originalAppointment?.googleEventId) {
-        console.log("Fixer cancelo la cita. Eliminando evento de Google Calendar...");
-        await deleteMeetingEvent(originalAppointment.googleEventId);
+      console.log('Fixer cancelo la cita. Eliminando evento de Google Calendar...');
+      await deleteMeetingEvent(originalAppointment.googleEventId);
     }
 
     if (!result) {

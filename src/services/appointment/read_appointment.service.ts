@@ -1,18 +1,9 @@
 import * as dotenv from 'dotenv';
-import db_connection from '../../database';
+import { connectDatabase } from '../../config/db.config';
 import Appointment from '../../models/Appointment';
 import mongoose from 'mongoose';
 
 dotenv.config();
-
-let connected = false;
-
-async function set_db_connection() {
-  if (!connected) {
-    await db_connection();
-    connected = true;
-  }
-}
 
 // *: Fixed Endpoint Mateo: Reemplazar Body por query y verificar que funcione correctamente.
 export async function get_meeting_status(
@@ -22,7 +13,7 @@ export async function get_meeting_status(
   start_hour: string,
 ) {
   try {
-    await set_db_connection();
+    await connectDatabase();
     const adjusted_date = new Date(current_date);
     const current_year = adjusted_date.getUTCFullYear();
     const current_month = adjusted_date.getUTCMonth();
@@ -58,7 +49,7 @@ export async function get_meeting_status(
 // ? Incluye a todas las citas de todos los requesters en el dia
 export async function get_appointments_by_fixer_day(fixer_id: string, requested_date: string) {
   try {
-    await set_db_connection();
+    await connectDatabase();
     const founded_appointments = await Appointment.find({
       id_fixer: fixer_id,
       selected_date: requested_date,
@@ -80,7 +71,7 @@ export async function get_modal_form_appointment(
   start_hour: string,
 ) {
   try {
-    await set_db_connection();
+    await connectDatabase();
 
     const current_date = new Date(appointment_date);
     const current_year = current_date.getUTCFullYear();
@@ -125,7 +116,7 @@ export async function get_appointment_by_fixer_id_hour(
   hour: string,
 ) {
   try {
-    await set_db_connection();
+    await connectDatabase();
     const hourInt = parseInt(hour);
     const hourStr = hourInt < 10 ? '0' + hourInt : '' + hourInt;
     const appointmentDate = new Date(`${date}T${hourStr}:00:00.000Z`);
@@ -189,7 +180,7 @@ export async function get_appointments_by_fixer_id_date(fixer_id: string, date: 
 
 export async function get_six_months_appointments(fixer_id: string, date: string) {
   try {
-    await set_db_connection();
+    await connectDatabase();
     const actualDate = new Date(date);
     const month = actualDate.getMonth();
     const year = actualDate.getFullYear();

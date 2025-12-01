@@ -17,7 +17,7 @@ devWalletRouter.get('/dbinfo', async (_req: Request, res: Response) => {
   }
 
   const name = mongoose.connection.name;
-  // Ahora TypeScript sabe que .db existe seguro
+  if (!mongoose.connection.db) return res.status(500).json({ error: 'Database not connected' });
   const cols = await mongoose.connection.db.listCollections().toArray();
 
   res.json({
@@ -38,6 +38,7 @@ devWalletRouter.get('/wallet/find-by-email', async (req: Request, res: Response)
 
   const email = String(req.query.email || '').trim();
   if (!email) return res.status(400).json({ error: 'EMAIL_REQUIRED' });
+  if (!mongoose.connection.db) return res.status(500).json({ error: 'Database not connected' });
 
   const doc = await mongoose.connection.db
     .collection(usersCollection)

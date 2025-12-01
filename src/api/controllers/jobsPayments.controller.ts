@@ -1,6 +1,5 @@
-import { Jobspay } from '../../models/jobsPayment.model';
-import { User } from '../../models/userPayment.model';
-import { Request, Response } from 'express';
+import Job from "../../models/jobsPayment.model";
+import { User } from "../../models/userPayment.model";
 
 // =========================
 // Listar trabajos de usuario (solo requester)

@@ -1,9 +1,8 @@
-import Stripe from 'stripe';
-import { Request, Response } from 'express'; // 👈 Importamos tipos de Express
-import { Payment } from '../../models/payment.model';
-import { Card } from '../../models/card.model';
-import { User } from '../../models/userPayment.model';
-import { Jobspay } from '../../models/jobsPayment.model';
+import Stripe from "stripe";
+import { Payment } from "../../models/payment.model";
+import  { Card } from "../../models/card.model";
+import { User } from "../../models/userPayment.model";
+import { Jobs } from "../../models/jobsPayment.model";
 import 'dotenv/config';
 
 // Validar llave al inicio

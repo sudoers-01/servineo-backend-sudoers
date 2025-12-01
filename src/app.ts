@@ -30,12 +30,40 @@ import ReadRoutes from './api/routes/read_appointment.routes';
 import UpdateRoutes from './api/routes/update_appointment.routes';
 import LocationRoutes from './api/routes/location.routes';
 import GetScheduleRoutes from './api/routes/get_schedule.routes';
+import searchRoutes from './api/routes/search.routes';
+import trackingRoutes from './api/routes/tracking-appointments.routes';
+import experienceRoutes from './routes/experience.routes';
+import userProfileRoutes from './routes/userProfile.routes';
+import userRoutes from './routes/user.routes';
+import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
+import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
+import googleRouter from '../src/api/routes/userManagement/google.routes';
+import ubicacionRouter from '../src/api/routes/userManagement/ubicacion.routes';
+import authRouter from '../src/api/routes/userManagement/login.routes';
+import modificarDatosRouter from '../src/api/routes/userManagement/modificarDatos.routes';
+import nominatimRouter from '../src/api/routes/userManagement/sugerencias.routes';
+import deviceRouter from '../src/api/routes/userManagement/device.routes';
+import cambiarContrasenaRouter from '../src/api/routes/userManagement/editarContraseña.routes';
+import cerrarSesionesRouter from '../src/api/routes/userManagement/cerrarSesiones.routes';
+import ultimoCambioRouter from '../src/api/routes/userManagement/ultimoCambio.routes';
+import githubAuthRouter from '../src/api/routes/userManagement/github.routes';
+import discordRoutes from '../src/api/routes/userManagement/discord.routes';
+import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
+import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
+import portfolioRoutes from '../src/routes/portfolio.routes';
+import routerUser from './api/routes/user.routes';
+import Search from './models/search.model';
 
 const app = express();
 
 app.use(
   cors({
-    origin: true,
+    origin: [
+      'https://devmasters-servineo-frontend-zk3q.vercel.app',
+      'http://localhost:8080',
+      'http://localhost:8081',
+      'http://localhost:3000',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -45,17 +73,27 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+app.use('/api', HealthRoutes);
+app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
-// app.use('/api/user-profiles', userProfileRoutes);
-app.use('/api/jobs', jobsRoutes);
-
+app.use('/api', activityRoutes);
+app.use('/api', jobsRoutes);
+app.use('/api/admin', trackingRoutes);
+app.use('/api/experiences', experienceRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/api/controlC/auth', authRouter);
 app.use('/api/controlC/registro', registrarDatosRouter);
+app.use('/api/user-profiles', userProfileRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
 app.use('/api/controlC/sugerencias', nominatimRouter);
 app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);
@@ -66,7 +104,7 @@ app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
-
+app.use('/api/user', routerUser);
 app.use('/api/location', LocationRoutes);
 app.use('/api/crud_create', CreateRoutes);
 app.use('/api/crud_read', ReadRoutes);
@@ -83,16 +121,5 @@ app.use((req, res) => {
     message: 'route not found',
   });
 });
-
-const startServer = async () => {
-  try {
-    await connectDatabase();
-    app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));
-  } catch (error) {
-    console.error('Error starting server:', error);
-  }
-};
-
-startServer();
 
 export default app;

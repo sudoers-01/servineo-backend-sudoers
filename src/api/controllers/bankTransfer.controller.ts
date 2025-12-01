@@ -2,7 +2,6 @@
 import { Request, Response } from 'express';
 import PaymentIntent from '../../models/PaymentIntent.model';
 import ProviderPaymentMethod from '../../models/ProviderPaymentMethod.model';
-import { Request, Response } from 'express';
 const SERVINEO_PROVIDER_ID = 'prov_123';
 
 function generateRef() {

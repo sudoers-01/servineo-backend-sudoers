@@ -33,7 +33,7 @@ import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.ro
 import portfolioRoutes from '../src/routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
 import Search from './models/search.model';
-
+import reCaptchaRouter from './api/routes/userManagement/reCaptcha.routes';
 const app = express();
 
 app.use(
@@ -83,7 +83,7 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
-
+app.use('/api/controlC/recaptcha', reCaptchaRouter);
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

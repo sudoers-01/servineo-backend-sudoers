@@ -3,8 +3,8 @@ dotenv.config({ path: ".env" });
 
 import { MongoClient } from 'mongodb';
 
-const uri = process.env.MONGO_URI as string;
-if (!uri) throw new Error('Por favor define MONGO_URI en tu .env'); // ← Cambiar aquí
+const uri = process.env.MONGODB_URI as string;
+if (!uri) throw new Error('Por favor define MONGODB_URI en tu .env');
 
 const options = {};
 let client: MongoClient;

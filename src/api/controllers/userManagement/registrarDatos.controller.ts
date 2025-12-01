@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
 import { generarToken } from '../../../utils/generadorToken';
 import { checkUserExists, createManualUser, getUserById } from '../../../services/userManagement/registrarDatos.service';
 import { updateUserPhoto } from '../../../services/userManagement/fotoPerfil.service';
@@ -14,24 +13,21 @@ export async function manualRegister(req: Request, res: Response) {
     const exists = await checkUserExists(email);
     if (exists) return res.status(400).json({ success: false, message: 'El usuario ya existe' });
 
-    const hashedPassword = await bcrypt.hash(password, 10); 
-
     const newUser = await createManualUser({
       name,
       email,
-      password: hashedPassword,
+      password,
       picture: req.body.picture,
     });
 
     let finalPicture = newUser.picture;
+
     if (req.body.picture) {
       try {
         const updated = await updateUserPhoto(newUser._id, req.body.picture);
         if (updated) {
           const userFromDb = await getUserById(newUser._id);
-          finalPicture = (userFromDb && (userFromDb.url_photo || userFromDb.url_phto || userFromDb.picture)) || finalPicture;
-        } else {
-          console.warn('No se pudo actualizar la foto del usuario tras el registro:', newUser._id);
+          finalPicture = userFromDb?.url_photo || finalPicture;
         }
       } catch (err) {
         console.error('Error actualizando la foto tras registro:', err);
@@ -43,7 +39,14 @@ export async function manualRegister(req: Request, res: Response) {
     return res.status(201).json({
       success: true,
       message: 'Usuario registrado correctamente',
-      user: { name: newUser.name, email: newUser.email, picture: finalPicture },
+      user: {
+        _id: newUser._id,
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        picture: finalPicture,
+        role: (newUser as any).role || 'requester'
+      },
       token,
     });
   } catch (error) {

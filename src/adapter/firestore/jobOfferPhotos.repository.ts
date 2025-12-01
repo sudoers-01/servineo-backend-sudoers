@@ -4,7 +4,7 @@ const COLLECTION = 'ofertadetrabajo';
 
 export const addJobOfferPhoto = async (
   userId: string,
-  file: Express.Multer.File // ahora sí lo reconoce
+  file: any // ahora sí lo reconoce
 ): Promise<string> => {
   // Contar fotos existentes
   const snapshot = await db
@@ -51,7 +51,7 @@ export const getJobOfferPhotos = async (userId: string) => {
     .orderBy('uploadedAt', 'desc')
     .get();
 
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc: any) => ({
     id: doc.id,
     ...doc.data(),
   }));

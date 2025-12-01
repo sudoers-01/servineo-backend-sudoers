@@ -41,6 +41,8 @@ import invoiceDetailRouter from './api/routes/invoice.routes';
 import bankTransferRoutes from './api/routes/bankTransfer.routes';
 import CashpayLabRoutes from './api/routes/cashpay.routes';
 import  walletRoutes   from './api/routes/wallet.routes';
+import PaymentsQrRoutes from './api/routes/paymentsQR.routes';
+
 
 // (Puedes añadir el resto de rutas de pagos aquí si las necesitas: CashPay, Wallet, etc.)
 
@@ -102,6 +104,8 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api', BankAccountRoutes);
 app.use('/api/v1/invoices', invoiceDetailRouter);
 app.use('/api/transferencia-bancaria', bankTransferRoutes);
+app.use('/api/payments', PaymentsQrRoutes);
+
 
 //fixerwallet
 app.use('/api', walletRoutes );

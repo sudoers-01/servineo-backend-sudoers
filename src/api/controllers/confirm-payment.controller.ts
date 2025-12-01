@@ -1,3 +1,4 @@
+// servineo-backend/src/api/controllers/confirm-payment.controller.ts
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Payment } from "../../models/payment.model";
@@ -6,6 +7,8 @@ import { Wallet } from "../../models/wallet.model";
 import Job from "../../models/jobPayment.model";
 import User from "../../models/userPayment.model"; 
 import Jobspay from "../../models/jobsPayment.model"; 
+import { updateWalletLowBalanceFlags } from "../../services/wallet.service";
+
 
 const MAX_ATTEMPTS = 3;
 const LOCK_MINUTES = 10;
@@ -246,6 +249,24 @@ export async function confirmPaymentLab(req: Request, res: Response) {
           { session }
         );
         console.log(`✅ Comisión de ${comisionMonto} Bs descontada del wallet`);
+        //actualizar flags de saldo bajo / crítico
+        const preBalance = fixerWallet.balance;
+        const postBalance = preBalance - comisionMonto;
+
+        try {
+          await updateWalletLowBalanceFlags({
+            walletId: String(fixerWallet._id),
+            preBalance,
+            postBalance,
+            lowBalanceThreshold: fixerWallet.lowBalanceThreshold,
+            session,
+          });
+        } catch (flagsError: any) {
+          console.error(
+            "❌ Error actualizando flags de saldo bajo en wallet:",
+            flagsError.message,
+          );
+        }
       } else {
         estadoComision = "fallida";
         motivoFallo = "Wallet del fixer no encontrado";

@@ -1,3 +1,4 @@
+// servineo-backend/src/api/routes/paymentCenter.routes.ts
 import { Router } from 'express';
 // 1. Importa la FUNCIÓN específica, no todo el archivo con '*'.
 import { getPaymentCenterDashboard } from '../controllers/paymentCenter.controllers';

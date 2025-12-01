@@ -24,6 +24,45 @@ export const getPaymentCenterDashboard = async (req: Request, res: Response) => 
       PaymentService.getAllTransactions(fixerId)
     ]);
 
+    // Construye lowBalanceInfo
+    let lowBalanceInfo: any = null;
+
+    if (wallet) {
+      const w: any = wallet as any;
+      const flags = w.flags || {};
+
+      const needsLowAlert = !!flags.needsLowAlert;
+      const needsCriticalAlert = !!flags.needsCriticalAlert;
+
+      const level =
+        needsCriticalAlert ? "critical" :
+        needsLowAlert ? "low" :
+        "none";
+
+      lowBalanceInfo = {
+        balance: w.balance,
+        currency: w.currency,
+        lowBalanceThreshold: w.lowBalanceThreshold,
+        lastLowBalanceNotification: w.lastLowBalanceNotification || null,
+        flags: {
+          needsLowAlert,
+          needsCriticalAlert,
+          updatedAt: flags.updatedAt || null,
+          cooldownUntil: flags.cooldownUntil || null,
+        },
+        toast: {
+          shouldShow: needsLowAlert || needsCriticalAlert,
+          level, // "low" | "critical" | "none"
+          message:
+            level === "critical"
+              ? "Tu saldo es crítico o negativo. Recarga tu billetera para evitar restricciones."
+              : level === "low"
+              ? "Tu saldo está bajo. Considera recargar tu billetera."
+              : null,
+        },
+      };
+    }
+
     // 3. Combina y devuelve todos los resultados
     res.status(200).json({
       success: true,
@@ -31,7 +70,8 @@ export const getPaymentCenterDashboard = async (req: Request, res: Response) => 
         saldoActual: wallet.balance,
         totalGanado: jobStats.totalGanado,
         trabajosCompletados: jobStats.trabajosCompletados,
-        transactions: allTransactions, // <-- ¡Ahora sí se incluyen las transacciones!
+        transactions: allTransactions, 
+        lowBalanceInfo,
       }
     });
 

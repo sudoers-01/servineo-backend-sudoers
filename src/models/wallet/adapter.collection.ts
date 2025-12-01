@@ -62,7 +62,8 @@ export function makeWalletCollectionByUserIdAdapter(
       if (patch.flags !== undefined) $set.flags = patch.flags;
       if (patch.lastLowBalanceNotification !== undefined) $set.lastLowBalanceNotification = patch.lastLowBalanceNotification;
 
-      const setOnInsert: any = { createdAt: new Date() };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const setOnInsert: Record<string, any> = { createdAt: new Date() };
       // aseguremos el campo users_id en el upsert:
       const usersIdValue = (process.env.WALLET_USER_ID_IS_OBJECTID === 'true')
         ? new mongoose.Types.ObjectId(String(fixerId))

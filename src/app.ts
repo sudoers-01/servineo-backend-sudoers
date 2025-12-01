@@ -4,12 +4,17 @@ dotenv.config({ path: '.env' });
 import express from 'express';
 import cors from 'cors';
 import { connectDatabase } from './config/db.config';
-import HealthRoutes from './api/routes/health.routes';
+
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
-import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
+import activityRoutes from '../src/api/routes/activities.routes';
+import CreateRoutes from './api/routes/create_appointment.routes';
+import ReadRoutes from './api/routes/read_appointment.routes';
+import UpdateRoutes from './api/routes/update_appointment.routes';
+import LocationRoutes from './api/routes/location.routes';
+import GetScheduleRoutes from './api/routes/get_schedule.routes';
 import searchRoutes from './api/routes/search.routes';
 import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
@@ -45,6 +50,8 @@ app.use(
       'http://localhost:3000',
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   }),
 );
 
@@ -56,7 +63,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api', HealthRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -83,8 +89,13 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
+app.use('/api/location', LocationRoutes);
+app.use('/api/crud_create', CreateRoutes);
+app.use('/api/crud_read', ReadRoutes);
+app.use('/api/crud_update', UpdateRoutes);
+app.use('/api/crud_read', GetScheduleRoutes);
 
-export const registerRoutes = (app: any) => {
+export const registerRoutes = (app: express.Application) => {
   app.use('/devices', deviceRouter);
 };
 

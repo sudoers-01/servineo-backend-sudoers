@@ -43,6 +43,7 @@ const app = express();
 app.use(
   cors({
     origin: [
+      'https://servineo-nine.vercel.app',
       'https://devmasters-servineo-frontend-zk3q.vercel.app',
       'http://localhost:8080',
       'http://localhost:8081',
@@ -109,15 +110,33 @@ app.use((req, res) => {
   });
 });
 
-const startServer = async () => {
-  try {
-    await connectDatabase();
-    app.listen(8000, () => console.log('Servidor corriendo en puerto 8000'));
-  } catch (error) {
-    console.error('Error starting server:', error);
-  }
-};
+// ✅ Para Vercel Serverless: NO iniciar servidor con app.listen()
+// Vercel maneja esto automáticamente
 
-startServer();
+// Solo conectar a la base de datos
+let isConnected = false;
+
+async function ensureDbConnection() {
+  if (!isConnected) {
+    try {
+      await connectDatabase();
+      isConnected = true;
+      console.log('✅ Database connected for serverless function');
+    } catch (error) {
+      console.error('❌ Database connection failed:', error);
+      throw error;
+    }
+  }
+}
+
+// Middleware para asegurar conexión en cada request
+app.use(async (req, res, next) => {
+  try {
+    await ensureDbConnection();
+    next();
+  } catch (error) {
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
 
 export default app;

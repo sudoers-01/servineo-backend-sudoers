@@ -1,10 +1,11 @@
+import { Request, Response } from 'express';
 import { Jobspay } from './../../models/jobsPayment.model';
-import { User } from "../../models/userPayment.model";
+import { User } from '../../models/userPayment.model';
 
 // =========================
 // Listar trabajos de usuario (solo requester)
 // =========================
-export const listJobs = async (req: Request, res: Response) => {
+export const listJobs = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId } = req.query;
     console.log('🟦 [listJobs] Iniciando búsqueda de trabajos...');
@@ -13,7 +14,8 @@ export const listJobs = async (req: Request, res: Response) => {
     // 1️⃣ Validar que el userId esté presente
     if (!userId) {
       console.warn('⚠️ No se envió el parámetro userId');
-      return res.status(400).json({ error: 'Falta el parámetro userId' });
+      res.status(400).json({ error: 'Falta el parámetro userId' });
+      return;
     }
 
     // 2️⃣ Buscar usuario en MongoDB
@@ -22,7 +24,8 @@ export const listJobs = async (req: Request, res: Response) => {
 
     if (!user) {
       console.warn('❌ Usuario no encontrado con ID:', userId);
-      return res.status(404).json({ error: 'Usuario no encontrado' });
+      res.status(404).json({ error: 'Usuario no encontrado' });
+      return;
     }
 
     console.log('✅ Usuario encontrado:', {
@@ -35,7 +38,8 @@ export const listJobs = async (req: Request, res: Response) => {
     // 3️⃣ Verificar que sea requester
     if (user.role !== 'requester') {
       console.warn('⛔ Acceso denegado. Rol del usuario:', user.role);
-      return res.status(403).json({ error: 'Acceso denegado: el usuario no es requester' });
+      res.status(403).json({ error: 'Acceso denegado: el usuario no es requester' });
+      return;
     }
 
     console.log('🟢 Rol verificado: requester');
@@ -47,13 +51,14 @@ export const listJobs = async (req: Request, res: Response) => {
     // 5️⃣ Si no hay trabajos, devolver mensaje
     if (!jobs || jobs.length === 0) {
       console.log('📭 No se encontraron trabajos para este usuario');
-      return res.status(404).json({ message: 'No se encontraron trabajos para este usuario' });
+      res.status(404).json({ message: 'No se encontraron trabajos para este usuario' });
+      return;
     }
 
     console.log(`📦 ${jobs.length} trabajo(s) encontrado(s) para el usuario ${user.name}`);
 
     // 6️⃣ Retornar los trabajos encontrados
-    res.json(jobs);
+    res.status(200).json(jobs);
   } catch (error) {
     console.error('🔥 Error listJobs:', error);
     res.status(500).json({ error: (error as Error).message });

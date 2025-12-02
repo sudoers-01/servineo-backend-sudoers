@@ -3,13 +3,16 @@ dotenv.config({ path: '.env' });
 
 import express from 'express';
 import cors from 'cors';
-import { connectDatabase } from './config/db.config';
-import HealthRoutes from './api/routes/health.routes';
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
-import activityRoutes from './api/routes/activities.routes';
 import jobsRoutes from './api/routes/jobs.routes';
+import activityRoutes from '../src/api/routes/activities.routes';
+import CreateRoutes from './api/routes/create_appointment.routes';
+import ReadRoutes from './api/routes/read_appointment.routes';
+import UpdateRoutes from './api/routes/update_appointment.routes';
+import LocationRoutes from './api/routes/location.routes';
+import GetScheduleRoutes from './api/routes/get_schedule.routes';
 import searchRoutes from './api/routes/search.routes';
 import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
@@ -32,34 +35,44 @@ import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
 import portfolioRoutes from '../src/routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
-import Search from './models/search.model';
-import CardsRoutes from "./api/routes/card.routes";
-import UsersRoutes from "./api/routes/user.routes"; 
-import PaymentRoutes from "./api/routes/payment.routes";
+import CardsRoutes from './api/routes/card.routes';
+import UsersRoutes from './api/routes/user.routes';
+import PaymentRoutes from './api/routes/payment.routes';
 import CashPayRoutes from './api/routes/cashpay.routes';
 import BankAccountRoutes from './api/routes/BankAccount.routes';
-import paymentsRouter from "./api/routes/paymentsQR.routes";
-import PaymentCenterRoutes from './api/routes/paymentCenter.routes'; 
+import paymentsRouter from './api/routes/paymentsQR.routes';
+import PaymentCenterRoutes from './api/routes/paymentCenter.routes';
 import myJobsPaymentRoutes from './api/routes/jobsPayment.routes';
-import invoiceDetailRouter from './api/routes/invoice.routes'; 
+import invoiceDetailRouter from './api/routes/invoice.routes';
 import bankTransferRoutes from './api/routes/bankTransfer.routes';
 import rechargeWallet from './api/routes/wallet.routes';
-import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.model'; 
+import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.model';
 import { devWalletRouter } from './api/routes/dev-wallet.routes';
 import { simPaymentsRouter } from './api/routes/sim-payments.routes';
 import SudoersRouter from './modules/sudoers.routes';
+import reCaptchaRouter from './api/routes/userManagement/reCaptcha.routes';
+import telefonoRoutes from './api/routes/userManagement/telefono.routes';
+
+import sesion2faRouter from './api/routes/userManagement/sesion2fa.routes';
+import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
+import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
+import twoFaRouter from './api/routes/userManagement/2fa.routes';
 
 const app = express();
 
 app.use(
   cors({
     origin: [
+      'https://servineo-frontend-bytes-bandidos.vercel.app',
       'https://devmasters-servineo-frontend-zk3q.vercel.app',
+      'https://servineo.app',
       'http://localhost:8080',
       'http://localhost:8081',
       'http://localhost:3000',
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   }),
 );
 
@@ -71,7 +84,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api', HealthRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -98,22 +110,27 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
+app.use('/api/location', LocationRoutes);
+app.use('/api/crud_create', CreateRoutes);
+app.use('/api/crud_read', ReadRoutes);
+app.use('/api/crud_update', UpdateRoutes);
+app.use('/api/crud_read', GetScheduleRoutes);
 
-export const registerRoutes = (app: any) => {
+export const registerRoutes = (app: express.Application) => {
   app.use('/devices', deviceRouter);
 };
 // --- TUS RUTAS (Añadidas) ---
 app.use('/api', CardsRoutes);
 app.use('/api', UsersRoutes);
 app.use('/api', PaymentRoutes);
-app.use('/api', BankAccountRoutes); 
+app.use('/api', BankAccountRoutes);
 app.use('/api/lab', CashPayRoutes);
-app.use("/api", rechargeWallet); 
-app.use('/api', myJobsPaymentRoutes); 
+app.use('/api', rechargeWallet);
+app.use('/api', myJobsPaymentRoutes);
 app.use('/api/transferencia-bancaria', bankTransferRoutes);
-app.use('/api/v1/invoices', invoiceDetailRouter); 
-app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
-app.use("/payments", paymentsRouter); 
+app.use('/api/v1/invoices', invoiceDetailRouter);
+app.use('/api/fixer/payment-center', PaymentCenterRoutes);
+app.use('/payments', paymentsRouter);
 app.use('/', SudoersRouter);
 
 console.log('FEATURE_DEV_WALLET =', FEATURE_DEV_WALLET);
@@ -124,6 +141,14 @@ if (FEATURE_DEV_WALLET) {
 if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
+app.use('/api/controlC/recaptcha', reCaptchaRouter);
+app.use('/api/controlC/telefono', telefonoRoutes);
+app.use('/devices', deviceRouter);
+
+app.use('/api/controlC/sesion2fa', sesion2faRouter);
+app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
+app.use('/api/controlC/codigos2fa', codigos2faRouter);
+app.use('/api/controlC/2fa', twoFaRouter);
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

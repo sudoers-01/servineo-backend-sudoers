@@ -35,7 +35,7 @@ import githubAuthRouter from './api/routes/userManagement/github.routes';
 import discordRoutes from './api/routes/userManagement/discord.routes';
 import clienteRouter from './api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes';
-import adminRouter from './src/api/routes/userManagement/admin.routes';
+import adminRouter from './api/routes/userManagement/admin.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
 import CardsRoutes from './api/routes/card.routes';

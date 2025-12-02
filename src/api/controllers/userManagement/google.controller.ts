@@ -45,7 +45,7 @@ export async function googleAuth(req: Request, res: Response) {
       status: exists ? "exists" : "firstTime",
       firstTime: !exists,
       user: {
-        _id: dbUser._id.toString(),
+        id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
         role: dbUser.role,

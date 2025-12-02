@@ -1,8 +1,8 @@
 import Stripe from 'stripe';
 import { Wallet } from '../../models/wallet.model';
-import type { Request, Response } from "express";
 import { User } from '../../models/userPayment.model';
 import { Recharge } from '../../models/walletRecharge.model';
+import { Request, Response } from 'express';
 
 import 'dotenv/config';
 
@@ -94,14 +94,12 @@ export const rechargeWallet = async (req: Request, res: Response) => {
       // No revertimos el balance, pero notificamos el error
       return res.status(500).json({
         message: 'Recarga procesada pero fallo al registrar la transacción',
-        error: rechargeError instanceof Error ? rechargeError.message : String(rechargeError),
+        error: (rechargeError as Error).message,
         wallet,
       });
     }
-
-    
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error al recargar wallet:', error);
-    res.status(500).json({ message: 'Error interno', error: error instanceof Error ? error.message : String(error) });
+    res.status(500).json({ message: 'Error interno', error: (error as Error).message });
   }
 };

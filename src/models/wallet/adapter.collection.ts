@@ -17,7 +17,7 @@ function toQueryForId(id: string) {
 // Wallet en colección separada (balance, flags, etc. como campos directos)
 export function makeWalletCollectionByUserIdAdapter(
   collectionName: string,
-  idField: string = 'users_id'
+  idField: string = 'users_id',
 ): WalletModelAdapter {
   interface WalletSeparateDoc {
     balance?: number;
@@ -53,7 +53,8 @@ export function makeWalletCollectionByUserIdAdapter(
       const query: Record<string, unknown> = { [idField]: toQueryForId(fixerId) };
       const $set: WalletUpdateSet = { updatedAt: new Date() };
       if (patch.balance !== undefined) $set.balance = patch.balance;
-      if (patch.lowBalanceThreshold !== undefined) $set.lowBalanceThreshold = patch.lowBalanceThreshold;
+      if (patch.lowBalanceThreshold !== undefined)
+        $set.lowBalanceThreshold = patch.lowBalanceThreshold;
       if (patch.flags !== undefined) $set.flags = patch.flags;
       if (patch.lastLowBalanceNotification !== undefined) $set.lastLowBalanceNotification = patch.lastLowBalanceNotification;
       const $setOnInsert: Record<string, unknown> = { createdAt: new Date() };

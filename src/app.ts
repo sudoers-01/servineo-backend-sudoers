@@ -95,6 +95,7 @@ app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
+app.use('/api/controlC/telefono', telefonoRoutes);
 app.use('/api/controlC/auth', authRouter);
 app.use('/api/controlC/registro', registrarDatosRouter);
 app.use('/api/user-profiles', userProfileRoutes);
@@ -142,7 +143,6 @@ if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
 app.use('/api/controlC/recaptcha', reCaptchaRouter);
-app.use('/api/controlC/telefono', telefonoRoutes);
 app.use('/devices', deviceRouter);
 
 app.use('/api/controlC/sesion2fa', sesion2faRouter);

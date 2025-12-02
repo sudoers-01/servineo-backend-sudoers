@@ -124,6 +124,14 @@ export async function githubAuth(req: Request, res: Response) {
         dbUser.email
       );
 
+      await activityService.createSimpleActivity({
+        userId: dbUser._id,
+        date: new Date(),
+        role: dbUser.role,
+        type: "session_start",
+        metadata: { resumed: false },
+      });
+
       return res.send(`
         <script>
           window.opener.postMessage({

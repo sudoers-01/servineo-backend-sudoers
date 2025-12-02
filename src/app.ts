@@ -17,11 +17,10 @@ import searchRoutes from './api/routes/search.routes';
 import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
 import userProfileRoutes from './routes/userProfile.routes';
+
 import userRoutes from './routes/user.routes';
-import registrarDatosRouter from './api/routes/userManagement/registrarDatos.routes';
-import fotoPerfilRouter from './api/routes/userManagement/fotoPerfil.routes';
-import googleRouter from './api/routes/userManagement/google.routes';
-import ubicacionRouter from './api/routes/userManagement/ubicacion.routes';
+
+
 import authRouter from './api/routes/userManagement/login.routes';
 import modificarDatosRouter from './api/routes/userManagement/modificarDatos.routes';
 import nominatimRouter from './api/routes/userManagement/sugerencias.routes';
@@ -50,13 +49,12 @@ import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.
 import { devWalletRouter } from './api/routes/dev-wallet.routes';
 import { simPaymentsRouter } from './api/routes/sim-payments.routes';
 import SudoersRouter from './modules/sudoers.routes';
-import reCaptchaRouter from './api/routes/userManagement/reCaptcha.routes';
-import telefonoRoutes from './api/routes/userManagement/telefono.routes';
-
 import sesion2faRouter from './api/routes/userManagement/sesion2fa.routes';
 import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
 import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
+//nuevas rutas signup
+import signUpRoutes from './api/routes/userManagement/signUp.routes';
 
 const app = express();
 
@@ -84,6 +82,9 @@ app.use((req, res, next) => {
   next();
 });
 
+//endpoint signup
+app.use('/api/signUp', signUpRoutes);
+
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -93,11 +94,8 @@ app.use('/api', jobsRoutes);
 app.use('/api/admin', trackingRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
-app.use('/api/controlC/google', googleRouter);
-app.use('/api/controlC/ubicacion', ubicacionRouter);
-app.use('/api/controlC/telefono', telefonoRoutes);
 app.use('/login', authRouter);
-app.use('/api/controlC/registro', registrarDatosRouter);
+
 app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
@@ -105,7 +103,6 @@ app.use('/api/controlC/sugerencias', nominatimRouter);
 app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);
 app.use('/api/controlC/cerrar-sesiones', cerrarSesionesRouter);
 app.use('/api/controlC/ultimo-cambio', ultimoCambioRouter);
-app.use('/api/controlC/foto-perfil', fotoPerfilRouter);
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
@@ -142,7 +139,6 @@ if (FEATURE_DEV_WALLET) {
 if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
-app.use('/api/controlC/recaptcha', reCaptchaRouter);
 app.use('/devices', deviceRouter);
 
 app.use('/api/controlC/sesion2fa', sesion2faRouter);

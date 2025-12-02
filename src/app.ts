@@ -60,6 +60,9 @@ import sesion2faRouter from './api/routes/userManagement/sesion2fa.routes';
 import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
 import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
+import forumRoutes from './api/routes/forum.routes';
+import faqRoutes from './api/routes/faq.routes';
+import captchaRoutes from './api/routes/captcha.routes';
 
 const app = express();
 
@@ -154,6 +157,9 @@ app.use('/api/controlC/sesion2fa', sesion2faRouter);
 app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
 app.use('/api/controlC/codigos2fa', codigos2faRouter);
 app.use('/api/controlC/2fa', twoFaRouter);
+app.use('/api', forumRoutes);
+app.use('/api', faqRoutes);
+app.use('/', captchaRoutes);
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

@@ -4,6 +4,7 @@ import { generarToken } from "../../../utils/generadorToken";
 import jwt from "jsonwebtoken";
 import { IUser } from "../../../models/user.model";
 import { Types } from "mongoose";
+import { rootCertificates } from "tls";
 
 export async function googleAuth(req: Request, res: Response) {
   const { token } = req.body;
@@ -36,7 +37,8 @@ export async function googleAuth(req: Request, res: Response) {
     const sessionToken = generarToken(
       dbUser._id.toString(),
       dbUser.name,
-      dbUser.email
+      dbUser.email,
+      dbUser.role
     );
 
     return res.json({
@@ -44,8 +46,9 @@ export async function googleAuth(req: Request, res: Response) {
       firstTime: !exists,
       user: {
         _id: dbUser._id.toString(),
-        email: dbUser.email,
         name: dbUser.name,
+        email: dbUser.email,
+        role: dbUser.role,
         picture: dbUser.url_photo,
       },
       token: sessionToken,

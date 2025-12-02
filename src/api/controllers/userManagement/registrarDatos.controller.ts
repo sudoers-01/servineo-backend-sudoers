@@ -48,7 +48,14 @@ export async function manualRegister(req: Request, res: Response) {
     return res.status(201).json({
       success: true,
       message: 'Usuario registrado correctamente',
-      user: { name: newUser.name, email: newUser.email, picture: finalPicture },
+      user: {
+        _id: newUser._id,
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        picture: finalPicture,
+        role: (newUser as any).role || 'requester'
+      },
       token,
     });
   } catch (error) {

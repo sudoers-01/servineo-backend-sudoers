@@ -54,6 +54,12 @@ coverage/
 *~
 *.tmp
 
+# environment
+.env*
+!.env.example
 # Vercel local build cache
 .vercel/
 .vercel
+
+serviceAccountKey.json
+firebase-service-account.json

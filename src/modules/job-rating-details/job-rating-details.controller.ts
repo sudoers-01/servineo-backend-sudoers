@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { connectDB } from '../../config/db/mongoClient';
 import * as jobRatingDetailsService from './job-rating-details.service';
 import { ObjectId } from 'mongodb';
 
@@ -10,8 +11,9 @@ export async function getJobRatingDetails(req: Request, res: Response) {
       return res.status(400).json({ message: 'Missing jobId or fixerId' });
     }
 
+    const db = await connectDB();
     const details = await jobRatingDetailsService.getJobRatingDetails(
-      req.db,
+      db,
       new ObjectId(jobId),
       new ObjectId(fixerId),
     );

@@ -1,6 +1,8 @@
 import { Db } from 'mongodb';
+import { connectDB } from '../../config/db/mongoClient';
 
-export async function getCompletedJobs(db: Db) {
+export async function getCompletedJobs() {
+  const db = await connectDB();
   const jobsCollection = db.collection('jobs');
   const jobs = await jobsCollection.find({ status: 'completed' }).toArray();
 

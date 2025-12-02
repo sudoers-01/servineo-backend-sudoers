@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { connectDB } from '../../config/db/mongoClient';
 import * as ratingService from './rating.service';
 import { ObjectId } from 'mongodb';
 
@@ -10,7 +11,8 @@ export async function getFixerAverage(req: Request, res: Response) {
       return res.status(400).json({ message: 'fixerId is required' });
     }
 
-    const result = await ratingService.getFixerAverageRating(req.db, new ObjectId(fixerId));
+    const db = await connectDB();
+    const result = await ratingService.getFixerAverageRating(db, new ObjectId(fixerId));
 
     if (!result) {
       return res.status(404).json({ message: 'No ratings found for this fixer' });

@@ -3,7 +3,7 @@ import { getCompletedJobs } from './jobs.service';
 
 export async function getCompletedJobsController(req: Request, res: Response) {
   try {
-    const jobs = await getCompletedJobs(req.db);
+    const jobs = await getCompletedJobs();
     res.status(200).json(jobs);
   } catch (error) {
     console.error('Error fetching completed jobs:', error);

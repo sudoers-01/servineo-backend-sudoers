@@ -1,7 +1,9 @@
-import { Db, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
+import { connectDB } from '../../../config/db/mongoClient';
 import { calculateDistance } from '../utils/distance-util';
 
-export const changeJobStatus = async (db: Db, jobId: string, newStatus: string) => {
+export const changeJobStatus = async (jobId: string, newStatus: string) => {
+  const db = await connectDB();
   const result = await db
     .collection('jobs')
     .updateOne({ _id: new ObjectId(jobId) }, { $set: { status: newStatus } });
@@ -14,10 +16,10 @@ export const changeJobStatus = async (db: Db, jobId: string, newStatus: string) 
 };
 
 export const completeJobWithValidation = async (
-  db: Db,
   jobId: string,
   location: { lat: number; lng: number },
 ) => {
+  const db = await connectDB();
   const job = await db.collection('jobs').findOne({ _id: new ObjectId(jobId) });
 
   if (!job) {

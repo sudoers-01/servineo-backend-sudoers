@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { getDB } from '../../config/db/mongoClient'; // importante: usa la ruta correcta
+import { connectDB } from '../../config/db/mongoClient'; // importante: usa la ruta correcta
 import { getSortConfig } from './sort.service';
 
 export const getRatedJobs = async (req: Request, res: Response) => {
   try {
-    const db = getDB();
+    const db = await connectDB();
     const jobsCollection = db.collection('jobs');
 
     // Obtener parámetros de ordenamiento

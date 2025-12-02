@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
+import { connectDB } from '../../config/db/mongoClient';
 import * as jobRequestService from './job-request.service';
 import { ObjectId } from 'mongodb';
 
 export async function getAllJobRequests(req: Request, res: Response) {
   try {
-    const jobs = await jobRequestService.getAllJobRequests(req.db);
+    const db = await connectDB();
+    const jobs = await jobRequestService.getAllJobRequests(db);
     res.json(jobs);
   } catch (error) {
     console.error('Error fetching job requests:', error);
@@ -20,7 +22,8 @@ export async function getLocationById(req: Request, res: Response) {
       return res.status(400).json({ message: 'User ID is required' });
     }
 
-    const userLocation = await jobRequestService.getLocationById(req.db, id);
+    const db = await connectDB();
+    const userLocation = await jobRequestService.getLocationById(db, id);
     res.json(userLocation);
   } catch (error) {
     console.error('Error fetching user location:', error);
@@ -43,8 +46,9 @@ export async function createJobRequest(req: Request, res: Response) {
       return res.status(422).json({ error: 'Invalid requester ID format' });
     }
 
+    const db = await connectDB();
     const newJobRequest = await jobRequestService.createJobRequest(
-      req.db,
+      db,
       jobRequestData,
       requesterId,
     );

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { generarToken } from '../../../utils/generadorToken';
 import { checkUserExists, createManualUser, getUserById } from '../../../services/userManagement/registrarDatos.service';
 import { updateUserPhoto } from '../../../services/userManagement/fotoPerfil.service';
+import * as activityService from '../../../services/activities.service';
 
 export async function manualRegister(req: Request, res: Response) {
   const { name, email, password } = req.body;
@@ -35,6 +36,14 @@ export async function manualRegister(req: Request, res: Response) {
     }
 
     const token = generarToken(newUser._id.toString(), newUser.name, newUser.email, finalPicture);
+
+    await activityService.createSimpleActivity({
+      userId: newUser._id,
+      date: new Date(),
+      role: newUser.role,
+      type: "session_start",
+      metadata: { resumed: false },
+    });
 
     return res.status(201).json({
       success: true,

@@ -1,7 +1,9 @@
-import { Request, Response } from "express";
-import { connectDB } from "../../../config/db/mongoClient";
-import bcrypt from "bcryptjs";
-import { generarToken } from "../../../utils/generadorToken";
+import { Request, Response } from 'express';
+import { connectDB } from '../../../config/db/mongoClient';
+import bcrypt from 'bcryptjs';
+import { generarToken } from '../../../utils/generadorToken';
+import * as activityService from '../../../services/activities.service';
+
 
 // GOOGLE
 import {
@@ -81,6 +83,14 @@ export const loginUsuario = async (req: Request, res: Response) => {
       userPicture
     );
 
+    await activityService.createSimpleActivity({
+      userId: user._id,
+      date: new Date(),
+      role: user.role,
+      type: "session_start",
+      metadata: { resumed: true },
+    });
+
     return res.json({
       success: true,
       message: "Inicio de sesión exitoso",
@@ -139,6 +149,14 @@ export const loginGoogle = async (req: Request, res: Response) => {
       dbUser.url_photo
     );
 
+    await activityService.createSimpleActivity({
+      userId: dbUser._id,
+      date: new Date(),
+      role: dbUser.role,
+      type: "session_start",
+      metadata: { resumed: true },
+    });
+    
     return res.json({
       success: true,
       message: "Inicio de sesión exitoso",
@@ -234,6 +252,14 @@ export const loginGithub = async (req: Request, res: Response) => {
       dbUser.email,
       dbUser.url_photo
     );
+
+    await activityService.createSimpleActivity({
+      userId: dbUser._id,
+      date: new Date(),
+      role: dbUser.role,
+      type: "session_start",
+      metadata: { resumed: true },
+    });
 
     return res.json({
       success: true,
@@ -333,6 +359,14 @@ export const loginDiscord = async (req: Request, res: Response) => {
       dbUser.email,
       dbUser.url_photo
     );
+
+    await activityService.createSimpleActivity({
+      userId: dbUser._id,
+      date: new Date(),
+      role: dbUser.role,
+      type: "session_start",
+      metadata: { resumed: true },
+    });
 
     return res.json({
       success: true,

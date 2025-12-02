@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
+import { Types } from "mongoose";
+import jwt from "jsonwebtoken";
 import { verifyGoogleToken, findUserByEmail, createUser } from "../../../services/userManagement/google.service";
 import { generarToken } from "../../../utils/generadorToken";
-import jwt from "jsonwebtoken";
 import { IUser } from "../../../models/user.model";
-import { Types } from "mongoose";
+import * as activityService from '../../../services/activities.service';
 
 export async function googleAuth(req: Request, res: Response) {
   const { token } = req.body;
@@ -38,6 +39,14 @@ export async function googleAuth(req: Request, res: Response) {
       dbUser.name,
       dbUser.email
     );
+
+    await activityService.createSimpleActivity({
+      userId: dbUser._id,
+      date: new Date(),
+      role: dbUser.role,
+      type: "session_start",
+      metadata: { resumed: false },
+    });
 
     return res.json({
       status: exists ? "exists" : "firstTime",

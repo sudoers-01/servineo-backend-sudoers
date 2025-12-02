@@ -4,7 +4,7 @@ import { Payment } from "../../models/payment.model";
 import { Comision } from "../../models/historycomission.model";
 import { Wallet } from "../../models/wallet.model";
 import Job from "../../models/jobPayment.model";
-import User from "../../models/userPayment.model"; 
+import { User } from "../../models/userPayment.model"; 
 import Jobspay from "../../models/jobsPayment.model"; 
 
 const MAX_ATTEMPTS = 3;
@@ -160,12 +160,12 @@ export async function confirmPaymentLab(req: Request, res: Response) {
     // ============================================
     let jobActualizado = false;
     
-    if (confirmed.jobId) {
+    if (confirmedPayment.jobId) {
       try {
-        console.log(`🔄 Actualizando status del job ${confirmed.jobId} a "Pagado"`);
+        console.log(`🔄 Actualizando status del job ${confirmedPayment.jobId} a "Pagado"`);
         
-        const jobUpdated = await jobsPays.findByIdAndUpdate(
-          confirmed.jobId,
+        const jobUpdated = await Job.findByIdAndUpdate(
+          confirmedPayment.jobId,
           { 
             $set: { 
               status: "Pagado" 
@@ -178,13 +178,13 @@ export async function confirmPaymentLab(req: Request, res: Response) {
         );
 
         if (jobUpdated) {
-          console.log(`✅ Job ${confirmed.jobId} actualizado a status "Pagado"`);
+          console.log(`✅ Job ${confirmedPayment.jobId} actualizado a status "Pagado"`);
           jobActualizado = true;
         } else {
-          console.warn(`⚠️ No se encontró el job ${confirmed.jobId}`);
+          console.warn(`⚠️ No se encontró el job ${confirmedPayment.jobId}`);
         }
       } catch (jobError: any) {
-        console.error(`❌ Error actualizando job ${confirmed.jobId}:`, jobError);
+        console.error(`❌ Error actualizando job ${confirmedPayment.jobId}:`, jobError);
         // No abortamos la transacción, el pago ya se confirmó
       }
     } else {
@@ -199,8 +199,8 @@ export async function confirmPaymentLab(req: Request, res: Response) {
     try {
       // 1. Buscar los datos usando los modelos correctos
       const [job, requester] = await Promise.all([
-        // ¡CAMBIO! Usamos Jobspay (de jobs.model.ts) para encontrar el trabajo
-        Jobspay.findById(confirmedPayment.jobId).session(session),
+        // ¡CAMBIO! Usamos Job (de jobs.model.ts) para encontrar el trabajo
+        Job.findById(confirmedPayment.jobId).session(session),
         User.findById(confirmedPayment.payerId).session(session) // Usamos User (de user.model.ts)
       ]);
 
@@ -246,8 +246,8 @@ export async function confirmPaymentLab(req: Request, res: Response) {
     try {
       console.log(`🧾 Actualizando estado en 'jobspays' para el jobId: ${confirmedPayment.jobId}`);
       
-      // Busca el job en la colección 'jobspays' (usando el modelo Jobspay)
-      await Jobspay.findByIdAndUpdate( 
+      // Busca el job en la colección 'jobspays' (usando el modelo Job)
+      await Job.findByIdAndUpdate( 
         confirmedPayment.jobId,
         { $set: { status: "Pagado" } }, // Actualiza el estado a "Pagado"
         { session }
@@ -322,18 +322,18 @@ export async function confirmPaymentLab(req: Request, res: Response) {
     console.info(`Payment ${id}: confirmado exitosamente + triggers ejecutados`);
 
     // Devolvemos el documento 'Payment' completo y actualizado
-    const finalPaymentDoc = await Payment.findById(id).lean();
+    //const finalPaymentDoc = await Payment.findById(id).lean();
 
     return res.json({
       message: "pago confirmado exitosamente",
       data: {
-        id: String(confirmed._id),
-        total: confirmed.amount.total,
-        status: confirmed.status,
-        paidAt: confirmed.paymentDate,
+        id: String(confirmedPayment._id),
+        total: confirmedPayment.amount.total,
+        status: confirmedPayment.status,
+        paidAt: confirmedPayment.paymentDate,
         comisionProcesada: true,
         jobActualizado: jobActualizado, // ← NUEVO: Indicar si se actualizó el job
-        jobId: confirmed.jobId || null
+        jobId: confirmedPayment.jobId || null
       }
     });
 

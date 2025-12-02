@@ -14,6 +14,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true } // crea automáticamente createdAt y updatedAt
 );
 
-// ⚙️ Usa exactamente la colección 'userpay'
-export const User = mongoose.models.User || mongoose.model("User", userSchema, "users");
+// ⚙️ Usa exactamente la colección 'users'
+export const Users = mongoose.models.User || mongoose.model("User", userSchema, "users");
 

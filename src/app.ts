@@ -96,7 +96,7 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/api/controlC/telefono', telefonoRoutes);
-app.use('/api/controlC/auth', authRouter);
+app.use('/login', authRouter);
 app.use('/api/controlC/registro', registrarDatosRouter);
 app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api/user', userRoutes);

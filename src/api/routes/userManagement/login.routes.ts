@@ -4,7 +4,7 @@ import { forgotPassword, magicLogin } from "../../controllers/userManagement/for
 
 const router = Router();
 
-router.post('/login', loginUsuario);
+router.post('/', loginUsuario);
 router.post("/google", loginGoogle);
 router.post("/github", loginGithub);
 router.post("/discord", loginDiscord);

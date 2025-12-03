@@ -60,6 +60,11 @@ import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
 import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
 
+
+import deleteAccountRoutes from "../src/api/routes/userManagement/deleteAccount.routes";
+import updateProfileRouter from "../src/api/routes/userManagement/updateProfile.routes";
+
+
 const app = express();
 
 app.use(
@@ -120,6 +125,9 @@ app.use('/api/crud_create', CreateRoutes);
 app.use('/api/crud_read', ReadRoutes);
 app.use('/api/crud_update', UpdateRoutes);
 app.use('/api/crud_read', GetScheduleRoutes);
+
+app.use('/api/controlC/usuario/update', updateProfileRouter);
+app.use("/api/controlC/usuario", deleteAccountRoutes);
 
 export const registerRoutes = (app: express.Application) => {
   app.use('/devices', deviceRouter);

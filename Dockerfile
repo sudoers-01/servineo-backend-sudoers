@@ -1,7 +1,7 @@
 FROM node:20 AS builder
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+RUN npm install
 COPY . .
 RUN npm run build
 

@@ -114,7 +114,7 @@ export async function getLastWeekSearches(req: Request, res: Response): Promise<
               const cities = filter.city.split(',').map((city: string) => city.trim());
               cities.forEach((city: string) => {
                 // Normalizar nombre de ciudad
-                let normalizedCity = city.toLowerCase();
+                const normalizedCity = city.toLowerCase();
                 // Mapear variantes
                 if (normalizedCity.includes('cochabamba')) filterStats.city['Cochabamba']++;
                 else if (normalizedCity.includes('la paz')) filterStats.city['La Paz']++;
@@ -266,7 +266,7 @@ export async function getLastMonthSearches(req: Request, res: Response): Promise
               const cities = filter.city.split(',').map((city: string) => city.trim());
               cities.forEach((city: string) => {
                 // Normalizar nombre de ciudad
-                let normalizedCity = city.toLowerCase();
+                const normalizedCity = city.toLowerCase();
                 // Mapear variantes
                 if (normalizedCity.includes('cochabamba')) filterStats.city['Cochabamba']++;
                 else if (normalizedCity.includes('la paz')) filterStats.city['La Paz']++;
@@ -417,7 +417,7 @@ export async function getLastYearSearches(req: Request, res: Response): Promise<
               const cities = filter.city.split(',').map((city: string) => city.trim());
               cities.forEach((city: string) => {
                 // Normalizar nombre de ciudad
-                let normalizedCity = city.toLowerCase();
+                const normalizedCity = city.toLowerCase();
                 // Mapear variantes
                 if (normalizedCity.includes('cochabamba')) filterStats.city['Cochabamba']++;
                 else if (normalizedCity.includes('la paz')) filterStats.city['La Paz']++;

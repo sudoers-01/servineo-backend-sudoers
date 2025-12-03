@@ -17,30 +17,9 @@ import searchRoutes from './api/routes/search.routes';
 import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
 import userProfileRoutes from './routes/userProfile.routes';
-import userRoutes from './routes/user.routes';
 import jobOfficial from './routes/job_offer.routes';
-
-import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
-import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
-import googleRouter from "../src/api/routes/userManagement/google.routes";
-import ubicacionRouter from "../src/api/routes/userManagement/ubicacion.routes";
-import authRouter from "../src/api/routes/userManagement/login.routes";
-import modificarDatosRouter from '../src/api/routes/userManagement/modificarDatos.routes';
-import nominatimRouter from '../src/api/routes/userManagement/sugerencias.routes';
-import deviceRouter from '../src/api/routes/userManagement/device.routes';
-import cambiarContrasenaRouter from '../src/api/routes/userManagement/editarContraseña.routes';
-import cerrarSesionesRouter from '../src/api/routes/userManagement/cerrarSesiones.routes';
-import ultimoCambioRouter from '../src/api/routes/userManagement/ultimoCambio.routes';
-import githubAuthRouter from '../src/api/routes/userManagement/github.routes';
-import discordRoutes from '../src/api/routes/userManagement/discord.routes';
-import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
-import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
-import portfolioRoutes from '../src/routes/portfolio.routes';
-import routerUser from './api/routes/user.routes';
 import certificationRoutes from './routes/certification.routes';
-
-import userRoutes from './routes/user.routes';
-
+import portfolioRoutes from './routes/portfolio.routes';
 
 import authRouter from './api/routes/userManagement/login.routes';
 import modificarDatosRouter from './api/routes/userManagement/modificarDatos.routes';
@@ -53,8 +32,12 @@ import githubAuthRouter from './api/routes/userManagement/github.routes';
 import discordRoutes from './api/routes/userManagement/discord.routes';
 import clienteRouter from './api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes';
-import portfolioRoutes from './routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
+import registrarDatosRouter from './api/routes/userManagement/registrarDatos.routes';
+import fotoPerfilRouter from './api/routes/userManagement/fotoPerfil.routes';
+import googleRouter from './api/routes/userManagement/google.routes';
+import ubicacionRouter from './api/routes/userManagement/ubicacion.routes';
+
 import CardsRoutes from './api/routes/card.routes';
 import PaymentRoutes from './api/routes/payment.routes';
 import CashPayRoutes from './api/routes/cashpay.routes';
@@ -66,14 +49,13 @@ import invoiceDetailRouter from './api/routes/invoice.routes';
 import bankTransferRoutes from './api/routes/bankTransfer.routes';
 import rechargeWallet from './api/routes/wallet.routes';
 import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.model';
-import { devWalletRouter } from './api/routes/dev-wallet.routes';
+import devWalletRouter from './api/routes/dev-wallet.routes';
 import { simPaymentsRouter } from './api/routes/sim-payments.routes';
 import SudoersRouter from './modules/sudoers.routes';
 import sesion2faRouter from './api/routes/userManagement/sesion2fa.routes';
 import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
 import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
-//nuevas rutas signup
 import signUpRoutes from './api/routes/userManagement/signUp.routes';
 
 const app = express();
@@ -124,7 +106,6 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/login', authRouter);
 
 app.use('/api/user-profiles', userProfileRoutes);
-app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
 app.use('/api/controlC/sugerencias', nominatimRouter);
 app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);

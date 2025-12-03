@@ -57,8 +57,8 @@ export const uploadFileToDrive = async (
             },
         });
 
-        // Retornar URL de visualización directa
-        const directLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
+        // Retornar URL de visualización directa con thumbnail de Google
+        const directLink = `https://lh3.googleusercontent.com/d/${fileId}=s1000`;
 
         return directLink;
     } catch (error) {
@@ -73,10 +73,22 @@ export const uploadFileToDrive = async (
  */
 export const deleteFileFromDrive = async (fileUrl: string): Promise<void> => {
     try {
-        // Extraer fileId de la URL
-        // Formato: https://drive.google.com/uc?export=view&id=FILE_ID
-        const urlParams = new URLSearchParams(fileUrl.split('?')[1]);
-        const fileId = urlParams.get('id');
+        let fileId: string | null = null;
+
+        // Formato nuevo: https://lh3.googleusercontent.com/d/FILE_ID=s1000
+        if (fileUrl.includes('lh3.googleusercontent.com/d/')) {
+            fileId = fileUrl.split('/d/')[1].split('=')[0].split('?')[0];
+        }
+        // Formato: https://drive.google.com/thumbnail?id=FILE_ID&sz=w1000
+        else if (fileUrl.includes('thumbnail?id=')) {
+            const urlParams = new URLSearchParams(fileUrl.split('?')[1]);
+            fileId = urlParams.get('id');
+        }
+        // Formato antiguo: https://drive.google.com/uc?export=view&id=FILE_ID
+        else if (fileUrl.includes('uc?export=view&id=')) {
+            const urlParams = new URLSearchParams(fileUrl.split('?')[1]);
+            fileId = urlParams.get('id');
+        }
 
         if (!fileId) {
             throw new Error('No se pudo extraer el ID del archivo de la URL');

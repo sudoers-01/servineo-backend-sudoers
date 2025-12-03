@@ -52,6 +52,8 @@ import { simPaymentsRouter } from './api/routes/sim-payments.routes';
 import SudoersRouter from './modules/sudoers.routes';
 import reCaptchaRouter from './api/routes/userManagement/reCaptcha.routes';
 import telefonoRoutes from './api/routes/userManagement/telefono.routes';
+import { registrarTelefono } from './api/controllers/userManagement/telefono.controller';
+import { verifyJWT } from './api/controllers/userManagement/google.controller';
 
 import sesion2faRouter from './api/routes/userManagement/sesion2fa.routes';
 import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
@@ -83,6 +85,9 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
+
+// Endpoint de teléfono antes de routers generales bajo /api
+app.post('/api/controlC/telefono', verifyJWT, registrarTelefono);
 
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
@@ -142,7 +147,13 @@ if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
 app.use('/api/controlC/recaptcha', reCaptchaRouter);
-app.use('/api/controlC/telefono', telefonoRoutes);
+// Exponer POST /api/controlC/telefono via router montado en /api/controlC
+app.use('/api/controlC', telefonoRoutes);
+console.log('MOUNT /api/controlC (telefono) ✅');
+// Fallback de diagnóstico: si la anterior no captura, este asegura respuesta
+app.post('/api/controlC/telefono', (req, res) => {
+  res.status(200).json({ success: true, message: 'diagnostic route hit' });
+});
 app.use('/devices', deviceRouter);
 
 app.use('/api/controlC/sesion2fa', sesion2faRouter);

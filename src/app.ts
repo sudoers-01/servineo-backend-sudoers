@@ -68,8 +68,6 @@ const allowedOrigins = [
   'https://servineo-frontend-bytes-bandidos.vercel.app',
   'https://devmasters-servineo-frontend-zk3q.vercel.app',
   'https://servineo.app',
-  'http://localhost:8080',
-  'http://localhost:8081',
   'http://localhost:3000',
 ];
 

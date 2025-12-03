@@ -60,16 +60,24 @@ import twoFaRouter from './api/routes/userManagement/2fa.routes';
 
 const app = express();
 
+const allowedOrigins = [
+  'https://servineo-frontend-bytes-bandidos.vercel.app',
+  'https://devmasters-servineo-frontend-zk3q.vercel.app',
+  'https://servineo.app',
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://localhost:3000',
+];
+
 app.use(
   cors({
-    origin: [
-      'https://servineo-frontend-bytes-bandidos.vercel.app',
-      'https://devmasters-servineo-frontend-zk3q.vercel.app',
-      'https://servineo.app',
-      'http://localhost:8080',
-      'http://localhost:8081',
-      'http://localhost:3000',
-    ],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('CORS not allowed'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],

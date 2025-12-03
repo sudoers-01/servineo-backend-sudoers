@@ -1,5 +1,4 @@
-
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const cardSchema = new mongoose.Schema({
   userId: String,
@@ -12,4 +11,4 @@ const cardSchema = new mongoose.Schema({
   cardholderName: String,
 });
 
-export const User = mongoose.models.User || mongoose.model("cards", cardSchema);
+export const Card = mongoose.models.User || mongoose.model('cards', cardSchema);

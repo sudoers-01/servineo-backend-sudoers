@@ -107,6 +107,36 @@ async function createNewActivity(activityData: {
   return savedActivity.toObject() as ActivityDoc;
 }
 
+export async function createSimpleActivity(activityData: {
+  userId: Types.ObjectId | string;
+  date?: Date;
+  role: 'visitor' | 'requester' | 'fixer';
+  type: 'login' | 'search' | 'click' | 'review' | 'session_start' | 'session_end';
+  metadata: any;
+}): Promise<ActivityDoc> {
+  const userIdObj =
+    typeof activityData.userId === 'string'
+      ? new Types.ObjectId(activityData.userId)
+      : activityData.userId;
+
+  const timestamp = getAdjustedDate();
+  const date = activityData.date ? getAdjustedDate(new Date(activityData.date)) : getAdjustedDate();
+
+  const newActivity = new Activity({
+    userId: userIdObj,
+    date,
+    role: activityData.role,
+    type: activityData.type,
+    metadata: {
+      ...activityData.metadata
+    },
+    timestamp,
+  });
+
+  const savedActivity = await newActivity.save();
+  return savedActivity.toObject() as ActivityDoc;
+}
+
 export async function createActivity(activityData: {
   userId: Types.ObjectId | string;
   date?: Date;

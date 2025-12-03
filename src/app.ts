@@ -14,6 +14,8 @@ import UpdateRoutes from './api/routes/update_appointment.routes';
 import LocationRoutes from './api/routes/location.routes';
 import GetScheduleRoutes from './api/routes/get_schedule.routes';
 import searchRoutes from './api/routes/search.routes';
+import chartRoutes from './api/routes/chart.routes';
+
 import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
 import userProfileRoutes from './routes/userProfile.routes';
@@ -32,6 +34,7 @@ import githubAuthRouter from './api/routes/userManagement/github.routes';
 import discordRoutes from './api/routes/userManagement/discord.routes';
 import clienteRouter from './api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes';
+import adminRouter from './api/routes/userManagement/admin.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
 import CardsRoutes from './api/routes/card.routes';
@@ -55,6 +58,9 @@ import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
 //nuevas rutas signup
 import signUpRoutes from './api/routes/userManagement/signUp.routes';
+import forumRoutes from './api/routes/forum.routes';
+import faqRoutes from './api/routes/faq.routes';
+import captchaRoutes from './api/routes/captcha.routes';
 
 const app = express();
 
@@ -115,6 +121,8 @@ app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
+app.use('/api/admin', adminRouter);
+app.use("/api/admin/chart", chartRoutes);
 app.use('/api/user', routerUser);
 app.use('/api/location', LocationRoutes);
 app.use('/api/crud_create', CreateRoutes);
@@ -153,6 +161,9 @@ app.use('/api/controlC/sesion2fa', sesion2faRouter);
 app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
 app.use('/api/controlC/codigos2fa', codigos2faRouter);
 app.use('/api/controlC/2fa', twoFaRouter);
+app.use('/api', forumRoutes);
+app.use('/api', faqRoutes);
+app.use('/', captchaRoutes);
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

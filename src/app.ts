@@ -58,6 +58,11 @@ import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
 import signUpRoutes from './api/routes/userManagement/signUp.routes';
 
+
+import deleteAccountRoutes from "../src/api/routes/userManagement/deleteAccount.routes";
+import updateProfileRouter from "../src/api/routes/userManagement/updateProfile.routes";
+
+
 const app = express();
 
 const allowedOrigins = [
@@ -116,10 +121,23 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
+<<<<<<< HEAD
 //ruta oficial para ofertas de trabajo no borrar
 app.use('/api/job-offers', jobOfficial);
 app.use('/api/certifications', certificationRoutes);
 export const registerRoutes = (app: any) => {
+=======
+app.use('/api/location', LocationRoutes);
+app.use('/api/crud_create', CreateRoutes);
+app.use('/api/crud_read', ReadRoutes);
+app.use('/api/crud_update', UpdateRoutes);
+app.use('/api/crud_read', GetScheduleRoutes);
+
+app.use('/api/controlC/usuario/update', updateProfileRouter);
+app.use("/api/controlC/usuario", deleteAccountRoutes);
+
+export const registerRoutes = (app: express.Application) => {
+>>>>>>> b01bd5df21cf413ad505df96a7dddf9144c5c1a1
   app.use('/devices', deviceRouter);
 };
 // --- TUS RUTAS (Añadidas) ---

@@ -35,7 +35,6 @@ import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes'
 import portfolioRoutes from './routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
 import CardsRoutes from './api/routes/card.routes';
-import UsersRoutes from './api/routes/user.routes';
 import PaymentRoutes from './api/routes/payment.routes';
 import CashPayRoutes from './api/routes/cashpay.routes';
 import BankAccountRoutes from './api/routes/BankAccount.routes';
@@ -127,7 +126,6 @@ export const registerRoutes = (app: express.Application) => {
 };
 // --- TUS RUTAS (Añadidas) ---
 app.use('/api', CardsRoutes);
-app.use('/api', UsersRoutes);
 app.use('/api', PaymentRoutes);
 app.use('/api', BankAccountRoutes);
 app.use('/api/lab', CashPayRoutes);

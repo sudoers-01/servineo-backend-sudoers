@@ -1,12 +1,12 @@
 // ruta official para offertas de trabajo
 
 import { Router } from 'express';
+import multer from 'multer';
 import * as jobOfferController from '../controllers/job_offer.controller';
-import { upload } from '../config/multer.config';
-
 
 
 const jobOfficial = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * @route   POST /api/job-offers
@@ -15,7 +15,6 @@ const jobOfficial = Router();
  */
 jobOfficial.post(
     '/',
-    // authenticate, // Descomenta si tienes middleware de autenticación
     upload.array('photos', 5),
     jobOfferController.createJobOffer
 );
@@ -48,7 +47,17 @@ jobOfficial.get('/:id', jobOfferController.getJobOfferById);
  */
 jobOfficial.put(
     '/:id',
-    // authenticate, // Descomenta si tienes middleware de autenticación
+    upload.array('photos', 5),
+    jobOfferController.updateJobOffer
+);
+
+/**
+ * @route   PATCH /api/job-offers/:id
+ * @desc    Actualizar una oferta
+ * @access  Private (debe ser el dueño)
+ */
+jobOfficial.patch(
+    '/:id',
     upload.array('photos', 5),
     jobOfferController.updateJobOffer
 );
@@ -60,7 +69,6 @@ jobOfficial.put(
  */
 jobOfficial.delete(
     '/:id',
-    // authenticate, // Descomenta si tienes middleware de autenticación
     jobOfferController.deleteJobOffer
 );
 

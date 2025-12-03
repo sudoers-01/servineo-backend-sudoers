@@ -20,6 +20,7 @@ import {
   verifyDiscordToken,
   findUserByDiscordId,
 } from "../../../services/userManagement/discord.service";
+
 import fetch from "node-fetch";
 
 /* ----------------------------- Login por correo ----------------------------- */
@@ -78,6 +79,7 @@ export const loginUsuario = async (req: Request, res: Response) => {
       user._id.toString(),
       user.name || "Usuario",
       email,
+      user.role,       // ✔ AHORA SÍ ENVÍAS EL ROLE REAL
       userPicture
     );
 
@@ -86,9 +88,10 @@ export const loginUsuario = async (req: Request, res: Response) => {
       message: "Inicio de sesión exitoso",
       token: sessionToken,
       user: {
-        id: user._id.toString(),
+        _id: user._id.toString(),
         name: user.name || "Usuario",
         email,
+        role: user.role,           // ✔ DEVUELVES EL ROLE CORRECTO
         picture: userPicture,
       },
     });
@@ -136,6 +139,7 @@ export const loginGoogle = async (req: Request, res: Response) => {
       dbUser._id.toString(),
       dbUser.name,
       dbUser.email,
+      dbUser.role,           // ✔ AHORA SÍ ENVÍAS EL ROLE REAL
       dbUser.url_photo
     );
 
@@ -144,9 +148,10 @@ export const loginGoogle = async (req: Request, res: Response) => {
       message: "Inicio de sesión exitoso",
       token: sessionToken,
       user: {
-        id: dbUser._id.toString(),
+        _id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
+        role: dbUser.role,          // ✔ ROLE CORRECTO
         picture: dbUser.url_photo,
       },
     });
@@ -159,7 +164,7 @@ export const loginGoogle = async (req: Request, res: Response) => {
   }
 };
 
-/* ----------------------------- Login con GitHub (solo login) ----------------------------- */
+/* ----------------------------- Login con GitHub ----------------------------- */
 
 export const loginGithub = async (req: Request, res: Response) => {
   const { code } = req.body as { code?: string };
@@ -176,7 +181,6 @@ export const loginGithub = async (req: Request, res: Response) => {
     const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
     const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
-    // 1) Intercambiar code por access_token con la NUEVA app
     const params = new URLSearchParams({
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
@@ -188,9 +192,7 @@ export const loginGithub = async (req: Request, res: Response) => {
       "https://github.com/login/oauth/access_token",
       {
         method: "POST",
-        headers: {
-          Accept: "application/json",
-        },
+        headers: { Accept: "application/json" },
         body: params,
       }
     );
@@ -207,7 +209,6 @@ export const loginGithub = async (req: Request, res: Response) => {
 
     const accessToken = tokenData.access_token as string;
 
-    // 2) Obtener datos del usuario con tu servicio
     const githubUser = await verifyGithubToken(accessToken);
 
     if (!githubUser || !githubUser.email) {
@@ -217,7 +218,6 @@ export const loginGithub = async (req: Request, res: Response) => {
       });
     }
 
-    // 3) Buscar usuario ya registrado en tu BD
     const dbUser = await findGithubUserByEmail(githubUser.email);
 
     if (!dbUser) {
@@ -227,11 +227,11 @@ export const loginGithub = async (req: Request, res: Response) => {
       });
     }
 
-    // 4) Generar token de sesión
     const sessionToken = generarToken(
       dbUser._id.toString(),
       dbUser.name,
       dbUser.email,
+      dbUser.role,        // ✔ CORREGIDO
       dbUser.url_photo
     );
 
@@ -240,9 +240,10 @@ export const loginGithub = async (req: Request, res: Response) => {
       message: "Inicio de sesión exitoso",
       token: sessionToken,
       user: {
-        id: dbUser._id.toString(),
+        _id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
+        role: dbUser.role,
         picture: dbUser.url_photo,
       },
     });
@@ -255,7 +256,7 @@ export const loginGithub = async (req: Request, res: Response) => {
   }
 };
 
-/* ----------------------------- Login con Discord (solo login) ----------------------------- */
+/* ----------------------------- Login con Discord ----------------------------- */
 
 export const loginDiscord = async (req: Request, res: Response) => {
   const { token, code } = req.body as { token?: string; code?: string };
@@ -273,7 +274,7 @@ export const loginDiscord = async (req: Request, res: Response) => {
     if (!accessToken && code) {
       const CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
       const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
-      const FRONTEND_URL = process.env.FRONTEND_URL!; // ej: http://localhost:3000
+      const FRONTEND_URL = process.env.FRONTEND_URL!;
 
       const redirectUri = `${FRONTEND_URL}/login?provider=discord`;
 
@@ -287,19 +288,14 @@ export const loginDiscord = async (req: Request, res: Response) => {
 
       const tokenResp = await fetch("https://discord.com/api/oauth2/token", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: params,
       });
 
       const tokenData = (await tokenResp.json()) as any;
 
       if (!tokenResp.ok || !tokenData.access_token) {
-        console.error(
-          "Error al intercambiar code por token en Discord:",
-          tokenData
-        );
+        console.error("Error al intercambiar code por token en Discord:", tokenData);
         return res.status(400).json({
           success: false,
           message: "No se pudo obtener el token de Discord.",
@@ -331,6 +327,7 @@ export const loginDiscord = async (req: Request, res: Response) => {
       dbUser._id.toString(),
       dbUser.name,
       dbUser.email,
+      dbUser.role,       // ✔ CORREGIDO
       dbUser.url_photo
     );
 
@@ -339,9 +336,10 @@ export const loginDiscord = async (req: Request, res: Response) => {
       message: "Inicio de sesión exitoso",
       token: sessionToken,
       user: {
-        id: dbUser._id.toString(),
+        _id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
+        role: dbUser.role,
         picture: dbUser.url_photo,
       },
     });
@@ -353,4 +351,3 @@ export const loginDiscord = async (req: Request, res: Response) => {
     });
   }
 };
-

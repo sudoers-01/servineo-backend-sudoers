@@ -120,7 +120,8 @@ export async function githubAuth(req: Request, res: Response) {
       const sessionToken = generarToken(
         dbUser._id.toHexString(),
         dbUser.name,
-        dbUser.email
+        dbUser.email,
+        dbUser.role
       );
 
       return res.send(`
@@ -130,9 +131,10 @@ export async function githubAuth(req: Request, res: Response) {
             token: '${sessionToken}',
             isFirstTime: false,
             user: ${JSON.stringify({
-              id: dbUser._id.toHexString(),
+              _id: dbUser._id.toHexString(),
               name: dbUser.name,
               email: dbUser.email,
+              role: dbUser.role,
               photo: dbUser.url_photo || null,
             })}
           }, '${FRONTEND_URL}');
@@ -152,7 +154,8 @@ export async function githubAuth(req: Request, res: Response) {
     const sessionToken = generarToken(
       dbUser._id.toHexString(),
       dbUser.name,
-      dbUser.email
+      dbUser.email,
+      dbUser.role
     );
 
     return res.send(`
@@ -162,9 +165,10 @@ export async function githubAuth(req: Request, res: Response) {
         token: '${sessionToken}',
         isFirstTime: ${isFirstTime},
         user: ${JSON.stringify({
-          id: dbUser._id.toHexString(),
+          _id: dbUser._id.toHexString(),
           name: dbUser.name,
           email: dbUser.email,
+          role: dbUser.role,
           photo: dbUser.url_photo || null,
         })}
       }, '${FRONTEND_URL}');

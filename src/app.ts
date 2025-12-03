@@ -17,6 +17,27 @@ import searchRoutes from './api/routes/search.routes';
 import trackingRoutes from './api/routes/tracking-appointments.routes';
 import experienceRoutes from './routes/experience.routes';
 import userProfileRoutes from './routes/userProfile.routes';
+import userRoutes from './routes/user.routes';
+import jobOfficial from './routes/job_offer.routes';
+
+import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
+import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
+import googleRouter from "../src/api/routes/userManagement/google.routes";
+import ubicacionRouter from "../src/api/routes/userManagement/ubicacion.routes";
+import authRouter from "../src/api/routes/userManagement/login.routes";
+import modificarDatosRouter from '../src/api/routes/userManagement/modificarDatos.routes';
+import nominatimRouter from '../src/api/routes/userManagement/sugerencias.routes';
+import deviceRouter from '../src/api/routes/userManagement/device.routes';
+import cambiarContrasenaRouter from '../src/api/routes/userManagement/editarContraseña.routes';
+import cerrarSesionesRouter from '../src/api/routes/userManagement/cerrarSesiones.routes';
+import ultimoCambioRouter from '../src/api/routes/userManagement/ultimoCambio.routes';
+import githubAuthRouter from '../src/api/routes/userManagement/github.routes';
+import discordRoutes from '../src/api/routes/userManagement/discord.routes';
+import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
+import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
+import portfolioRoutes from '../src/routes/portfolio.routes';
+import routerUser from './api/routes/user.routes';
+import certificationRoutes from './routes/certification.routes';
 
 import userRoutes from './routes/user.routes';
 
@@ -89,8 +110,7 @@ app.use((req, res, next) => {
   next();
 });
 
-//endpoint signup
-app.use('/api/signUp', signUpRoutes);
+
 
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
@@ -115,13 +135,10 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/user', routerUser);
-app.use('/api/location', LocationRoutes);
-app.use('/api/crud_create', CreateRoutes);
-app.use('/api/crud_read', ReadRoutes);
-app.use('/api/crud_update', UpdateRoutes);
-app.use('/api/crud_read', GetScheduleRoutes);
-
-export const registerRoutes = (app: express.Application) => {
+//ruta oficial para ofertas de trabajo no borrar
+app.use('/api/job-offers', jobOfficial);
+app.use('/api/certifications', certificationRoutes);
+export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };
 // --- TUS RUTAS (Añadidas) ---
@@ -151,6 +168,9 @@ app.use('/api/controlC/sesion2fa', sesion2faRouter);
 app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
 app.use('/api/controlC/codigos2fa', codigos2faRouter);
 app.use('/api/controlC/2fa', twoFaRouter);
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use((req, res) => {
   console.log('Not found:', req.method, req.originalUrl);

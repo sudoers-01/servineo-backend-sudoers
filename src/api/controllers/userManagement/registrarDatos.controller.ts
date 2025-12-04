@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { generarToken } from '../../../utils/generadorToken';
-import { checkUserExists, createManualUser, getUserById } from '../../../services/userManagement/registrarDatos.service';
+import {
+  checkUserExists,
+  createManualUser,
+  getUserById,
+} from '../../../services/userManagement/registrarDatos.service';
 import { updateUserPhoto } from '../../../services/userManagement/fotoPerfil.service';
+import * as activityService from '../../../services/activities.service';
 
 export async function manualRegister(req: Request, res: Response) {
   const { name, email, password, role } = req.body;
@@ -34,15 +39,23 @@ export async function manualRegister(req: Request, res: Response) {
         console.error('Error actualizando la foto tras registro:', err);
       }
     }
-    
+
     const token = generarToken(
       newUser._id.toString(),
       newUser.name,
       newUser.email,
       newUser.role || 'requester',
-      finalPicture
+      finalPicture,
     );
-    
+
+    await activityService.createSimpleActivity({
+      userId: newUser._id,
+      date: new Date(),
+      role: newUser.role as 'visitor' | 'requester' | 'fixer',
+      type: 'session_start',
+      metadata: { resumed: false },
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Usuario registrado correctamente',

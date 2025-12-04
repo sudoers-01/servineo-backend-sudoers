@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Payment } from "../../models/payment.model";
-import User from "../../models/userPayment.model";
+import User from "../../models/usersPayment.model"; // Asegúrate de que este path sea correcto para tu modelo de usuarios
 import Jobspay from "../../models/jobs.model";
 
 const CODE_EXPIRATION_MS = 48 * 60 * 60 * 1000;
@@ -25,37 +25,55 @@ export const createPaymentLab = async (req: Request, res: Response) => {
   console.log("[createPaymentLab] Iniciando proceso...");
 
   try {
+    const body = req.body ?? {};
+    
+    // 1. LIMPIEZA DE DATOS (CRÍTICO)
+    // Eliminamos espacios en blanco que puedan venir del frontend o copy-paste
+    const requesterId = body.requesterId?.trim();
+    const fixerId = body.fixerId?.trim();
+    const jobId = body.jobId?.trim();
+
+    // Logs de diagnóstico
+    console.log(`🔎 BUSCANDO REQUESTER ID: "${requesterId}" (Len: ${requesterId?.length})`);
+    console.log(`🔎 BUSCANDO FIXER ID: "${fixerId}" (Len: ${fixerId?.length})`);
+
     const {
-      jobId,
-      requesterId,
-      fixerId,
       paymentMethods = "cash",
       subTotal,
       service_fee = 0,
       discount = 0,
       currency = "BOB",
       commissionRate = 0.05,
-    } = req.body ?? {};
+    } = body;
 
-    // ===== VALIDACIONES BÁSICAS =====
+    // ===== VALIDACIONES BÁSICAS DE IDs =====
     if (!jobId || !mongoose.isValidObjectId(jobId)) {
       return res.status(400).json({ error: "jobId requerido y válido" });
     }
-    // ... (otras validaciones de ID) ...
+    if (!requesterId || !mongoose.isValidObjectId(requesterId)) {
+        return res.status(400).json({ error: "requesterId requerido y válido (24 caracteres hex)" });
+    }
+    if (!fixerId || !mongoose.isValidObjectId(fixerId)) {
+        return res.status(400).json({ error: "fixerId requerido y válido (24 caracteres hex)" });
+    }
 
     // ===== VERIFICAR QUE LOS USUARIOS EXISTAN =====
-    // --- CORRECCIÓN: Buscamos solo en 'User' ---
     let [requester, fixer] = await Promise.all([
       User.findById(requesterId),
       User.findById(fixerId),
     ]);
 
+    // Logs de resultados de búsqueda
+    console.log("👤 REQUESTER ENCONTRADO:", requester ? `SÍ (${requester.name})` : "NO");
+    console.log("🛠️ FIXER ENCONTRADO:", fixer ? `SÍ (${fixer.name})` : "NO");
+
     if (!requester) {
-      return res.status(404).json({ error: "Requester no encontrado" });
+      return res.status(404).json({ error: `Requester no encontrado (ID: ${requesterId})` });
     }
 
     if (!fixer) {
-      return res.status(404).json({ error: "Fixer no encontrado" });
+      console.error(`❌ ERROR CRÍTICO: El ID ${fixerId} no devolvió ningún documento en la colección 'users'.`);
+      return res.status(404).json({ error: `Fixer no encontrado (ID: ${fixerId})` });
     }
 
     // ===== VALIDAR ROLES =====
@@ -76,7 +94,6 @@ export const createPaymentLab = async (req: Request, res: Response) => {
         error: "subTotal, service_fee y discount deben ser numéricos" 
       });
     }
-    // ... (otras validaciones de montos) ...
 
     const nComm = Number(commissionRate);
     if (Number.isNaN(nComm) || nComm < 0 || nComm > 1) {
@@ -93,9 +110,7 @@ export const createPaymentLab = async (req: Request, res: Response) => {
       });
     }
 
-    // ============================================
-    // --- CORRECCIÓN: 'total' calculado ANTES de usarse
-    // ============================================
+    // ===== CÁLCULO DEL TOTAL =====
     const total = nSub + nFee - nDisc;
 
     if (total <= 0) {
@@ -105,13 +120,11 @@ export const createPaymentLab = async (req: Request, res: Response) => {
     }
 
     // ===== VALIDACIÓN ESPECÍFICA PARA EFECTIVO =====
-    // (Ahora 'total' sí existe)
     if (method === "cash" && (total < 10 || total >= 5000)) {
       return res.status(400).json({ 
         error: "Pago en efectivo solo entre 10 y 5000 Bs." 
       });
     }
-    // --- FIN DE LA CORRECCIÓN ---
 
     // ==========================================================
     // --- LÓGICA DE CONTROL DE DUPLICADOS ---
@@ -141,13 +154,9 @@ export const createPaymentLab = async (req: Request, res: Response) => {
           }
         });
       }
-      
-      console.log(`[createPaymentLab] No se encontraron pagos pendientes. Creando uno nuevo...`);
     }
-    // ==========================================================
-    // --- FIN DE LA LÓGICA DE CONTROL DE DUPLICADOS ---
-    // ==========================================================
 
+    // Generar código y fechas
     const code = generateRandomCode(6);
     const codeExpiresAt = new Date(Date.now() + CODE_EXPIRATION_MS);
 
@@ -173,21 +182,19 @@ export const createPaymentLab = async (req: Request, res: Response) => {
     });
 
     // ============================================
-    // 🔥 LÓGICA AÑADIDA: Actualizar 'jobspays' a "Pendiente"
+    // 🔥 ACTUALIZAR ESTADO DEL TRABAJO
     // ============================================
     try {
       console.log(`[createPaymentLab] Actualizando 'jobspays' a Pendiente para jobId: ${jobId}`);
       await Jobspay.findByIdAndUpdate(
         jobId,
-        { $set: { status: "pago pendiente" } } // Asegúrate que 'Pendiente' sea un valor válido
+        { $set: { status: "pago pendiente" } }
       );
       console.log(`[createPaymentLab] ✅ 'jobspays' actualizado.`);
     } catch (jobError: any) {
       console.error("❌ Error al actualizar 'jobspays' en createPaymentLab:", jobError.message);
+      // No bloqueamos la respuesta si esto falla, pero lo logueamos
     }
-    // ============================================
-    // --- FIN DE LA LÓGICA AÑADIDA ---
-    // ============================================
 
     console.log(`✅ Pago creado exitosamente con código: ${code}`);
 
@@ -211,10 +218,10 @@ export const createPaymentLab = async (req: Request, res: Response) => {
       return res.status(400).json({ error: e.message });
     }
     if (e?.name === "CastError") {
-      return res.status(400).json({ error: "ObjectId inválido" });
+      return res.status(400).json({ error: "ObjectId inválido en la base de datos" });
     }
     return res.status(500).json({ 
-      error: e?.message || "Error creando pago" 
+      error: e?.message || "Error interno creando pago" 
     });
   }
 }
@@ -263,7 +270,6 @@ export const regeneratePaymentCode = async (req: Request, res: Response) => {
       return res.status(400).json({ error: e.message });
     }
     if (e?.code === 11000) {
-      // Colisión de código único
       return res.status(409).json({ error: "conflicto de código, intente nuevamente" });
     }
     return res.status(500).json({ error: e?.message || "Error regenerando código" });

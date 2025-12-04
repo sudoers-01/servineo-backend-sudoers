@@ -2,7 +2,6 @@ import Stripe from 'stripe';
 import { Card } from '../../models/card.model';
 import { User } from '../../models/userPayment.model';
 import 'dotenv/config';
-import { Request, Response } from 'express';
 
 // Validar que la clave de Stripe existe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -63,10 +62,10 @@ export const createCard = async (req: Request, res: Response) => {
       const newCard = await Card.create({
         userId,
         stripePaymentMethodId: paymentMethod.id,
-        brand: paymentMethod.card.brand,
-        last4: paymentMethod.card.last4,
-        expMonth: paymentMethod.card.exp_month,
-        expYear: paymentMethod.card.exp_year,
+        brand: paymentMethod.card?.brand || 'unknown',
+        last4: paymentMethod.card?.last4 || '0000',
+        expMonth: paymentMethod.card?.exp_month || 0,
+        expYear: paymentMethod.card?.exp_year || 0,
         isDefault: true,
         cardholderName,
       });

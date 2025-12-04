@@ -1,17 +1,8 @@
 import * as dotenv from 'dotenv';
-import db_connection from '../../database';
+import { connectDatabase } from '../../config/db.config';
 import Appointment from '../../models/Appointment';
 
 dotenv.config();
-
-let connected = false;
-
-async function set_db_connection() {
-  if (!connected) {
-    await db_connection();
-    connected = true;
-  }
-}
 
 // TODO: CHAMO LOCURAS (Todos los occupied de un fixer_id, que NO vayan con el requester_id)
 export async function get_all_requester_schedules_by_fixer_month(
@@ -19,7 +10,7 @@ export async function get_all_requester_schedules_by_fixer_month(
   requester_id: string,
   month: string,
 ) {
-  await set_db_connection();
+  await connectDatabase();
   const current_date = new Date();
   const current_year = current_date.getUTCFullYear();
   const target_month = parseInt(month) - 1; // Mongoose usa 0-indexed months
@@ -54,7 +45,7 @@ export async function get_requester_schedules_by_fixer_month(
   requester_id: string,
   month: string,
 ) {
-  await set_db_connection();
+  await connectDatabase();
   const current_date = new Date();
   const current_year = current_date.getUTCFullYear();
   const target_month = parseInt(month) - 1; // Mongoose usa 0-indexed months
@@ -89,7 +80,7 @@ export async function get_requester_schedules_by_fixer_day(
   requester_id: string,
   searched_date: string,
 ) {
-  await set_db_connection();
+  await connectDatabase();
   const current_date = new Date(searched_date);
   const current_year = current_date.getUTCFullYear();
   const current_month = current_date.getUTCMonth();
@@ -134,7 +125,7 @@ export async function get_other_requester_schedules_by_fixer_day(
   requester_id: string,
   searched_date: string,
 ) {
-  await set_db_connection();
+  await connectDatabase();
   const current_date = new Date(searched_date);
   const current_year = current_date.getUTCFullYear();
   const current_month = current_date.getUTCMonth();
@@ -181,7 +172,7 @@ export async function get_cancelled_schedules_by_requester_day(
   searched_date: string,
 ) {
   try {
-    await set_db_connection();
+    await connectDatabase();
     const current_date = new Date(searched_date);
     const current_year = current_date.getUTCFullYear();
     const current_month = current_date.getUTCMonth();
@@ -234,7 +225,7 @@ export async function get_cancelled_schedules_by_fixer_day(
   searched_date: string,
 ) {
   try {
-    await set_db_connection();
+    await connectDatabase();
     const current_date = new Date(searched_date);
     const current_year = current_date.getUTCFullYear();
     const current_month = current_date.getUTCMonth();

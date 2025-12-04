@@ -269,13 +269,14 @@ export const regeneratePaymentCode = async (req: Request, res: Response) => {
       },
     });
   } catch (e: unknown) {
-    if ((e as Error)?.name === 'ValidationError') {
-      return res.status(400).json({ error: (e as Error).message });
+    const error = e as any;
+    if (error?.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
     }
-    if (e instanceof MongoServerError && e.code === 11000) {
+    if (error instanceof MongoServerError && error.code === 11000) {
       // Colisión de código único
       return res.status(409).json({ error: 'conflicto de código, intente nuevamente' });
     }
-    return res.status(500).json({ error: (e as Error)?.message || 'Error regenerando código' });
+    return res.status(500).json({ error: error?.message || 'Error regenerando código' });
   }
 };

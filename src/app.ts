@@ -3,27 +3,12 @@ dotenv.config({ path: '.env' });
 
 import express from 'express';
 import cors from 'cors';
-import { connectDatabase } from './config/db.config';
+// import { connectDatabase } from './config/db.config';
 
 import jobOfertRoutes from './api/routes/jobOfert.routes';
 import newoffersRoutes from './api/routes/newOffers.routes';
 import fixerRoutes from './api/routes/fixer.routes';
 import jobsRoutes from './api/routes/jobs.routes';
-import registrarDatosRouter from './api/routes/userManagement/registrarDatos.routes';
-import fotoPerfilRouter from './api/routes/userManagement/fotoPerfil.routes';
-import googleRouter from './api/routes/userManagement/google.routes';
-import ubicacionRouter from './api/routes/userManagement/ubicacion.routes';
-import authRouter from './api/routes/userManagement/login.routes';
-import modificarDatosRouter from './api/routes/userManagement/modificarDatos.routes';
-import nominatimRouter from './api/routes/userManagement/sugerencias.routes';
-import deviceRouter from './api/routes/userManagement/device.routes';
-import cambiarContrasenaRouter from './api/routes/userManagement/editarContraseña.routes';
-import cerrarSesionesRouter from './api/routes/userManagement/cerrarSesiones.routes';
-import ultimoCambioRouter from './api/routes/userManagement/ultimoCambio.routes';
-import githubAuthRouter from './api/routes/userManagement/github.routes';
-import discordRoutes from './api/routes/userManagement/discord.routes';
-import clienteRouter from './api/routes/userManagement/cliente.routes';
-import obtenerContrasenaRouter from './api/routes/userManagement/obtener.routes';
 
 import CreateRoutes from './api/routes/create_appointment.routes';
 import ReadRoutes from './api/routes/read_appointment.routes';
@@ -52,7 +37,9 @@ import clienteRouter from '../src/api/routes/userManagement/cliente.routes';
 import obtenerContrasenaRouter from '../src/api/routes/userManagement/obtener.routes';
 import portfolioRoutes from '../src/routes/portfolio.routes';
 import routerUser from './api/routes/user.routes';
-import Search from './models/search.model';
+// import Search from './models/search.model';
+
+import activityRoutes from './api/routes/activities.routes';
 
 const app = express();
 
@@ -78,7 +65,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api', HealthRoutes);
+// app.use('/api', HealthRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);

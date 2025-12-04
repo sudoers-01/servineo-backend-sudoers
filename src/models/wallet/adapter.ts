@@ -1,6 +1,18 @@
-/*import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-// Agrega esta interfaz al principio del archivo
+// Definimos la interfaz del documento tal como existe en MongoDB
+// Esto ayuda a que TypeScript sepa qué esperar de la DB.
+interface WalletDocument {
+  _id: mongoose.Types.ObjectId | string;
+  wallet?: {
+    balance?: number;
+    lowBalanceThreshold?: number;
+    flags?: Record<string, unknown>; // Reemplazo seguro para 'any'
+    lastLowBalanceNotification?: Date;
+    updatedAt?: Date;
+  };
+}
+
 export interface WalletModelAdapter {
   getWalletById(fixerId: string): Promise<WalletSlice | null>;
   updateWalletById(fixerId: string, patch: Partial<WalletSlice>): Promise<void>;
@@ -9,18 +21,18 @@ export interface WalletModelAdapter {
 export interface WalletSlice {
   balance: number;
   lowBalanceThreshold: number;
-  flags: any;
+  // 'Record<string, unknown>' es la forma segura de decir "un objeto JSON cualquiera"
+  flags: Record<string, unknown> | null;
   lastLowBalanceNotification: Date | null;
 }
 
-// 👇 helper: si son 24 hex, usa ObjectId; si no, deja string
 function normalizeId(raw: string): mongoose.Types.ObjectId | string {
   const s = String(raw).trim();
   return /^[0-9a-fA-F]{24}$/.test(s) ? new mongoose.Types.ObjectId(s) : s;
 }
 
-// Verificar que la conexión esté establecida
-function getDb() {
+// Tipamos el retorno explícitamente como la DB nativa de Mongo
+function getDb(): mongoose.mongo.Db {
   if (!mongoose.connection.db) {
     throw new Error('Database connection not established');
   }
@@ -32,26 +44,22 @@ export function makeRawCollectionWalletAdapter(collectionName: string): WalletMo
     async getWalletById(fixerId: string): Promise<WalletSlice | null> {
       const _id = normalizeId(fixerId);
       const db = getDb();
-      
-      const doc = await db
-    async getWalletById(fixerId: string) {
-      const _id = normalizeId(fixerId); // <-- cambio
-      if (!mongoose.connection.db) throw new Error('Database not connected');
-      const doc = await mongoose.connection.db
-        .collection(collectionName)
-        .findOne(
-          { _id } as any,
-          {
-            projection: {
-              "wallet.balance": 1,
-              "wallet.lowBalanceThreshold": 1,
-              "wallet.flags": 1,
-              "wallet.lastLowBalanceNotification": 1,
-            },
-          }
-        );
-        
+
+      // Usamos el genérico <WalletDocument> para que findOne sepa qué devuelve
+      const doc = await db.collection<WalletDocument>(collectionName).findOne(
+        { _id }, // TypeScript ya entiende que esto es un filtro válido
+        {
+          projection: {
+            'wallet.balance': 1,
+            'wallet.lowBalanceThreshold': 1,
+            'wallet.flags': 1,
+            'wallet.lastLowBalanceNotification': 1,
+          },
+        },
+      );
+
       if (!doc?.wallet) return null;
+
       return {
         balance: Number(doc.wallet.balance ?? 0),
         lowBalanceThreshold: Number(doc.wallet.lowBalanceThreshold ?? 0),
@@ -63,20 +71,26 @@ export function makeRawCollectionWalletAdapter(collectionName: string): WalletMo
     async updateWalletById(fixerId: string, patch: Partial<WalletSlice>): Promise<void> {
       const _id = normalizeId(fixerId);
       const db = getDb();
-      
-      const $set: any = { "wallet.updatedAt": new Date() };
-      if (patch.balance !== undefined) $set["wallet.balance"] = patch.balance;
-      if (patch.lowBalanceThreshold !== undefined) $set["wallet.lowBalanceThreshold"] = patch.lowBalanceThreshold;
-      if (patch.flags !== undefined) $set["wallet.flags"] = patch.flags;
-      if (patch.lastLowBalanceNotification !== undefined) $set["wallet.lastLowBalanceNotification"] = patch.lastLowBalanceNotification;
 
-      await db
-      if (!mongoose.connection.db) throw new Error('Database not connected');
-      await mongoose.connection.db
-        .collection(collectionName)
-        .updateOne({ _id } as any, { $set });
+      // En lugar de 'any', usamos Record<string, unknown> para permitir claves dinámicas
+      const $set: Record<string, unknown> = {
+        'wallet.updatedAt': new Date(),
+      };
+
+      if (patch.balance !== undefined) {
+        $set['wallet.balance'] = patch.balance;
+      }
+      if (patch.lowBalanceThreshold !== undefined) {
+        $set['wallet.lowBalanceThreshold'] = patch.lowBalanceThreshold;
+      }
+      if (patch.flags !== undefined) {
+        $set['wallet.flags'] = patch.flags;
+      }
+      if (patch.lastLowBalanceNotification !== undefined) {
+        $set['wallet.lastLowBalanceNotification'] = patch.lastLowBalanceNotification;
+      }
+
+      await db.collection<WalletDocument>(collectionName).updateOne({ _id }, { $set });
     },
   };
 }
-}
-*/

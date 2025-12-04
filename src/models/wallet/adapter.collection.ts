@@ -1,49 +1,71 @@
-/*
 import mongoose from 'mongoose';
-import type { WalletModelAdapter, WalletSlice } from './adapter.types'; // Cambia la importación
+import type { WalletModelAdapter, WalletSlice } from './adapter.types';
+
+// Definimos la interfaz interna del documento en Mongo para evitar 'any'
+interface WalletDocument {
+  balance?: number;
+  lowBalanceThreshold?: number;
+  flags?: Record<string, unknown>;
+  lastLowBalanceNotification?: Date;
+  updatedAt?: Date;
+  createdAt?: Date;
+  // Permitimos campos dinámicos porque 'idField' es variable (users_id, userId, etc.)
+  [key: string]: unknown;
+}
 
 // Verificar que la conexión esté establecida
-function getDb() {
+function getDb(): mongoose.mongo.Db {
   if (!mongoose.connection.db) {
     throw new Error('Database connection not established');
   }
   return mongoose.connection.db;
 }
 
-function toQueryForId(id: string) {
+// Helper para construir el valor del ID (ObjectId o String o Query $in)
+function toQueryForId(
+  id: string,
+): mongoose.Types.ObjectId | string | { $in: (string | mongoose.Types.ObjectId)[] } {
   const asObjId = /^[0-9a-fA-F]{24}$/.test(String(id))
     ? new mongoose.Types.ObjectId(String(id))
     : String(id);
 
-  // Si nos dijeron que el campo es ObjectId, usa solo ObjectId
+  // Si la variable de entorno fuerza ObjectId
   if (process.env.WALLET_USER_ID_IS_OBJECTID === 'true') {
     return asObjId;
   }
-  // Por defecto (string), busca por string; si el doc ya estuviera con ObjectId, igual lo encontrará
+
+  // Por defecto busca por string o por ObjectId (híbrido)
   return { $in: [String(id), asObjId] };
 }
-*/
+
 /** Wallet en colección separada, referenciando usuario por WALLET_USER_ID_FIELD */
-/*
 export function makeWalletCollectionByUserIdAdapter(
   collectionName: string,
-  idField: string = 'users_id'
+  idField: string = 'users_id',
 ): WalletModelAdapter {
   return {
     async getWalletById(fixerId: string): Promise<WalletSlice | null> {
       const db = getDb();
-      const query = { [idField]: toQueryForId(fixerId) };
-      
-      const doc = await db.collection(collectionName).findOne(
-        query as any,
-      if (!mongoose.connection.db) throw new Error('Database not connected');
-      const doc = await mongoose.connection.db.collection(collectionName).findOne(
-        query,
-        { projection: { balance: 1, lowBalanceThreshold: 1, flags: 1, lastLowBalanceNotification: 1 } }
-      );
+
+      // Construimos la query usando Record para evitar 'any' y permitir la llave dinámica 'idField'
+      const query: Record<string, unknown> = {
+        [idField]: toQueryForId(fixerId),
+      };
+
+      const doc = await db.collection<WalletDocument>(collectionName).findOne(query, {
+        projection: {
+          balance: 1,
+          lowBalanceThreshold: 1,
+          flags: 1,
+          lastLowBalanceNotification: 1,
+        },
+      });
+
       if (!doc) return null;
 
-      const flags = doc.flags ?? null;
+      // Mapeo seguro de datos
+      const flags = (doc.flags as Record<string, unknown>) ?? null;
+
       return {
         balance: Number(doc.balance ?? 0),
         lowBalanceThreshold: Number(doc.lowBalanceThreshold ?? 0),
@@ -54,31 +76,35 @@ export function makeWalletCollectionByUserIdAdapter(
 
     async updateWalletById(fixerId: string, patch: Partial<WalletSlice>): Promise<void> {
       const db = getDb();
-      const query = { [idField]: toQueryForId(fixerId) };
-      
-      const $set: any = { updatedAt: new Date() };
+
+      const query: Record<string, unknown> = {
+        [idField]: toQueryForId(fixerId),
+      };
+
+      // Usamos Record<string, unknown> en lugar de any
+      const $set: Record<string, unknown> = { updatedAt: new Date() };
+
       if (patch.balance !== undefined) $set.balance = patch.balance;
-      if (patch.lowBalanceThreshold !== undefined) $set.lowBalanceThreshold = patch.lowBalanceThreshold;
+      if (patch.lowBalanceThreshold !== undefined)
+        $set.lowBalanceThreshold = patch.lowBalanceThreshold;
       if (patch.flags !== undefined) $set.flags = patch.flags;
-      if (patch.lastLowBalanceNotification !== undefined) $set.lastLowBalanceNotification = patch.lastLowBalanceNotification;
+      if (patch.lastLowBalanceNotification !== undefined)
+        $set.lastLowBalanceNotification = patch.lastLowBalanceNotification;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const setOnInsert: Record<string, any> = { createdAt: new Date() };
-      // aseguremos el campo users_id en el upsert:
-      const usersIdValue = (process.env.WALLET_USER_ID_IS_OBJECTID === 'true')
-        ? new mongoose.Types.ObjectId(String(fixerId))
-        : String(fixerId);
-      setOnInsert[idField] = usersIdValue;
+      // Lógica para setOnInsert sin usar any
+      const $setOnInsert: Record<string, unknown> = { createdAt: new Date() };
 
-      await db.collection(collectionName).updateOne(
-        query as any,
-      if (!mongoose.connection.db) throw new Error('Database not connected');
-      await mongoose.connection.db.collection(collectionName).updateOne(
-        query,
-        { $set, $setOnInsert: setOnInsert },
-        { upsert: true }
-      );
+      // Aseguramos el campo users_id (o idField) en el upsert
+      const usersIdValue =
+        process.env.WALLET_USER_ID_IS_OBJECTID === 'true'
+          ? new mongoose.Types.ObjectId(String(fixerId))
+          : String(fixerId);
+
+      $setOnInsert[idField] = usersIdValue;
+
+      await db
+        .collection<WalletDocument>(collectionName)
+        .updateOne(query, { $set, $setOnInsert }, { upsert: true });
     },
   };
 }
-*/

@@ -14,55 +14,114 @@ async function findExistingClick(
   const userIdObj = typeof userId === 'string' ? new Types.ObjectId(userId) : userId;
   const jobIdString = typeof jobId === 'string' ? jobId : jobId.toString();
 
-  const existingClick = await Activity.findOne({
+  let existingClick = await Activity.findOne({
     userId: userIdObj,
     type: 'click',
-    $expr: {
-      $eq: [{ $toString: '$metadata.jobId' }, jobIdString],
-    },
+    'metadata.jobId': jobIdString,
   })
     .lean()
     .exec();
 
+  if (!existingClick) {
+    try {
+      const jobIdObj = new Types.ObjectId(jobIdString);
+      existingClick = await Activity.findOne({
+        userId: userIdObj,
+        type: 'click',
+        'metadata.jobId': jobIdObj,
+      })
+        .lean()
+        .exec();
+    } catch (e) {}
+  }
+
+  if (!existingClick) {
+    existingClick = await Activity.findOne({
+      userId: userIdObj,
+      type: 'click',
+      $expr: {
+        $eq: [{ $toString: '$metadata.jobId' }, jobIdString],
+      },
+    })
+      .lean()
+      .exec();
+  }
+
   return existingClick ? (existingClick as unknown as ActivityDoc) : null;
 }
 
-async function updateClickCount(
-  activityId: Types.ObjectId,
-  existingMetadata: any,
+async function updateClickCountAtomically(
+  userId: Types.ObjectId,
+  jobId: string,
   newMetadata: any,
-): Promise<ActivityDoc> {
-  const currentClickCount = existingMetadata?.clickCount || 0;
-  const newClickCount = currentClickCount + 1;
-  const newTimestamp = getAdjustedDate();
+  role: 'visitor' | 'requester' | 'fixer',
+  date?: Date,
+): Promise<{ activity: ActivityDoc; isUpdate: boolean }> {
+  const jobIdString = jobId;
+  const timestamp = getAdjustedDate();
+  const adjustedDate = date ? getAdjustedDate(new Date(date)) : getAdjustedDate();
 
-  const updatedMetadata = {
-    ...existingMetadata,
-    ...newMetadata,
-    jobId: existingMetadata.jobId || newMetadata.jobId,
-    clickCount: newClickCount,
-  };
-
-  if (updatedMetadata.jobId && typeof updatedMetadata.jobId !== 'string') {
-    updatedMetadata.jobId = updatedMetadata.jobId.toString();
+  const normalizedMetadata = { ...newMetadata };
+  if (normalizedMetadata.jobId) {
+    normalizedMetadata.jobId =
+      typeof normalizedMetadata.jobId === 'string'
+        ? normalizedMetadata.jobId
+        : normalizedMetadata.jobId.toString();
   }
 
-  const updatedActivity = await Activity.findByIdAndUpdate(
-    activityId,
-    {
-      $set: {
-        timestamp: newTimestamp,
-        metadata: updatedMetadata,
+  const metadataSetFields: any = {};
+  Object.keys(normalizedMetadata).forEach((key) => {
+    if (key !== 'clickCount' && key !== 'jobId') {
+      metadataSetFields[`metadata.${key}`] = normalizedMetadata[key];
+    }
+  });
+
+  const existing = await findExistingClick(userId, jobIdString);
+
+  if (existing) {
+    const updatedActivity = await Activity.findByIdAndUpdate(
+      existing._id,
+      {
+        $inc: { 'metadata.clickCount': 1 },
+        $set: {
+          timestamp: timestamp,
+          date: adjustedDate,
+          role: role,
+          'metadata.jobId': jobIdString,
+          ...metadataSetFields,
+        },
       },
-    },
-    { new: true, lean: true },
-  ).exec();
+      { new: true, lean: true },
+    ).exec();
 
-  if (!updatedActivity) {
-    throw new Error('Failed to update activity');
+    if (!updatedActivity) {
+      throw new Error('Failed to update activity');
+    }
+
+    return {
+      activity: updatedActivity as unknown as ActivityDoc,
+      isUpdate: true,
+    };
   }
 
-  return updatedActivity as unknown as ActivityDoc;
+  const newActivity = new Activity({
+    userId: userId,
+    date: adjustedDate,
+    role: role,
+    type: 'click',
+    metadata: {
+      ...normalizedMetadata,
+      jobId: jobIdString,
+      clickCount: 1,
+    },
+    timestamp: timestamp,
+  });
+
+  const savedActivity = await newActivity.save();
+  return {
+    activity: savedActivity.toObject() as ActivityDoc,
+    isUpdate: false,
+  };
 }
 
 async function createNewActivity(activityData: {
@@ -107,6 +166,36 @@ async function createNewActivity(activityData: {
   return savedActivity.toObject() as ActivityDoc;
 }
 
+export async function createSimpleActivity(activityData: {
+  userId: Types.ObjectId | string;
+  date?: Date;
+  role: 'visitor' | 'requester' | 'fixer';
+  type: 'login' | 'search' | 'click' | 'review' | 'session_start' | 'session_end';
+  metadata: any;
+}): Promise<ActivityDoc> {
+  const userIdObj =
+    typeof activityData.userId === 'string'
+      ? new Types.ObjectId(activityData.userId)
+      : activityData.userId;
+
+  const timestamp = getAdjustedDate();
+  const date = activityData.date ? getAdjustedDate(new Date(activityData.date)) : getAdjustedDate();
+
+  const newActivity = new Activity({
+    userId: userIdObj,
+    date,
+    role: activityData.role,
+    type: activityData.type,
+    metadata: {
+      ...activityData.metadata,
+    },
+    timestamp,
+  });
+
+  const savedActivity = await newActivity.save();
+  return savedActivity.toObject() as ActivityDoc;
+}
+
 export async function createActivity(activityData: {
   userId: Types.ObjectId | string;
   date?: Date;
@@ -125,20 +214,13 @@ export async function createActivity(activityData: {
         ? activityData.metadata.jobId
         : activityData.metadata.jobId.toString();
 
-    const existingClick = await findExistingClick(userIdObj, jobId);
-
-    if (existingClick) {
-      const updatedActivity = await updateClickCount(
-        existingClick._id,
-        existingClick.metadata,
-        activityData.metadata,
-      );
-
-      return {
-        activity: updatedActivity,
-        isUpdate: true,
-      };
-    }
+    return await updateClickCountAtomically(
+      userIdObj,
+      jobId,
+      activityData.metadata,
+      activityData.role,
+      activityData.date,
+    );
   }
 
   const newActivity = await createNewActivity(activityData);

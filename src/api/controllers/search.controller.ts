@@ -660,7 +660,6 @@ export async function updateSearch(req: Request, res: Response): Promise<void> {
     }
 
     const newFilter = {
-      is_reset: newFilterData.is_reset !== undefined ? newFilterData.is_reset : false,
       fixer_name: fixerName,
       city: newFilterData.city || 'not_applied',
       job_type: newFilterData.job_type || 'not_applied',

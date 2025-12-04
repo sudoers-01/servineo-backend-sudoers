@@ -96,6 +96,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/api/signUp', signUpRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -106,7 +107,6 @@ app.use('/api/admin', trackingRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/login', authRouter);
-
 app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);

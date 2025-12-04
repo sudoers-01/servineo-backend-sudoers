@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { listUsers, getUserById } from '../controllers/user.controller';
 import { postDescriptionFixer } from '../../controllers/user.controller';
+import { updateWorkLocation } from '../../controllers/user.controller';
 const routerUser = Router();
 
 routerUser.get('/users', listUsers);
 routerUser.get('/:id', getUserById);
 routerUser.post('/:id/description', postDescriptionFixer);
+routerUser.patch('/:id/location', updateWorkLocation);
 export default routerUser;

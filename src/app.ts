@@ -95,7 +95,8 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
-
+app.use('/devices', deviceRouter); //<---------------no tocar porfavor
+app.use('/api/signUp', signUpRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -106,7 +107,6 @@ app.use('/api/admin', trackingRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/login', authRouter);
-
 app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
@@ -119,14 +119,11 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/admin', adminRouter);
-app.use("/api/admin/chart", chartRoutes);
+app.use('/api/admin/chart', chartRoutes);
 app.use('/api/user', routerUser);
 //ruta oficial para ofertas de trabajo no borrar
 app.use('/api/job-offers', jobOfficial);
 app.use('/api/certifications', certificationRoutes);
-export const registerRoutes = (app: any) => {
-  app.use('/devices', deviceRouter);
-};
 // --- TUS RUTAS (Añadidas) ---
 app.use('/api', CardsRoutes);
 app.use('/api', PaymentRoutes);
@@ -148,7 +145,6 @@ if (FEATURE_DEV_WALLET) {
 if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
-app.use('/devices', deviceRouter);
 
 app.use('/api/controlC/sesion2fa', sesion2faRouter);
 app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);

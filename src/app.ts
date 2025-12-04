@@ -95,7 +95,7 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
-app.use('/devices', deviceRouter); //<---------------no tocar porfavor
+app.use('/devices', deviceRouter);
 app.use('/api/signUp', signUpRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);

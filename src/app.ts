@@ -64,6 +64,10 @@ import forumRoutes from './api/routes/forum.routes';
 import faqRoutes from './api/routes/faq.routes';
 import captchaRoutes from './api/routes/captcha.routes';
 
+
+import deleteAccountRoutes from "../src/api/routes/userManagement/deleteAccount.routes";
+import updateProfileRouter from "../src/api/routes/userManagement/updateProfile.routes";
+
 const app = express();
 
 const allowedOrigins = [
@@ -124,6 +128,10 @@ app.use('/api/user', routerUser);
 //ruta oficial para ofertas de trabajo no borrar
 app.use('/api/job-offers', jobOfficial);
 app.use('/api/certifications', certificationRoutes);
+
+app.use('/api/controlC/usuario/update', updateProfileRouter);
+app.use("/api/controlC/usuario", deleteAccountRoutes);
+
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

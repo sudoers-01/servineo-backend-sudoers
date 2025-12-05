@@ -63,11 +63,15 @@ import bankTransferRoutes from './api/routes/bankTransfer.routes';
 import rechargeWallet from './api/routes/wallet.routes';
 import { devWalletRouter } from './api/routes/dev-wallet.routes';
 import { simPaymentsRouter } from './api/routes/sim-payments.routes';
-import walletRoutes from './api/routes/wallet.routes';
-import PaymentsQrRoutes from './api/routes/paymentsQR.routes';
-
-// --- FEATURE FLAGS ---
-import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.model';
+import SudoersRouter from './modules/sudoers.routes';
+import sesion2faRouter from './api/routes/userManagement/sesion2fa.routes';
+import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
+import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
+import twoFaRouter from './api/routes/userManagement/2fa.routes';
+//nuevas rutas signup
+import signUpRoutes from './api/routes/userManagement/signUp.routes';
+//rutas notificaciones
+import notificationRoutes from './modules/notifications/notification.routes';
 
 const app = express();
 
@@ -145,16 +149,16 @@ app.use('/api/controlC/ultimo-cambio', ultimoCambioRouter);
 app.use('/api/controlC/foto-perfil', fotoPerfilRouter);
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/api/controlC/cliente', clienteRouter);
-app.use('/api/controlC/usuario/update', updateProfileRouter);
-app.use("/api/controlC/usuario", deleteAccountRoutes);
-app.use('/api/controlC/sesion2fa', sesion2faRouter);
-app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
-app.use('/api/controlC/codigos2fa', codigos2faRouter);
-app.use('/api/controlC/2fa', twoFaRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/admin', trackingRoutes);
-app.use("/api/admin/chart", chartRoutes);
-app.use('/', SudoersRouter);
+app.use('/api/user', routerUser);
+//ruta oficial para ofertas de trabajo no borrar
+app.use('/api/job-offers', jobOfficial);
+app.use('/api/certifications', certificationRoutes);
+app.use('/api/signUp', signUpRoutes);
+app.use('/api/notifications', notificationRoutes);
+export const registerRoutes = (app: any) => {
+  app.use('/devices', deviceRouter);
+};
+// --- TUS RUTAS (Añadidas) ---
 app.use('/api', CardsRoutes);
 app.use('/api', PaymentRoutes);
 app.use('/api', BankAccountRoutes);

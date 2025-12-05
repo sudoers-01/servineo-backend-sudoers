@@ -63,8 +63,8 @@ import bankTransferRoutes from './api/routes/bankTransfer.routes';
 import rechargeWallet from './api/routes/wallet.routes';
 import { devWalletRouter } from './api/routes/dev-wallet.routes';
 import { simPaymentsRouter } from './api/routes/sim-payments.routes';
-import walletRoutes from './api/routes/wallet.routes'; // Importación adicional para wallet
-import PaymentsQrRoutes from './api/routes/paymentsQR.routes'; // Importación adicional para QR
+import walletRoutes from './api/routes/wallet.routes';
+import PaymentsQrRoutes from './api/routes/paymentsQR.routes';
 
 // --- FEATURE FLAGS ---
 import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.model';
@@ -77,6 +77,7 @@ const allowedOrigins = [
   'https://devmasters-servineo-frontend-zk3q.vercel.app',
   'https://servineo.app',
   'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:4000',
   'http://localhost:8080',
   'http://localhost:8081',
@@ -86,11 +87,8 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+        callback(null, origin || allowedOrigins[0]);
       } else {
-        // En desarrollo a veces es útil permitir todo si hay problemas de CORS, 
-        // pero para prod mantenemos la seguridad.
-        // callback(new Error('CORS not allowed')); 
         console.log("Origen bloqueado por CORS:", origin);
         callback(null, true); // Permisivo temporalmente para evitar bloqueos en pruebas
       }
@@ -102,7 +100,6 @@ app.use(
 );
 
 // --- MIDDLEWARES GLOBALES ---
-// Aumentamos el límite para permitir cargas de archivos base64 grandes si es necesario
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -112,11 +109,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- MOUNT DE RUTAS (ORGANIZADO) ---
-
-// 1. Rutas Generales y Públicas
-app.use('/api', searchRoutes);
+// 1. Rutas de SignUp, Dispositivos, Búsqueda, Forum, FAQ, Captcha
 app.use('/api/signUp', signUpRoutes);
+app.use('/devices', deviceRouter);
+app.use('/api', searchRoutes);
 app.use('/api', forumRoutes);
 app.use('/api', faqRoutes);
 app.use('/', captchaRoutes);
@@ -127,7 +123,7 @@ app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', jobsRoutes);
-app.use('/api/job-offers', jobOfficial); // Ruta oficial
+app.use('/api/job-offers', jobOfficial); 
 
 // 3. Rutas de Gestión de Usuarios (Auth y Perfiles)
 app.use('/login', authRouter);
@@ -135,7 +131,7 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/user', routerUser); // Redundante si es lo mismo, pero se mantiene por compatibilidad
+app.use('/api/user', routerUser);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/certifications', certificationRoutes);
@@ -143,7 +139,7 @@ app.use('/api/certifications', certificationRoutes);
 // Rutas Control C (Legacy/Específicas)
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
-app.use('/api/controlC/auth', authRouter); // Login principal aquí también
+app.use('/api/controlC/auth', authRouter);
 app.use('/api/controlC/registro', registrarDatosRouter);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
 app.use('/api/controlC/sugerencias', nominatimRouter);
@@ -171,14 +167,14 @@ app.use('/api/fixer/payment-center', PaymentCenterRoutes);
 app.use('/api', CardsRoutes);
 app.use('/api', PaymentRoutes);
 app.use('/api', BankAccountRoutes);
-app.use('/api/lab', CashPayRoutes); // Pagos en efectivo/lab
+app.use('/api/lab', CashPayRoutes);
 app.use('/api', rechargeWallet);
 app.use('/api', myJobsPaymentRoutes);
 app.use('/api/transferencia-bancaria', bankTransferRoutes);
 app.use('/api/v1/invoices', invoiceDetailRouter);
-app.use('/payments', paymentsRouter); // Ruta base para algunos pagos QR
-app.use('/api/payments', PaymentsQrRoutes); // Ruta api para otros pagos QR
-app.use('/api', walletRoutes); // Fixer wallet
+app.use('/payments', paymentsRouter);
+app.use('/api/payments', PaymentsQrRoutes);
+app.use('/api', walletRoutes);
 
 // Feature Flags (Rutas experimentales)
 console.log('FEATURE_DEV_WALLET =', FEATURE_DEV_WALLET);
@@ -190,12 +186,10 @@ if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
 
-// Función exportada para registrar dispositivos (usada en otros módulos)
+// Función exportada para registrar dispositivos 
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };
-// Registramos dispositivos en la app principal también
-app.use('/devices', deviceRouter);
 
 // --- MANEJO DE ERRORES (404) ---
 app.use((req, res) => {
@@ -208,7 +202,6 @@ app.use((req, res) => {
 // --- INICIO DEL SERVIDOR ---
 const PORT = process.env.SERVER_PORT || 8000;
 
-// Solo iniciamos si se ejecuta directamente (no si es importado para tests)
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`Servidor corriendo en puerto ${PORT}`);

@@ -9,11 +9,14 @@ interface GitHubUser {
   githubId: number;
 }
 
+<<<<<<< HEAD
 export async function verifyGithubToken(token: string): Promise<GitHubUser | null> {
   // aquí 'token' es el accessToken de GitHub (lo que tú obtengas en el front)
   return await getGitHubUser(token);
 }
 
+=======
+>>>>>>> version-estable-backup
 export async function getGitHubUser(accessToken: string): Promise<GitHubUser | null> {
   const userResp = await fetch("https://api.github.com/user", {
     headers: { Authorization: `token ${accessToken}` },

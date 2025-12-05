@@ -109,23 +109,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// 1. Rutas de SignUp, Dispositivos, Búsqueda, Forum, FAQ, Captcha
+
+app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
 app.use('/api/signUp', signUpRoutes);
 app.use('/devices', deviceRouter);
 app.use('/api', searchRoutes);
 app.use('/api', forumRoutes);
 app.use('/api', faqRoutes);
 app.use('/', captchaRoutes);
-
-// 2. Rutas de Ofertas y Trabajos
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', jobsRoutes);
 app.use('/api/job-offers', jobOfficial); 
-
-// 3. Rutas de Gestión de Usuarios (Auth y Perfiles)
 app.use('/login', authRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
@@ -135,8 +132,6 @@ app.use('/api/user', routerUser);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/certifications', certificationRoutes);
-
-// Rutas Control C (Legacy/Específicas)
 app.use('/api/controlC/google', googleRouter);
 app.use('/api/controlC/ubicacion', ubicacionRouter);
 app.use('/api/controlC/auth', authRouter);
@@ -151,8 +146,6 @@ app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/controlC/usuario/update', updateProfileRouter);
 app.use("/api/controlC/usuario", deleteAccountRoutes);
-
-// 4. Rutas de Seguridad (2FA y Admin)
 app.use('/api/controlC/sesion2fa', sesion2faRouter);
 app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
 app.use('/api/controlC/codigos2fa', codigos2faRouter);
@@ -161,9 +154,6 @@ app.use('/api/admin', adminRouter);
 app.use('/api/admin', trackingRoutes);
 app.use("/api/admin/chart", chartRoutes);
 app.use('/', SudoersRouter);
-
-// 5. Rutas de Pagos, Billetera y Finanzas 
-app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
 app.use('/api', CardsRoutes);
 app.use('/api', PaymentRoutes);
 app.use('/api', BankAccountRoutes);

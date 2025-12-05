@@ -92,3 +92,52 @@ export const postDescriptionFixer = async (req: Request, res: Response) => {
   }
 };
 
+export const updateWorkLocation = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { workLocation } = req.body;
+
+    // Validar que se proporcionó la ubicación
+    if (!workLocation || typeof workLocation !== 'object') {
+      return res.status(400).json({ message: 'workLocation is required and must be an object' });
+    }
+
+    const { lat, lng, direccion, departamento, pais } = workLocation;
+
+    // Validar coordenadas
+    if (lat === undefined || lng === undefined) {
+      return res.status(400).json({ message: 'lat and lng are required' });
+    }
+
+    // Validar que el usuario existe y es un fixer
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.role !== 'fixer') {
+      return res.status(400).json({ message: 'User is not a fixer' });
+    }
+
+    // Actualizar la ubicación de trabajo
+    user.workLocation = {
+      lat,
+      lng,
+      direccion: direccion || '',
+      departamento: departamento || '',
+      pais: pais || '',
+    };
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Work location updated successfully',
+      user: updatedUser 
+    });
+  } catch (error) {
+    console.error('Error updating work location:', error);
+    res.status(500).json({ message: 'Error updating work location', error });
+  }
+};
+

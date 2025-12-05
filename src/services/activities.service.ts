@@ -76,51 +76,93 @@ async function updateClickCountAtomically(
     }
   });
 
-  const existing = await findExistingClick(userId, jobIdString);
-
-  if (existing) {
-    const updatedActivity = await Activity.findByIdAndUpdate(
-      existing._id,
-      {
-        $inc: { 'metadata.clickCount': 1 },
-        $set: {
-          timestamp: timestamp,
-          date: adjustedDate,
-          role: role,
-          'metadata.jobId': jobIdString,
-          ...metadataSetFields,
+  const pipelineUpdate = [
+    {
+      $set: {
+        userId: { $ifNull: ['$userId', userId] },
+        date: { $ifNull: ['$date', adjustedDate] },
+        role: { $ifNull: ['$role', role] },
+        type: { $ifNull: ['$type', 'click'] },
+        timestamp: timestamp,
+        'metadata.jobId': jobIdString,
+        ...Object.keys(metadataSetFields).reduce((acc, key) => {
+          acc[key] = { $ifNull: [`$${key}`, metadataSetFields[key]] };
+          return acc;
+        }, {} as any),
+        'metadata.clickCount': {
+          $cond: {
+            if: { $gt: [{ $ifNull: ['$metadata.clickCount', 0] }, 0] },
+            then: { $add: [{ $ifNull: ['$metadata.clickCount', 0] }, 1] },
+            else: 1,
+          },
         },
       },
-      { new: true, lean: true },
-    ).exec();
+    },
+  ];
 
-    if (!updatedActivity) {
-      throw new Error('Failed to update activity');
-    }
+  let upsertResult = await Activity.findOneAndUpdate(
+    {
+      userId: userId,
+      type: 'click',
+      'metadata.jobId': jobIdString,
+    } as any,
+    pipelineUpdate,
+    { new: true, lean: true, upsert: true },
+  ).exec();
 
-    return {
-      activity: updatedActivity as unknown as ActivityDoc,
-      isUpdate: true,
-    };
+  if (!upsertResult) {
+    try {
+      const jobIdObj = new Types.ObjectId(jobIdString);
+      upsertResult = await Activity.findOneAndUpdate(
+        {
+          userId: userId,
+          type: 'click',
+          'metadata.jobId': jobIdObj,
+        } as any,
+        pipelineUpdate,
+        { new: true, lean: true, upsert: true },
+      ).exec();
+    } catch (e) {}
   }
 
-  const newActivity = new Activity({
-    userId: userId,
-    date: adjustedDate,
-    role: role,
-    type: 'click',
-    metadata: {
-      ...normalizedMetadata,
-      jobId: jobIdString,
-      clickCount: 1,
-    },
-    timestamp: timestamp,
-  });
+  if (!upsertResult) {
+    const existing = await Activity.findOne({
+      userId: userId,
+      type: 'click',
+      $expr: {
+        $eq: [{ $toString: '$metadata.jobId' }, jobIdString],
+      },
+    } as any).exec();
 
-  const savedActivity = await newActivity.save();
+    if (existing) {
+      upsertResult = await Activity.findByIdAndUpdate(
+        existing._id,
+        {
+          $inc: { 'metadata.clickCount': 1 },
+          $set: {
+            timestamp: timestamp,
+            date: adjustedDate,
+            role: role,
+            'metadata.jobId': jobIdString,
+            ...metadataSetFields,
+          },
+        },
+        { new: true, lean: true },
+      ).exec();
+    }
+  }
+
+  if (!upsertResult) {
+    throw new Error('Failed to create or update activity');
+  }
+
+  const finalResult = upsertResult as any;
+  const clickCount = finalResult?.metadata?.clickCount || 0;
+  const isUpdate = clickCount > 1;
+
   return {
-    activity: savedActivity.toObject() as ActivityDoc,
-    isUpdate: false,
+    activity: finalResult as unknown as ActivityDoc,
+    isUpdate: isUpdate,
   };
 }
 

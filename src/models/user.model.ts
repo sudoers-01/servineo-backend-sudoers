@@ -4,8 +4,8 @@ export interface IUser extends Document {
   name: string;
   email: string;
   url_photo?: string;
+  description?: string; 
   role: string;
-  description?: string;
 
   authProviders?: Array<{
     provider: string;
@@ -39,6 +39,10 @@ export interface IUser extends Document {
     tarjetaCredito?: boolean;
   };
 
+  experience?: {
+    descripcion?: string;
+  };
+
   workLocation?: {
     lat?: number;
     lng?: number;
@@ -46,6 +50,8 @@ export interface IUser extends Document {
     departamento?: string;
     pais?: string;
   };
+
+  stripeCustomerId?: string; // ⚡ Campo nuevo para Stripe
 }
 
 const userSchema = new Schema<IUser>(
@@ -113,6 +119,39 @@ const userSchema = new Schema<IUser>(
       departamento: { type: String },
       pais: { type: String },
     },
+
+    ci: { type: String },
+
+    servicios: [{ type: String }],
+
+    vehiculo: {
+      hasVehiculo: { type: Boolean },
+      tipoVehiculo: { type: String },
+    },
+
+    acceptTerms: { type: Boolean, default: false },
+
+    fixerProfile: { type: String, required: false },
+
+    metodoPago: {
+      hasEfectivo: { type: Boolean, default: false },
+      qr: { type: Boolean, default: false },
+      tarjetaCredito: { type: Boolean, default: false },
+    },
+
+    experience: {
+      descripcion: { type: String },
+    },
+
+    workLocation: {
+      lat: { type: Number },
+      lng: { type: Number },
+      direccion: { type: String },
+      departamento: { type: String },
+      pais: { type: String },
+    },
+
+    stripeCustomerId: { type: String }, // ⚡ Agregado
   },
   {
     collection: "users",

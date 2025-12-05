@@ -114,6 +114,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// 2FA routes
+app.use('/api/controlC/sesion2fa', sesion2faRouter);
+app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
+app.use('/api/controlC/codigos2fa', codigos2faRouter);
+app.use('/api/controlC/2fa', twoFaRouter);
+
 
 app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
 app.use('/api/signUp', signUpRoutes);
@@ -180,6 +186,12 @@ if (FEATURE_DEV_WALLET) {
 if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
+app.use('/devices', deviceRouter);
+
+
+app.use('/api', forumRoutes);
+app.use('/api', faqRoutes);
+app.use('/', captchaRoutes);
 
 // Función exportada para registrar dispositivos 
 export const registerRoutes = (app: any) => {

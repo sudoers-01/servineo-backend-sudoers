@@ -4,11 +4,33 @@ import Notification from './notification.model';
 import { AuthenticatedRequest } from '../../api/middleware/auth.middleware';
 
 const buildUserFilter = (userId?: string) => {
-  if (!userId || !Types.ObjectId.isValid(userId)) {
+  if (!userId) {
     return null;
   }
 
-  return { users_id: new Types.ObjectId(userId) };
+  const normalizedId = userId.trim();
+  const filters: Array<Record<string, unknown>> = [
+    {
+      $expr: {
+        $eq: [
+          {
+            $cond: [
+              { $eq: [{ $type: '$users_id' }, 'objectId'] },
+              { $toString: '$users_id' },
+              '$users_id',
+            ],
+          },
+          normalizedId,
+        ],
+      },
+    },
+  ];
+
+  if (Types.ObjectId.isValid(normalizedId)) {
+    filters.unshift({ users_id: new Types.ObjectId(normalizedId) });
+  }
+
+  return filters.length === 1 ? filters[0] : { $or: filters };
 };
 
 /**
@@ -20,12 +42,11 @@ export async function getAllNotificationsController(
 ): Promise<Response> {
   try {
     const userFilter = buildUserFilter(req.userId);
-
     if (!userFilter) {
       return res.status(401).json({ message: 'No autorizado' });
     }
 
-    const notifications = await Notification.find(userFilter).sort({ creado: -1 });
+    const notifications = await Notification.find(userFilter).sort({ creado: -1, createdAt: -1 });
 
     return res.status(200).json(notifications);
   } catch (error: any) {
@@ -57,6 +78,7 @@ export async function getNotificationsByTypeController(
       notification_type: notification_type,
     }).sort({
       creado: -1,
+      createdAt: -1,
     });
 
     if (notifications.length === 0) {

@@ -71,13 +71,14 @@ const allowedOrigins = [
   'https://devmasters-servineo-frontend-zk3q.vercel.app',
   'https://servineo.app',
   'http://localhost:3000',
+  'http://localhost:3001'
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+        callback(null, origin || allowedOrigins[0]);
       } else {
         callback(new Error('CORS not allowed'));
       }

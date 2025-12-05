@@ -156,7 +156,7 @@ export const getMapLocations = async (req: Request, res: Response) => {
 export const getTrackingMetrics = async (req: Request, res: Response) => {
   try {
     const { startDate, endDate } = req.query;
-    let matchStage: any = {};
+    const matchStage: any = {};
 
     if (startDate || endDate) {
       matchStage.starting_time = {};

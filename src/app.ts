@@ -21,6 +21,10 @@ import experienceRoutes from './routes/experience.routes';
 import userProfileRoutes from './routes/userProfile.routes';
 import userRoutes from './routes/user.routes';
 import jobOfficial from './routes/job_offer.routes';
+import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
+import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
+import googleRouter from '../src/api/routes/userManagement/google.routes';
+import ubicacionRouter from '../src/api/routes/userManagement/ubicacion.routes';
 import certificationRoutes from './routes/certification.routes';
 import authRouter from './api/routes/userManagement/login.routes';
 import modificarDatosRouter from './api/routes/userManagement/modificarDatos.routes';
@@ -60,10 +64,6 @@ import forumRoutes from './api/routes/forum.routes';
 import faqRoutes from './api/routes/faq.routes';
 import captchaRoutes from './api/routes/captcha.routes';
 
-
-import deleteAccountRoutes from "../src/api/routes/userManagement/deleteAccount.routes";
-import updateProfileRouter from "../src/api/routes/userManagement/updateProfile.routes";
-
 const app = express();
 
 const allowedOrigins = [
@@ -97,8 +97,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/signUp', signUpRoutes);
-app.use('/devices', deviceRouter);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
 app.use('/api/newOffers', newoffersRoutes);
@@ -109,6 +107,7 @@ app.use('/api/admin', trackingRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/login', authRouter);
+
 app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
@@ -121,12 +120,14 @@ app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/admin/chart', chartRoutes);
+app.use("/api/admin/chart", chartRoutes);
 app.use('/api/user', routerUser);
 //ruta oficial para ofertas de trabajo no borrar
 app.use('/api/job-offers', jobOfficial);
 app.use('/api/certifications', certificationRoutes);
-
+export const registerRoutes = (app: any) => {
+  app.use('/devices', deviceRouter);
+};
 // --- TUS RUTAS (Añadidas) ---
 app.use('/api', CardsRoutes);
 app.use('/api', PaymentRoutes);

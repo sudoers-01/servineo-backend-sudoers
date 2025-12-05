@@ -27,10 +27,10 @@ import faqRoutes from './api/routes/faq.routes';
 import captchaRoutes from './api/routes/captcha.routes';
 
 // --- RUTAS DE GESTIÓN DE USUARIOS (CONTROL C) ---
-import registrarDatosRouter from '../src/api/routes/userManagement/registrarDatos.routes';
-import fotoPerfilRouter from '../src/api/routes/userManagement/fotoPerfil.routes';
-import googleRouter from '../src/api/routes/userManagement/google.routes';
-import ubicacionRouter from '../src/api/routes/userManagement/ubicacion.routes';
+import registrarDatosRouter from './api/routes/userManagement/registrarDatos.routes';
+import fotoPerfilRouter from './api/routes/userManagement/fotoPerfil.routes';
+import googleRouter from './api/routes/userManagement/google.routes';
+import ubicacionRouter from './api/routes/userManagement/ubicacion.routes';
 import authRouter from './api/routes/userManagement/login.routes';
 import modificarDatosRouter from './api/routes/userManagement/modificarDatos.routes';
 import nominatimRouter from './api/routes/userManagement/sugerencias.routes';
@@ -47,8 +47,8 @@ import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
 import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
 import signUpRoutes from './api/routes/userManagement/signUp.routes';
-import deleteAccountRoutes from "../src/api/routes/userManagement/deleteAccount.routes";
-import updateProfileRouter from "../src/api/routes/userManagement/updateProfile.routes";
+import deleteAccountRoutes from './api/routes/userManagement/deleteAccount.routes';
+import updateProfileRouter from './api/routes/userManagement/updateProfile.routes';
 
 // --- RUTAS DE PAGOS Y BILLETERA ---
 import CardsRoutes from './api/routes/card.routes';
@@ -90,7 +90,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, origin || allowedOrigins[0]);
       } else {
-        console.log("Origen bloqueado por CORS:", origin);
+        console.log('Origen bloqueado por CORS:', origin);
         callback(null, true); // Permisivo temporalmente para evitar bloqueos en pruebas
       }
     },
@@ -110,8 +110,7 @@ app.use((req, res, next) => {
   next();
 });
 
-
-app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
+app.use('/api/fixer/payment-center', PaymentCenterRoutes);
 app.use('/api/signUp', signUpRoutes);
 app.use('/devices', deviceRouter);
 app.use('/api', searchRoutes);
@@ -127,7 +126,7 @@ app.use('/api/newOffers', newoffersRoutes);
 app.use('/api/fixers', fixerRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', jobsRoutes);
-app.use('/api/job-offers', jobOfficial); 
+app.use('/api/job-offers', jobOfficial);
 app.use('/login', authRouter);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
@@ -150,10 +149,10 @@ app.use('/api/controlC/foto-perfil', fotoPerfilRouter);
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/api/controlC/cliente', clienteRouter);
 app.use('/api/controlC/usuario/update', updateProfileRouter);
-app.use("/api/controlC/usuario", deleteAccountRoutes);
+app.use('/api/controlC/usuario', deleteAccountRoutes);
 app.use('/api/admin', adminRouter);
 app.use('/api/admin', trackingRoutes);
-app.use("/api/admin/chart", chartRoutes);
+app.use('/api/admin/chart', chartRoutes);
 app.use('/', SudoersRouter);
 app.use('/api', CardsRoutes);
 app.use('/api', PaymentRoutes);
@@ -177,7 +176,7 @@ if (FEATURE_SIM_PAYMENTS) {
   app.use('/api/sim', simPaymentsRouter);
 }
 
-// Función exportada para registrar dispositivos 
+// Función exportada para registrar dispositivos
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };
@@ -194,9 +193,9 @@ app.use((req, res) => {
 const PORT = process.env.SERVER_PORT || 8000;
 
 if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`Servidor corriendo en puerto ${PORT}`);
-    });
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
+  });
 }
 
 export default app;

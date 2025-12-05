@@ -58,7 +58,6 @@ export async function unlinkLoginMethod(req: Request, res: Response) {
 
     const mongoClient = await clientPromise;
     const db = mongoClient.db("ServineoBD");
-
     const user = await db.collection("users").findOne({ _id: new ObjectId(userId) });
     if (!user) {
       return res.status(404).json({
@@ -74,7 +73,6 @@ export async function unlinkLoginMethod(req: Request, res: Response) {
         message: `El método ${provider} no está vinculado.`,
       });
     }
-
     const result = await db.collection("users").findOneAndUpdate(
       { _id: new ObjectId(userId) },
       { $pull: { authProviders: { provider } } } as unknown as import("mongodb").UpdateFilter<any>,

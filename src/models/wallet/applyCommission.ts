@@ -1,5 +1,6 @@
-import { computeWalletFlags } from './flags';
-import type { WalletModelAdapter, WalletSlice } from './adapter';
+// servineo-backend/src/models/wallet/applyCommission.ts
+import { computeWalletFlags } from "./flags";
+import type { WalletModelAdapter } from "./adapter";
 import { logFlagChangeHuman } from './prettyLog';
 
 
@@ -87,16 +88,28 @@ export async function applyTopUpToWallet(
   });
 
   if (changed) {
-    logFlagChangeHuman({
-      fixerId,
-      pre,
-      post,
-      thr,
-      state,
-      crossed,
-      flags: nextFlags,
-      currency: 'BOB', // o quítalo si no quieres mostrarlo
-    });
+  logFlagChangeHuman({
+    fixerId,
+    pre,
+    post,
+    thr,
+    state,
+    crossed,
+    flags: nextFlags,
+    currency: 'BOB', // o quítalo si no quieres mostrarlo
+  });
+}
+
+// usar patch, igual que en applyCommissionToWallet
+  const patch: any = {
+    balance: post,
+    flags: nextFlags,
+  };
+
+  // Si después de la recarga el saldo sigue en low/critical,
+  // actualizamos la marca de última notificación
+  if (nextFlags.needsLowAlert || nextFlags.needsCriticalAlert) {
+    patch.lastLowBalanceNotification = new Date();
   }
 
   await adapter.updateWalletById(fixerId, {

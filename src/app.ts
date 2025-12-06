@@ -74,6 +74,8 @@ import forumRoutes from './api/routes/forum.routes';
 import faqRoutes from './api/routes/faq.routes';
 import captchaRoutes from './api/routes/captcha.routes';
 
+import editProfileRoutes from './api/routes/userManagement/editProfile.routes';
+
 const app = express();
 
 const allowedOrigins = [
@@ -106,7 +108,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use('/api', HealthRoutes);
+
+app.use('/api/editProfile', editProfileRoutes);
+app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
 app.use('/api/signUp', signUpRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
@@ -172,10 +176,6 @@ if (FEATURE_SIM_PAYMENTS) {
 }
 app.use('/devices', deviceRouter);
 
-app.use('/api/controlC/sesion2fa', sesion2faRouter);
-app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
-app.use('/api/controlC/codigos2fa', codigos2faRouter);
-app.use('/api/controlC/2fa', twoFaRouter);
 app.use('/api', forumRoutes);
 app.use('/api', faqRoutes);
 app.use('/', captchaRoutes);

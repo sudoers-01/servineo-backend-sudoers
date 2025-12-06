@@ -60,6 +60,8 @@ import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
 //nuevas rutas signup
 import signUpRoutes from './api/routes/userManagement/signUp.routes';
+//rutas notificaciones
+import notificationRoutes from './modules/notifications/notification.routes';
 import forumRoutes from './api/routes/forum.routes';
 import faqRoutes from './api/routes/faq.routes';
 import captchaRoutes from './api/routes/captcha.routes';
@@ -71,14 +73,13 @@ const allowedOrigins = [
   'https://devmasters-servineo-frontend-zk3q.vercel.app',
   'https://servineo.app',
   'http://localhost:3000',
-  'http://localhost:3001'
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin || allowedOrigins[0]);
+        callback(null, true);
       } else {
         callback(new Error('CORS not allowed'));
       }
@@ -125,6 +126,8 @@ app.use('/api/user', routerUser);
 //ruta oficial para ofertas de trabajo no borrar
 app.use('/api/job-offers', jobOfficial);
 app.use('/api/certifications', certificationRoutes);
+app.use('/api/signUp', signUpRoutes);
+app.use('/api/notifications', notificationRoutes);
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

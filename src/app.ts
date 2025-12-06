@@ -65,6 +65,8 @@ import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
 //nuevas rutas signup
 import signUpRoutes from './api/routes/userManagement/signUp.routes';
+//rutas notificaciones
+import notificationRoutes from './modules/notifications/notification.routes';
 import forumRoutes from './api/routes/forum.routes';
 import faqRoutes from './api/routes/faq.routes';
 import captchaRoutes from './api/routes/captcha.routes';
@@ -113,6 +115,7 @@ app.use('/api/admin', trackingRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/login', authRouter);
+
 app.use('/api/user-profiles', userProfileRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/controlC/modificar-datos', modificarDatosRouter);
@@ -130,6 +133,8 @@ app.use('/api/user', routerUser);
 //ruta oficial para ofertas de trabajo no borrar
 app.use('/api/job-offers', jobOfficial);
 app.use('/api/certifications', certificationRoutes);
+app.use('/api/signUp', signUpRoutes);
+app.use('/api/notifications', notificationRoutes);
 export const registerRoutes = (app: any) => {
   app.use('/devices', deviceRouter);
 };

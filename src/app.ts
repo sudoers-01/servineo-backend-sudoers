@@ -69,6 +69,8 @@ import PaymentsQrRoutes from './api/routes/paymentsQR.routes';
 // --- FEATURE FLAGS ---
 import { FEATURE_DEV_WALLET, FEATURE_SIM_PAYMENTS } from './models/featureFlags.model';
 
+import editProfileRoutes from './api/routes/userManagement/editProfile.routes';
+
 const app = express();
 
 // --- CONFIGURACIÓN CORS ---
@@ -109,6 +111,14 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
+
+
+app.use('/api/editProfile', editProfileRoutes);
+
+app.use('/api/controlC/sesion2fa', sesion2faRouter);
+app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
+app.use('/api/controlC/codigos2fa', codigos2faRouter);
+app.use('/api/controlC/2fa', twoFaRouter);
 
 
 app.use('/api/fixer/payment-center', PaymentCenterRoutes); 

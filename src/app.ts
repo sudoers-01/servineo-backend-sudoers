@@ -66,8 +66,8 @@ import sesion2faRouter from './api/routes/userManagement/sesion2fa.routes';
 import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
 import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
-import deleteAccountRoutes from "../src/api/routes/userManagement/deleteAccount.routes";
-import updateProfileRouter from "../src/api/routes/userManagement/updateProfile.routes";
+import deleteAccountRoutes from './api/routes/userManagement/deleteAccount.routes';
+import updateProfileRouter from './api/routes/userManagement/updateProfile.routes';
 //nuevas rutas signup
 import signUpRoutes from './api/routes/userManagement/signUp.routes';
 //rutas notificaciones
@@ -110,9 +110,8 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use('/api/editProfile', editProfileRoutes);
-app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
+app.use('/api/fixer/payment-center', PaymentCenterRoutes);
 app.use('/api/signUp', signUpRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
@@ -134,7 +133,7 @@ app.use('/api/controlC/cerrar-sesiones', cerrarSesionesRouter);
 app.use('/api/controlC/ultimo-cambio', ultimoCambioRouter);
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
 app.use('/api/controlC/usuario/update', updateProfileRouter);
-app.use("/api/controlC/usuario", deleteAccountRoutes);
+app.use('/api/controlC/usuario', deleteAccountRoutes);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);

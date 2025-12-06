@@ -66,6 +66,8 @@ import sesion2faRouter from './api/routes/userManagement/sesion2fa.routes';
 import ingresar2faRouter from './api/routes/userManagement/ingresar2fa.routes';
 import codigos2faRouter from './api/routes/userManagement/codigos2fa.routes';
 import twoFaRouter from './api/routes/userManagement/2fa.routes';
+import deleteAccountRoutes from "../src/api/routes/userManagement/deleteAccount.routes";
+import updateProfileRouter from "../src/api/routes/userManagement/updateProfile.routes";
 //nuevas rutas signup
 import signUpRoutes from './api/routes/userManagement/signUp.routes';
 //rutas notificaciones
@@ -73,6 +75,8 @@ import notificationRoutes from './modules/notifications/notification.routes';
 import forumRoutes from './api/routes/forum.routes';
 import faqRoutes from './api/routes/faq.routes';
 import captchaRoutes from './api/routes/captcha.routes';
+
+import editProfileRoutes from './api/routes/userManagement/editProfile.routes';
 
 const app = express();
 
@@ -106,7 +110,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use('/api', HealthRoutes);
+
+app.use('/api/editProfile', editProfileRoutes);
+app.use('/api/fixer/payment-center', PaymentCenterRoutes); 
 app.use('/api/signUp', signUpRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/devmaster', jobOfertRoutes);
@@ -127,6 +133,8 @@ app.use('/api/controlC/cambiar-contrasena', cambiarContrasenaRouter);
 app.use('/api/controlC/cerrar-sesiones', cerrarSesionesRouter);
 app.use('/api/controlC/ultimo-cambio', ultimoCambioRouter);
 app.use('/api/controlC/obtener-password', obtenerContrasenaRouter);
+app.use('/api/controlC/usuario/update', updateProfileRouter);
+app.use("/api/controlC/usuario", deleteAccountRoutes);
 app.use('/auth', githubAuthRouter);
 app.use('/auth', discordRoutes);
 app.use('/api/controlC/cliente', clienteRouter);
@@ -172,10 +180,6 @@ if (FEATURE_SIM_PAYMENTS) {
 }
 app.use('/devices', deviceRouter);
 
-app.use('/api/controlC/sesion2fa', sesion2faRouter);
-app.use('/api/controlC/2fa-ingresar', ingresar2faRouter);
-app.use('/api/controlC/codigos2fa', codigos2faRouter);
-app.use('/api/controlC/2fa', twoFaRouter);
 app.use('/api', forumRoutes);
 app.use('/api', faqRoutes);
 app.use('/', captchaRoutes);
